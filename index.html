@@ -61,7 +61,7 @@
     <nav class="sections">
 
       <button type="button" class="row is-live" data-key="residence">
-        <span class="row__name"><span class="hl">Residence</span></span>
+        <span class="row__name">Residence</span>
         <span class="row__cue">&rarr;</span>
         <span class="row__desc">Housing, costs, dates, photos</span>
       </button>
@@ -121,6 +121,13 @@
         and accept your admission offer by <strong>June&nbsp;2</strong>. Miss either date and the
         guarantee is gone.
       </p>
+    </div>
+
+    <!-- 정렬 버튼. data-sort 값을 app.js 가 읽습니다. -->
+    <div class="sortbar">
+      <span class="sortbar__label">Sort</span>
+      <button type="button" class="sortbtn is-on" data-sort="price">Lowest price</button>
+      <button type="button" class="sortbtn" data-sort="name">A&ndash;Z</button>
     </div>
 
     <p class="count" id="res-count"></p>

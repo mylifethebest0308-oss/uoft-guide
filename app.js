@@ -124,14 +124,26 @@ function formatPrice(n) {
    비어 있는 항목은 자동으로 건너뜁니다.
    예) $18,000 · Single · Meal included */
 
+/* ---- 카드에 들어갈 가격 줄 ----
+   범위가 있으면 최저~최고를 모두 보여줍니다.
+   예) $22,858 – $27,120 */
+
+function buildPriceLine(item) {
+  if (!item.price) return "";
+
+  const text = item.priceMax
+    ? formatPrice(item.price) + " – " + formatPrice(item.priceMax)
+    : formatPrice(item.price);
+
+  return text;
+}
+
+
+/* ---- 카드 아래 한 줄 요약 (방 형태와 식사) ----
+   비어 있는 항목은 자동으로 건너뜁니다. */
+
 function buildMetaLine(item) {
   const parts = [];
-
-  // 가격이 범위면 카드에서는 "from $21,933" 처럼 낮은 쪽만 보여줍니다.
-  // (카드가 너무 길어지지 않게. 전체 범위는 상세 화면에 나옵니다.)
-  if (item.price) {
-    parts.push(item.priceMax ? "from " + formatPrice(item.price) : formatPrice(item.price));
-  }
 
   if (item.roomType) parts.push(item.roomType);
 
@@ -155,18 +167,71 @@ function buildCard(item) {
 
   const emptyClass = item.photoUrl ? "" : " is-empty";
 
+  /* 가격을 오해하기 쉬운 경우에 딱지를 붙입니다.
+     - 식사플랜이 없어서 싸 보이는 곳
+     - 계약 기간이 달라서 비싸 보이는 곳
+     둘 다 똑같이 중요하므로 같은 노란 딱지로 표시합니다. */
+  /* 겨울방학에 어떻게 되는지를 목록에서 바로 보이게 합니다.
+     집에 못 가는 유학생에게는 가격만큼이나 중요한 정보입니다. */
+  const badges = [];
+
+  if (item.winterBreakCost === "paid") {
+    badges.push("Winter break costs extra");
+  } else if (item.winterBreakCost === "none") {
+    badges.push("Closed over winter break");
+  } else if (item.winterBreakClosed) {
+    badges.push("Closed over winter break");
+  }
+
+  if (item.mealPlan === "Optional" || item.mealPlan === "None") {
+    badges.push("Food not included");
+  }
+  if (item.priceUnit) {
+    badges.push(item.priceUnit.replace("per ", ""));
+  }
+
+  const badgeHtml = badges.length
+    ? '<span class="card__badges">' +
+        badges.map(function (b) {
+          return '<span class="badge">' + esc(b) + '</span>';
+        }).join("") +
+      '</span>'
+    : "";
+
+  /* 주소는 카드에 넣지 않습니다.
+     주소를 아는 곳과 모르는 곳이 섞여 있어 카드 높이가 들쭉날쭉해지기 때문입니다.
+     주소는 상세 화면의 OFFICIAL INFO 에 나옵니다. */
   return '' +
     '<button type="button" class="card" data-id="' + esc(item.id) + '">' +
       '<span class="card__photo' + emptyClass + '">' + photo + '</span>' +
       '<span class="card__body">' +
         '<span class="card__name">' + esc(item.name) + '</span>' +
         '<span class="card__cue">&rarr;</span>' +
+        '<span class="card__price">' + esc(buildPriceLine(item)) + '</span>' +
         '<span class="card__meta">' + esc(buildMetaLine(item)) + '</span>' +
-        (item.address
-          ? '<span class="card__addr">' + esc(item.address) + '</span>'
-          : "") +
+        badgeHtml +
       '</span>' +
     '</button>';
+}
+
+
+/* ---- 정렬 ----
+   sortMode 에 담긴 값에 따라 목록 순서가 바뀝니다.
+   처음에는 "price" 입니다. 기숙사에서 제일 먼저 궁금한 게 돈이라서요. */
+
+let sortMode = "price";
+
+function sortedResidences() {
+  // slice() 로 복사본을 만듭니다. 원본 RESIDENCES 순서는 건드리지 않습니다.
+  const list = RESIDENCES.slice();
+
+  if (sortMode === "price") {
+    list.sort(function (a, b) { return (a.price || 0) - (b.price || 0); });
+  } else {
+    list.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  }
+
+  return list;
 }
 
 
@@ -188,8 +253,8 @@ function renderResidenceList() {
     return;
   }
 
-  // 카드들을 만들어서 한 번에 넣습니다
-  listBox.innerHTML = RESIDENCES.map(buildCard).join("");
+  // 정렬한 뒤 카드들을 만들어서 한 번에 넣습니다
+  listBox.innerHTML = sortedResidences().map(buildCard).join("");
 
   // 개수 표시. 1개일 때는 residence, 여러 개면 residences
   if (countBox) {
@@ -204,6 +269,28 @@ function renderResidenceList() {
     });
   });
 }
+
+
+/* ---- 정렬 버튼 누르기 ---- */
+
+document.querySelectorAll(".sortbtn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+
+    // 이미 켜져 있는 버튼을 또 누르면 아무 일도 안 합니다
+    if (sortMode === btn.dataset.sort) return;
+
+    sortMode = btn.dataset.sort;
+
+    // 눌린 버튼만 켜진 모양으로 바꿉니다
+    document.querySelectorAll(".sortbtn").forEach(function (b) {
+      b.classList.remove("is-on");
+    });
+    btn.classList.add("is-on");
+
+    // 목록을 새 순서로 다시 그립니다
+    renderResidenceList();
+  });
+});
 
 
 /* ---- 페이지가 열릴 때 목록을 미리 만들어 둡니다 ---- */
@@ -291,7 +378,9 @@ function buildOfficialBullets(item) {
   if (item.roomType) rows.push(["Room type", item.roomType]);
 
   if (item.mealPlan) {
-    const mealText = item.mealPlan === "None" ? "Not offered" : item.mealPlan;
+    const mealText = item.mealPlan === "Included" ? "Mandatory"
+                   : item.mealPlan === "Optional" ? "Not required"
+                   : "Not offered";
     rows.push(["Meal plan", mealText]);
   }
 
@@ -312,6 +401,60 @@ function buildOfficialBullets(item) {
 }
 
 
+/* ---- 밀플랜 목록 만들기 ----
+   플랜 이름 + 점 찍은 설명 + 기울임체 한 줄.
+   금액이 있으면 이름 오른쪽에 붙습니다.
+   bullets 나 note 가 없으면 그 줄은 안 나옵니다. */
+
+function buildMealPlanList(plans) {
+  if (!Array.isArray(plans) || plans.length === 0) return "";
+
+  const cards = plans.map(function (pl) {
+    const bullets = Array.isArray(pl.bullets)
+      ? pl.bullets.filter(function (x) { return x; })
+      : [];
+
+    return '<article class="plan">' +
+             '<div class="plan__top">' +
+               '<h4 class="plan__name">' + esc(pl.label) + '</h4>' +
+               (pl.price
+                 ? '<span class="plan__price">' + esc(formatPrice(pl.price)) +
+                   (pl.priceLabel ? ' <span class="plan__pricelabel">' + esc(pl.priceLabel) + '</span>' : "") +
+                   '</span>'
+                 : "") +
+             '</div>' +
+             (bullets.length
+               ? '<ul class="plan__list">' +
+                   bullets.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") +
+                 '</ul>'
+               : "") +
+             (pl.note ? '<p class="plan__note">' + esc(pl.note) + '</p>' : "") +
+           '</article>';
+  }).join("");
+
+  return '<div class="plans">' + cards + '</div>';
+}
+
+
+/* ---- 방 종류별 요금 목록 만들기 ----
+   왼쪽에 방 이름, 오른쪽에 금액을 표처럼 보여줍니다.
+   비어 있으면 그 구역 전체가 안 나옵니다. */
+
+function buildPriceList(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return "";
+
+  const lines = rows.map(function (r) {
+    const priceText = formatPrice(r.price) + (r.unit ? r.unit : "");
+    return '<li class="fact fact--price">' +
+             '<span class="fact__value">' + esc(r.label) + '</span>' +
+             '<span class="fact__amount">' + esc(priceText) + '</span>' +
+           '</li>';
+  }).join("");
+
+  return '<ul class="facts">' + lines + '</ul>';
+}
+
+
 /* ---- 상세 화면 내용 만들기 ---- */
 
 function buildDetail(item) {
@@ -324,24 +467,7 @@ function buildDetail(item) {
     html.push('<p class="lede">' + esc(item.summary) + '</p>');
   }
 
-  /* 2. 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴 */
-  const embed = youtubeEmbed(item.videoUrl);
-  if (embed) {
-    html.push(
-      '<div class="media">' +
-        '<div class="video">' +
-          '<iframe src="' + esc(embed) + '" title="' + esc(item.name) + ' video" ' +
-          'frameborder="0" allowfullscreen ' +
-          'allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"></iframe>' +
-        '</div>' +
-        (item.videoCredit
-          ? '<p class="credit">' + esc(item.videoCredit) + '</p>'
-          : "") +
-      '</div>'
-    );
-  }
-
-  /* 3. 사진 — 대표 사진 + 추가 사진들 */
+  /* 2. 사진 — 학교 공식 사진이 맨 위에 옵니다 */
   const photos = [];
   if (item.photoUrl) photos.push(item.photoUrl);
   if (Array.isArray(item.morePhotos)) {
@@ -353,7 +479,29 @@ function buildDetail(item) {
       return '<img class="strip__img" src="' + esc(src) + '" alt="' + esc(item.name) + '" ' +
              'loading="lazy" onerror="this.remove();">';
     }).join("");
-    html.push('<div class="strip">' + imgs + '</div>');
+    html.push(
+      '<div class="media">' +
+        '<div class="strip">' + imgs + '</div>' +
+        '<p class="credit">Official U of T photos</p>' +
+      '</div>'
+    );
+  }
+
+  /* 3. 공식 투어 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴 */
+  const embed = youtubeEmbed(item.videoUrl);
+  if (embed) {
+    html.push(
+      '<div class="media">' +
+        '<div class="video">' +
+          '<iframe src="' + esc(embed) + '" title="' + esc(item.name) + ' residence tour" ' +
+          'frameborder="0" allowfullscreen ' +
+          'allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"></iframe>' +
+        '</div>' +
+        '<p class="credit">' +
+          (item.videoCredit ? esc(item.videoCredit) : "Official residence tour") +
+        '</p>' +
+      '</div>'
+    );
   }
 
   /* 4. 제일 중요한 정보 — 노란 박스 */
@@ -369,6 +517,10 @@ function buildDetail(item) {
 
     keyLines.push('<p class="keybox__main">' + esc(priceText) +
                   ' <span class="keybox__unit">' + esc(unit) + '</span></p>');
+
+    if (item.priceNote) {
+      keyLines.push('<p class="keybox__sub">' + esc(item.priceNote) + '</p>');
+    }
   }
   if (item.deadline) {
     const passed = isPastDeadline(item.deadline);
@@ -393,6 +545,113 @@ function buildDetail(item) {
       '</section>'
     );
   }
+
+  /* 5-2. 방 종류별 요금 */
+  const roomList = buildPriceList(item.roomOptions);
+  if (roomList) {
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">Room options &amp; prices</h3>' +
+        roomList +
+      '</section>'
+    );
+  }
+
+  /* 5-3. 밀플랜 */
+  const mealList = buildMealPlanList(item.mealPlans);
+  if (mealList || item.mealNote || item.mealSystem) {
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">Meal plan</h3>' +
+        mealList +
+        (item.mealNote ? '<p class="blocknote">' + esc(item.mealNote) + '</p>' : "") +
+        (item.mealSystem ? '<p class="blocknote">' + esc(item.mealSystem) + '</p>' : "") +
+      '</section>'
+    );
+  }
+
+  /* 5-3b. 건물이 여러 채인 경우 각각 설명.
+     halls 가 비어 있으면 이 구역 전체가 안 나옵니다. */
+  const halls = Array.isArray(item.halls) ? item.halls.filter(function (h) { return h && h.name; }) : [];
+
+  if (halls.length > 0) {
+    const cards = halls.map(function (h) {
+      const bits = [];
+      if (h.built) bits.push("Built " + h.built);
+      if (h.capacity) bits.push(h.capacity);
+
+      return '<article class="hall">' +
+               '<h4 class="hall__name">' + esc(h.name) + '</h4>' +
+               (bits.length
+                 ? '<p class="hall__tags">' + esc(bits.join(" · ")) + '</p>'
+                 : "") +
+               (h.rooms ? '<p class="hall__rooms">' + esc(h.rooms) + '</p>' : "") +
+               (h.note ? '<p class="hall__note">' + esc(h.note) + '</p>' : "") +
+             '</article>';
+    }).join("");
+
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">' + halls.length + ' buildings to choose from</h3>' +
+        '<div class="halls">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  /* 5-4. 겨울방학 — 머물 수 있는지, 돈이 드는지 */
+  if (item.winterBreak || item.winterBreakDetail) {
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">Winter break</h3>' +
+        (item.winterBreak
+          ? '<p class="verdict' + (item.winterBreakClosed ? " verdict--warn" : "") + '">' +
+              esc(item.winterBreak) + '</p>'
+          : "") +
+        (item.winterBreakDetail
+          ? '<p class="blocknote">' + esc(item.winterBreakDetail) + '</p>'
+          : "") +
+      '</section>'
+    );
+  }
+
+  /* 5-5. 층별 방 사진 — 직접 찍어서 올릴 자리.
+     아직 사진이 없으면 "곧 올라올 자리"라고 안내합니다.
+     data.js 의 floorPhotos 에 { floor, caption, url } 을 넣으면 채워집니다. */
+  const floors = Array.isArray(item.floorPhotos)
+    ? item.floorPhotos.filter(function (f) { return f && f.url; })
+    : [];
+
+  let floorInner;
+  if (floors.length > 0) {
+    floorInner = '<div class="floors">' +
+      floors.map(function (f) {
+        return '<figure class="floor">' +
+                 '<img class="floor__img" src="' + esc(f.url) + '" ' +
+                 'alt="' + esc(item.name) + ' ' + esc(f.floor || "") + '" ' +
+                 'loading="lazy" onerror="this.parentElement.remove();">' +
+                 '<figcaption class="floor__cap">' +
+                   (f.floor ? '<span class="floor__num">' + esc(f.floor) + '</span>' : "") +
+                   (f.caption ? esc(f.caption) : "") +
+                 '</figcaption>' +
+               '</figure>';
+      }).join("") +
+    '</div>';
+  } else {
+    floorInner = '<div class="floors-empty">' +
+                   '<p class="floors-empty__title">No student photos yet</p>' +
+                   '<p class="floors-empty__body">' +
+                     'Real room photos, floor by floor. Official photos only show the good rooms &mdash; ' +
+                     'these will show what you actually get.' +
+                   '</p>' +
+                 '</div>';
+  }
+
+  html.push(
+    '<section class="block block--student">' +
+      '<h3 class="block__head">Rooms by floor</h3>' +
+      floorInner +
+    '</section>'
+  );
 
   /* 6. 학생 의견 — 없으면 이 부분 전체가 안 나옴 */
   const notes = Array.isArray(item.studentNote)

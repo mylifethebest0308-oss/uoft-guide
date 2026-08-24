@@ -7,12 +7,17 @@
 /* ---- 색과 글씨체를 여기 한 곳에 모아둡니다.
         나중에 색을 바꾸고 싶으면 이 값만 고치면 전체가 바뀝니다. ---- */
 :root {
-  --paper:      #EFEDE4;   /* 종이 바탕색 */
-  --ink:        #14130E;   /* 글자색 (완전한 검정보다 살짝 부드럽게) */
-  --ink-soft:   #6E6B5E;   /* 설명글 */
-  --ink-faint:  #A5A294;   /* 아직 안 열린 섹션 */
+  --bg:         #E6EAF0;   /* 화면 전체 바탕. 순백보다 어둡게 해서 눈부심을 줄입니다 */
+  --paper:      #F7F8FA;   /* 종이 부분. 순백(#FFFFFF)이 아니라 살짝 낮춘 밝기 */
+  --ink:        #101318;   /* 본문 글자 (거의 검정) */
+  --ink-soft:   #101318;   /* 예전에는 회색이었지만 이제 본문과 같은 검정입니다.
+                              글의 중요도는 색이 아니라 '크기'로만 구분합니다. */
+  --ink-faint:  #101318;   /* 위와 같음 */
+  --muted:      #6B7280;   /* 아직 열리지 않은 섹션에만 쓰는 회색.
+                              중요도가 아니라 '지금 못 누름'을 나타내는 색입니다. */
+  --uoft:       #002A5C;   /* 토론토 대학 파랑 */
   --highlight:  #FFDE3D;   /* 형광펜 노랑 */
-  --rule:       #14130E;
+  --rule:       #101318;
 
   --display: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
   --body:    "Archivo", "Helvetica Neue", Arial, sans-serif;
@@ -33,19 +38,11 @@ html {
 body {
   margin: 0;
   padding: clamp(12px, 3vw, 40px);
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--body);
   font-size: 17px;
   line-height: 1.45;
-  /* 종이 질감: 아주 옅은 세로 결 */
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(20, 19, 14, 0.018) 0px,
-    rgba(20, 19, 14, 0.018) 1px,
-    transparent 1px,
-    transparent 4px
-  );
 }
 
 /* ============ 검은 테두리 종이 ============ */
@@ -64,6 +61,7 @@ body {
 
 .title {
   margin: 0;
+  color: var(--uoft);          /* 토론토 대학 파랑 */
   font-family: var(--display);
   font-size: clamp(30px, 7vw, 46px);
   line-height: 1.02;
@@ -78,15 +76,27 @@ body {
 }
 
 /* 오른쪽에 도장처럼 찍히는 한 줄 */
+/* 비공식임을 분명히 알리는 도장.
+   학교 공식 사이트로 오해받지 않도록 일부러 눈에 띄게 만들었습니다. */
 .stamp {
+  display: inline-block;
   margin: 14px 0 0;
-  text-align: right;
+  padding: 5px 10px;
+  background: var(--ink);
+  color: #FFFFFF;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink);
+}
+
+/* 도장을 오른쪽으로 밀기 위한 줄 */
+.masthead .stamp {
+  float: right;
+}
+.search {
+  clear: both;
 }
 
 /* ---- 검색: 밑줄 형태 ---- */
@@ -116,7 +126,7 @@ body {
 }
 
 .search__input::placeholder {
-  color: var(--ink-faint);
+  color: var(--muted);
   font-family: var(--mono);
   font-size: 13px;
 }
@@ -132,20 +142,94 @@ body {
 
 /* 줄 하나가 통째로 버튼입니다 */
 .row {
+  position: relative;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: baseline;
   gap: 2px 16px;
   width: 100%;
   margin: 0;
-  padding: clamp(18px, 4vw, 24px) 4px;
+  padding: clamp(18px, 4vw, 24px) 10px;
   border: 0;
   border-bottom: 1px solid var(--rule);
   background: transparent;
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s ease, padding-left 0.15s ease;
+}
+
+/* ---- 노란 테이프 ----
+   마우스를 올리면 형광펜을 그은 것처럼 줄 전체를 좌에서 우로 훑습니다.
+   진짜 형광펜처럼 보이게 하려고 네 가지를 넣었습니다:
+     1) 살짝 기울임      — 손으로 그은 것처럼
+     2) 울퉁불퉁한 가장자리 — 반듯한 네모가 아니게
+     3) 양 끝을 진하게    — 펜이 멈춘 자리에 잉크가 고이는 효과
+     4) 반투명 겹침      — 종이 위에 색이 얹힌 느낌 */
+.row::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 12%;
+  bottom: 12%;
+
+  /* 양 끝이 진하고 가운데가 옅음 = 펜이 시작하고 멈춘 자리 */
+  background: linear-gradient(
+    to right,
+    rgba(255, 214, 41, 0.98) 0%,
+    rgba(255, 222, 61, 0.80) 9%,
+    rgba(255, 226, 82, 0.74) 45%,
+    rgba(255, 222, 61, 0.82) 88%,
+    rgba(255, 210, 30, 0.98) 100%
+  );
+
+  /* 위아래 가장자리를 물결지게 잘라서 손으로 그은 자국처럼 */
+  clip-path: polygon(
+    0% 14%,  9% 5%,  23% 11%, 38% 4%,  55% 10%, 71% 3%,  86% 9%, 100% 5%,
+    100% 88%, 88% 96%, 73% 89%, 57% 97%, 41% 90%, 26% 96%, 11% 90%, 0% 95%
+  );
+
+  transform: rotate(-0.5deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.16, 0.8, 0.3, 1);
+
+  /* 종이 위에 색을 얹은 느낌 */
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.row:hover::before,
+.row:focus-visible::before {
+  transform: rotate(-0.5deg) scaleX(1);
+}
+
+/* 펜 끝이 지나간 자리에 남는 옅은 잔상 */
+.row::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 10%;
+  bottom: 14%;
+  background: rgba(255, 226, 82, 0.32);
+  clip-path: polygon(0% 30%, 100% 12%, 100% 74%, 0% 88%);
+  transform: rotate(-0.5deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.36s cubic-bezier(0.16, 0.8, 0.3, 1) 0.03s;
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.row:hover::after,
+.row:focus-visible::after {
+  transform: rotate(-0.5deg) scaleX(1);
+}
+
+/* 글자는 테이프 위에 오게 */
+.row > * {
+  position: relative;
+  z-index: 1;
 }
 
 .row__name {
@@ -170,12 +254,19 @@ body {
 /* ---- 아직 안 열린 섹션: 흐리게 ---- */
 .row.is-soon .row__name,
 .row.is-soon .row__desc {
-  color: var(--ink-faint);
+  color: var(--muted);
 }
 
 .row.is-soon .row__cue {
-  color: var(--ink-faint);
+  color: var(--muted);
   text-transform: uppercase;
+}
+
+/* 노란 테이프 위에서는 흐린 글자도 검게 바꿔 읽히게 합니다 */
+.row.is-soon:hover .row__name,
+.row.is-soon:hover .row__desc,
+.row.is-soon:hover .row__cue {
+  color: var(--ink);
 }
 
 /* ---- 열린 섹션: 화살표를 크게 ---- */
@@ -185,48 +276,9 @@ body {
   line-height: 1;
 }
 
-/* ---- 손가락이나 마우스가 닿았을 때 ---- */
-.row.is-live:hover,
-.row.is-live:focus-visible {
-  background-color: rgba(20, 19, 14, 0.05);
-  padding-left: 12px;
-}
-
 .row:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: -3px;
-}
-
-/* ============ 형광펜 — 이 페이지의 signature ============
-   진짜 형광펜처럼 글자 뒤에 노란 칠이 그어집니다.
-   페이지가 열릴 때 왼쪽에서 오른쪽으로 그어지는 애니메이션이 있습니다. */
-.hl {
-  position: relative;
-  display: inline-block;
-}
-
-.hl::before {
-  content: "";
-  position: absolute;
-  left: -0.12em;
-  right: -0.12em;
-  top: 0.12em;
-  bottom: 0.06em;
-  background: var(--highlight);
-  /* 모서리를 불규칙하게 = 손으로 그은 느낌 */
-  border-radius: 2px 8px 3px 10px;
-  transform: rotate(-1.1deg);
-  transform-origin: left center;
-  /* 형광펜처럼 글자가 비쳐 보이게 */
-  mix-blend-mode: multiply;
-  z-index: -1;
-  /* 처음엔 폭 0 → 애니메이션으로 늘어남 */
-  animation: swipe 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.35s both;
-}
-
-@keyframes swipe {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 0 0 0); }
 }
 
 /* ---- 줄이 하나씩 나타나는 효과 ---- */
@@ -253,21 +305,21 @@ body {
   text-align: center;
   font-family: var(--mono);
   font-size: 13px;
-  color: var(--ink-faint);
+  color: var(--muted);
 }
 
 .colophon__legal {
   margin: 0 0 8px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 
 .colophon__date {
   margin: 0;
   font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink-faint);
+  font-size: 13px;
+  color: var(--ink);
 }
 
 /* ============ 알림창 ============ */
@@ -312,21 +364,30 @@ body {
    ============================================ */
 
 /* ---- 뒤로 가기 ---- */
+/* 뒤로 가기 버튼.
+   전에는 작은 글씨라서 어디를 눌러야 할지 알기 어려웠습니다.
+   이제 테두리가 있는 확실한 버튼 모양이고, 손가락으로 누르기 좋은 크기입니다. */
 .backlink {
-  display: inline-block;
-  margin: 0 0 clamp(20px, 4vw, 30px);
-  padding: 6px 0;
-  border: 0;
-  background: transparent;
-  font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 clamp(22px, 4vw, 32px);
+  padding: 11px 20px 11px 16px;
+  border: 2px solid var(--uoft);
+  background: var(--paper);
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--uoft);
   cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
 }
 
 .backlink:hover {
-  text-decoration: underline;
+  background: var(--uoft);
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 .backlink:focus-visible {
@@ -346,8 +407,8 @@ body {
 .lede {
   margin: 0 0 clamp(20px, 4vw, 28px);
   font-size: 16px;
-  line-height: 1.55;
-  color: var(--ink-soft);
+  line-height: 1.6;
+  color: var(--ink);
   max-width: 46ch;
 }
 
@@ -373,15 +434,16 @@ body {
 }
 
 /* ---- 개수 표시 ---- */
+/* 총 몇 곳인지 보여주는 줄. 검은 굵은 글씨로 또렷하게. */
 .count {
-  margin: 0 0 12px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  margin: 0 0 14px;
+  font-family: var(--display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ink-faint);
-  border-top: 1px solid var(--rule);
-  padding-top: 12px;
+  color: var(--ink);
+  border-top: 2px solid var(--rule);
+  padding-top: 14px;
 }
 
 /* ---- 카드 목록 ---- */
@@ -397,17 +459,21 @@ body {
   width: 100%;
   padding: 12px;
   border: 2px solid var(--ink);
-  background: transparent;
+  background: var(--paper);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  /* 카드를 움직이지 않습니다.
+     전에는 마우스를 올리면 2px 움직였는데, 그때 사진이 같이 움직이면서
+     브라우저가 사진을 다시 그리느라 가장자리가 지글거렸습니다.
+     이제 그림자만 나타나므로 사진은 한 번 그려진 자리에 그대로 있습니다. */
+  transition: box-shadow 0.14s ease, background-color 0.14s ease;
 }
 
 .card:hover,
 .card:focus-visible {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 5px 5px 0 var(--uoft);
+  background-color: #EDF1F7;
 }
 
 .card:focus-visible {
@@ -420,7 +486,7 @@ body {
   display: block;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: rgba(20, 19, 14, 0.07);
+  background: #E2E6EC;
 }
 
 .card__img {
@@ -428,6 +494,8 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+  /* 사진을 별도 레이어로 분리해 다시 그려지는 일을 줄입니다 */
+  backface-visibility: hidden;
 }
 
 /* 사진이 없거나 주소가 깨졌을 때 나오는 회색 네모 */
@@ -439,9 +507,9 @@ body {
   align-items: center;
   justify-content: center;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
-  color: var(--ink-faint);
+  color: var(--muted);
 }
 
 /* ---- 카드 글자 ---- */
@@ -465,20 +533,24 @@ body {
   align-self: center;
 }
 
-.card__meta,
-.card__addr {
-  grid-column: 1 / -1;
-}
-
+/* 카드 안 위계는 색이 아니라 크기와 굵기로만 만듭니다.
+   이름 19px 굵게 > 가격 17px 굵게 > 방 형태 14px */
+.card__price,
 .card__meta {
-  font-size: 14px;
+  grid-column: 1 / -1;
   color: var(--ink);
 }
 
-.card__addr {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink-faint);
+.card__price {
+  margin-top: 3px;
+  font-family: var(--display);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.card__meta {
+  margin-top: 2px;
+  font-size: 14px;
 }
 
 /* ---- 데이터가 하나도 없을 때 ---- */
@@ -507,7 +579,7 @@ body {
    ============================================ */
 
 :root {
-  --official: #1B4D8F;   /* 공식 정보 = 파랑 */
+  --official: #002A5C;   /* 공식 정보 = 토론토 대학 파랑 */
   --student:  #C05A16;   /* 학생 의견 = 주황 */
 }
 
@@ -536,9 +608,9 @@ body {
 .credit {
   margin: 7px 0 0;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--ink-faint);
+  color: var(--ink);
 }
 
 /* ---- 사진 여러 장: 옆으로 넘겨 보기 ---- */
@@ -600,24 +672,57 @@ body {
 
 .fact {
   display: grid;
-  grid-template-columns: 108px 1fr;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(20, 19, 14, 0.14);
-  font-size: 15px;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #D4D9E0;
+  font-size: 17px;
+  line-height: 1.45;
 }
 
 .fact:last-child {
   border-bottom: 0;
 }
 
+/* 항목 이름. 전에는 연한 회색 작은 글씨였는데
+   검은 굵은 글씨로 키워서 훨씬 읽기 쉽게 만들었습니다. */
 .fact__label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  padding-top: 3px;
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  padding-top: 1px;
+}
+
+.fact__value {
+  color: var(--ink);
+}
+
+/* 가격 목록은 왼쪽에 이름, 오른쪽에 금액 */
+.fact--price {
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 16px;
+}
+
+.fact__amount {
+  font-family: var(--display);
+  font-size: 16px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* 구역 아래 붙는 설명 문단 */
+.blocknote {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  background: #EDF1F7;
+  border-left: 3px solid var(--uoft);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
 }
 
 /* ---- 학생 의견 ---- */
@@ -654,9 +759,305 @@ body {
 }
 
 /* ---- 좁은 폰에서는 항목 이름을 위로 ---- */
-@media (max-width: 380px) {
+@media (max-width: 420px) {
   .fact {
     grid-template-columns: 1fr;
     gap: 2px;
   }
+  /* 가격 목록은 좁은 화면에서도 이름/금액을 좌우로 유지 */
+  .fact--price {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+}
+
+
+
+/* ============================================
+   정렬 버튼 · 주의 딱지 (여기서부터 추가분)
+   ============================================ */
+
+.sortbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.sortbar__label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-right: 2px;
+}
+
+.sortbtn {
+  padding: 7px 13px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.sortbtn:hover {
+  background: #E4EAF3;
+}
+
+/* 지금 켜져 있는 정렬 버튼 */
+.sortbtn.is-on {
+  background: var(--uoft);
+  border-color: var(--uoft);
+  color: #FFFFFF;
+}
+
+.sortbtn:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---- 카드에 붙는 주의 딱지 ---- */
+.card__badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+/* 주의 딱지 — 가격을 오해할 수 있는 경우.
+   형광펜과 같은 노란색을 써서 "여기 주의" 라는 뜻을 통일했습니다.
+   식사 미포함과 계약 기간, 둘 다 똑같이 중요하므로 같은 모양입니다. */
+.badge {
+  padding: 3px 8px;
+  border: 1.5px solid var(--ink);
+  background: var(--highlight);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+
+/* ============================================
+   층별 방 사진 구역
+   ============================================ */
+
+.floors {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.floor {
+  margin: 0;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.floor__img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  backface-visibility: hidden;
+}
+
+.floor__cap {
+  padding: 8px 10px;
+  border-top: 2px solid var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+/* 층 번호를 작은 태그로 */
+.floor__num {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  background: var(--student);
+  color: #FFFFFF;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---- 아직 사진이 없을 때 나오는 자리 ----
+   비어 보이지 않고 "여기가 채워질 곳"으로 읽히게 만들었습니다. */
+.floors-empty {
+  padding: 26px 20px;
+  border: 2px dashed var(--student);
+  background: #FDF3EA;
+  text-align: center;
+}
+
+.floors-empty__title {
+  margin: 0 0 7px;
+  font-family: var(--display);
+  font-size: 16px;
+  color: var(--student);
+}
+
+.floors-empty__body {
+  margin: 0 auto;
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+
+
+/* ============================================
+   겨울방학 판정 한 줄
+   ============================================ */
+
+.verdict {
+  margin: 0;
+  padding: 13px 15px;
+  border: 2px solid var(--uoft);
+  background: var(--paper);
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+/* 문을 닫는 곳은 노란 경고색으로 */
+.verdict--warn {
+  border-color: var(--ink);
+  background: var(--highlight);
+}
+
+
+/* ============================================
+   건물별 설명 (UC 처럼 건물이 여러 채인 경우)
+   ============================================ */
+
+.halls {
+  display: grid;
+  gap: 12px;
+}
+
+.hall {
+  padding: 15px 16px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.hall__name {
+  margin: 0 0 5px;
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--uoft);
+}
+
+/* 건축 연도, 수용 인원 같은 짧은 사실 */
+.hall__tags {
+  margin: 0 0 9px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.hall__rooms {
+  margin: 0 0 7px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.hall__note {
+  margin: 0;
+  padding-top: 9px;
+  border-top: 1px solid #D4D9E0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+
+/* ============================================
+   밀플랜 카드
+   (건물 카드와 같은 생김새로 맞췄습니다)
+   ============================================ */
+
+.plans {
+  display: grid;
+  gap: 12px;
+}
+
+.plan {
+  padding: 15px 16px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.plan__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.plan__name {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--uoft);
+}
+
+.plan__price {
+  font-family: var(--display);
+  font-size: 17px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.plan__pricelabel {
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 점 찍은 설명 */
+.plan__list {
+  margin: 11px 0 0;
+  padding-left: 20px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.plan__list li {
+  margin-bottom: 5px;
+}
+
+.plan__list li::marker {
+  color: var(--uoft);
+}
+
+/* 아래 붙는 기울임체 한 줄 */
+.plan__note {
+  margin: 11px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid #D4D9E0;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--ink);
 }
