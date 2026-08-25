@@ -142,6 +142,27 @@ function buildPriceLine(item) {
 /* ---- 카드 아래 한 줄 요약 (방 형태와 식사) ----
    비어 있는 항목은 자동으로 건너뜁니다. */
 
+/* ---- 방 형태 용어 설명 ----
+   "Traditional dormitory" 같은 말이 처음 보는 사람에겐 낯설어서
+   이름 옆에 짧은 설명을 괄호로 붙여줍니다. */
+
+const ROOM_TYPE_HELP = {
+  "Traditional dormitory": "shared bathroom down the hall, no kitchen",
+  "Modified dormitory": "shared bathroom, small kitchen on the floor",
+  "Apartment": "full kitchen and bathroom in the unit",
+  "Suite": "private bathroom, shared kitchen with suitemates"
+};
+
+function roomTypeWithHelp(text) {
+  if (!text) return "";
+  // "A / B" 처럼 두 가지가 합쳐진 경우 각각 설명을 답니다
+  return text.split(" / ").map(function (part) {
+    const help = ROOM_TYPE_HELP[part];
+    return help ? part + " (" + help + ")" : part;
+  }).join(" / ");
+}
+
+
 function buildMetaLine(item) {
   const parts = [];
 
@@ -220,10 +241,23 @@ function buildCard(item) {
    처음에는 "price" 입니다. 기숙사에서 제일 먼저 궁금한 게 돈이라서요. */
 
 let sortMode = "price";
+let activeFilters = [];   // 여러 필터를 동시에 켤 수 있습니다
+
 
 function sortedResidences() {
   // slice() 로 복사본을 만듭니다. 원본 RESIDENCES 순서는 건드리지 않습니다.
-  const list = RESIDENCES.slice();
+  let list = RESIDENCES.slice();
+
+  // 필터를 하나씩 통과시킵니다. 켜진 필터가 없으면 전부 통과합니다.
+  if (activeFilters.indexOf("meal") !== -1) {
+    list = list.filter(function (r) { return r.mealPlan === "Included"; });
+  }
+  if (activeFilters.indexOf("open") !== -1) {
+    list = list.filter(function (r) { return !r.winterBreakClosed; });
+  }
+  if (activeFilters.indexOf("budget") !== -1) {
+    list = list.filter(function (r) { return r.price && r.price < 20000; });
+  }
 
   if (sortMode === "price") {
     list.sort(function (a, b) { return (a.price || 0) - (b.price || 0); });
@@ -253,19 +287,32 @@ function renderResidenceList() {
     return;
   }
 
-  // 정렬한 뒤 카드들을 만들어서 한 번에 넣습니다
-  listBox.innerHTML = sortedResidences().map(buildCard).join("");
+  const shown = sortedResidences();
 
-  // 개수 표시. 1개일 때는 residence, 여러 개면 residences
+  // 개수 표시. 필터가 켜져 있으면 "N of 11", 아니면 그냥 "N residences"
   if (countBox) {
-    countBox.textContent =
-      RESIDENCES.length + (RESIDENCES.length === 1 ? " residence" : " residences");
+    countBox.textContent = activeFilters.length
+      ? shown.length + " of " + RESIDENCES.length + " residences"
+      : shown.length + (shown.length === 1 ? " residence" : " residences");
   }
 
-  // 카드를 눌렀을 때 상세 화면으로
-  listBox.querySelectorAll(".card").forEach(function (card) {
-    card.addEventListener("click", function () {
-      openDetail(card.dataset.id);      // ← 4-C 에서 바뀐 부분
+  // 필터를 걸었는데 하나도 안 남았을 때
+  if (shown.length === 0) {
+    listBox.innerHTML = '<p class="empty">No residences match these filters. Try turning one off.</p>';
+    return;
+  }
+
+  listBox.innerHTML = shown.map(buildCard).join("");
+  attachRowClicks(listBox.querySelectorAll(".card"));
+}
+
+
+/* ---- 클릭하면 상세로 이동 ---- */
+
+function attachRowClicks(elements) {
+  elements.forEach(function (el) {
+    el.addEventListener("click", function () {
+      openDetail(el.dataset.id);
     });
   });
 }
@@ -288,6 +335,27 @@ document.querySelectorAll(".sortbtn").forEach(function (btn) {
     btn.classList.add("is-on");
 
     // 목록을 새 순서로 다시 그립니다
+    renderResidenceList();
+  });
+});
+
+
+/* ---- 필터 버튼 누르기 ----
+   누를 때마다 켜짐/꺼짐이 바뀝니다. 여러 개 동시에 켤 수 있습니다. */
+
+document.querySelectorAll(".filterbtn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    const key = btn.dataset.filter;
+    const i = activeFilters.indexOf(key);
+
+    if (i === -1) {
+      activeFilters.push(key);
+      btn.classList.add("is-on");
+    } else {
+      activeFilters.splice(i, 1);
+      btn.classList.remove("is-on");
+    }
+
     renderResidenceList();
   });
 });
@@ -375,7 +443,7 @@ function youtubeEmbed(url) {
 function buildOfficialBullets(item) {
   const rows = [];
 
-  if (item.roomType) rows.push(["Room type", item.roomType]);
+  if (item.roomType) rows.push(["Room type", roomTypeWithHelp(item.roomType)]);
 
   if (item.mealPlan) {
     const mealText = item.mealPlan === "Included" ? "Mandatory"
@@ -386,7 +454,6 @@ function buildOfficialBullets(item) {
 
   if (item.capacity) rows.push(["Capacity", "about " + item.capacity.toLocaleString("en-US") + " students"]);
   if (item.college) rows.push(["Open to", item.college === "Any" ? "Any college" : item.college]);
-  if (item.address) rows.push(["Address", item.address]);
 
   if (rows.length === 0) return "";
 
@@ -464,7 +531,15 @@ function buildDetail(item) {
   html.push('<h2 class="page-title">' + esc(item.name) + '</h2>');
 
   if (item.summary) {
-    html.push('<p class="lede">' + esc(item.summary) + '</p>');
+    // 문장 단위로 쪼개서 불릿으로 보여줍니다 (한 줄로 쭉 읽는 것보다 눈에 잘 들어옴)
+    const sentences = item.summary.match(/[^.]+[.]+/g) || [item.summary];
+    const points = sentences.map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+
+    html.push(
+      '<ul class="lede">' +
+        points.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") +
+      '</ul>'
+    );
   }
 
   /* 2. 사진 — 학교 공식 사진이 맨 위에 옵니다 */
@@ -487,7 +562,37 @@ function buildDetail(item) {
     );
   }
 
-  /* 3. 공식 투어 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴 */
+  /* 3. 학생 리뷰 — 사진 바로 아래. 별점 + 글. 없으면 이 구역 전체가 안 나옴 */
+  const reviews = Array.isArray(item.reviews) ? item.reviews.filter(function (r) { return r && r.text; }) : [];
+
+  if (reviews.length > 0) {
+    const avg = reviews.reduce(function (sum, r) { return sum + (r.stars || 0); }, 0) / reviews.length;
+
+    const cards = reviews.map(function (r) {
+      const stars = Math.max(0, Math.min(5, Math.round(r.stars || 0)));
+      return '<article class="review">' +
+               '<div class="review__stars" aria-label="' + stars + ' out of 5 stars">' +
+                 '★★★★★'.slice(0, stars) + '☆☆☆☆☆'.slice(0, 5 - stars) +
+               '</div>' +
+               '<p class="review__text">' + esc(r.text) + '</p>' +
+               (r.source ? '<p class="credit">' + esc(r.source) + '</p>' : "") +
+             '</article>';
+    }).join("");
+
+    html.push(
+      '<section class="block block--student">' +
+        '<h3 class="block__head">Student reviews</h3>' +
+        '<div class="review__avg">' +
+          '<span class="review__avgnum">' + avg.toFixed(1) + '</span>' +
+          '<span class="review__avgstars">' + '★★★★★'.slice(0, Math.round(avg)) + '</span>' +
+          '<span class="review__avgcount">' + reviews.length + (reviews.length === 1 ? " review" : " reviews") + '</span>' +
+        '</div>' +
+        '<div class="reviews">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  /* 4. 공식 투어 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴 */
   const embed = youtubeEmbed(item.videoUrl);
   if (embed) {
     html.push(
@@ -501,6 +606,25 @@ function buildDetail(item) {
           (item.videoCredit ? esc(item.videoCredit) : "Official residence tour") +
         '</p>' +
       '</div>'
+    );
+  }
+
+  /* 3-2. 위치 — 주소를 위에 쓰고 그 아래 구글 지도.
+     API 키 없이 되는 무료 임베드 방식이라 비용이 들지 않습니다. */
+  if (item.address) {
+    const q = encodeURIComponent(item.address + ", Toronto, ON");
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">Location</h3>' +
+        '<p class="address-line">' + esc(item.address) + '</p>' +
+        '<div class="mapbox">' +
+          '<iframe src="https://www.google.com/maps?q=' + q + '&output=embed" ' +
+          'title="' + esc(item.name) + ' location" loading="lazy" ' +
+          'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+        '</div>' +
+        '<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=' + q + '" ' +
+        'target="_blank" rel="noopener noreferrer">Open in Google Maps &nearr;</a>' +
+      '</section>'
     );
   }
 
@@ -546,15 +670,60 @@ function buildDetail(item) {
     );
   }
 
-  /* 5-2. 방 종류별 요금 */
-  const roomList = buildPriceList(item.roomOptions);
-  if (roomList) {
+  /* 5-2. 방 종류별 요금.
+     건물이 여러 채면(halls) 건물별로 묶어서 보여주고,
+     건물이 하나뿐이면 예전처럼 flat한 목록으로 보여줍니다. */
+  const halls = Array.isArray(item.halls) ? item.halls.filter(function (h) { return h && h.name; }) : [];
+
+  if (halls.length > 0) {
+    const allRooms = Array.isArray(item.roomOptions) ? item.roomOptions : [];
+
+    const cards = halls.map(function (h) {
+      const bits = [];
+      if (h.built) bits.push("Built " + h.built);
+      if (h.capacity) bits.push(h.capacity);
+
+      // "Whitney — Single" 처럼 그 홀만 쓰는 경우도,
+      // "Whitney / Sir Daniel Wilson — Single" 처럼 두 홀이 방을 공유하는 경우도
+      // 전부 잡히도록 "포함"으로 찾습니다 (맨 앞 글자만 보지 않음).
+      const shortName = h.name.replace(" Hall", "");
+      const hallRooms = allRooms.filter(function (r) {
+        const namesPart = r.label.split(" — ")[0] || "";
+        return namesPart.split(" / ").indexOf(shortName) !== -1;
+      });
+      const priceHtml = hallRooms.length
+        ? buildPriceList(hallRooms.map(function (r) {
+            return { label: r.label.split("— ")[1] || r.label, price: r.price, unit: r.unit };
+          }))
+        : "";
+
+      return '<article class="hall">' +
+               '<h4 class="hall__name">' + esc(h.name) + '</h4>' +
+               (bits.length
+                 ? '<p class="hall__tags">' + esc(bits.join(" · ")) + '</p>'
+                 : "") +
+               (h.rooms ? '<p class="hall__rooms">' + esc(h.rooms) + '</p>' : "") +
+               priceHtml +
+               (h.note ? '<p class="hall__note">' + esc(h.note) + '</p>' : "") +
+             '</article>';
+    }).join("");
+
     html.push(
       '<section class="block block--official">' +
-        '<h3 class="block__head">Room options &amp; prices</h3>' +
-        roomList +
+        '<h3 class="block__head">Room options &amp; prices &mdash; ' + halls.length + ' buildings</h3>' +
+        '<div class="halls">' + cards + '</div>' +
       '</section>'
     );
+  } else {
+    const roomList = buildPriceList(item.roomOptions);
+    if (roomList) {
+      html.push(
+        '<section class="block block--official">' +
+          '<h3 class="block__head">Room options &amp; prices</h3>' +
+          roomList +
+        '</section>'
+      );
+    }
   }
 
   /* 5-3. 밀플랜 */
@@ -566,34 +735,6 @@ function buildDetail(item) {
         mealList +
         (item.mealNote ? '<p class="blocknote">' + esc(item.mealNote) + '</p>' : "") +
         (item.mealSystem ? '<p class="blocknote">' + esc(item.mealSystem) + '</p>' : "") +
-      '</section>'
-    );
-  }
-
-  /* 5-3b. 건물이 여러 채인 경우 각각 설명.
-     halls 가 비어 있으면 이 구역 전체가 안 나옵니다. */
-  const halls = Array.isArray(item.halls) ? item.halls.filter(function (h) { return h && h.name; }) : [];
-
-  if (halls.length > 0) {
-    const cards = halls.map(function (h) {
-      const bits = [];
-      if (h.built) bits.push("Built " + h.built);
-      if (h.capacity) bits.push(h.capacity);
-
-      return '<article class="hall">' +
-               '<h4 class="hall__name">' + esc(h.name) + '</h4>' +
-               (bits.length
-                 ? '<p class="hall__tags">' + esc(bits.join(" · ")) + '</p>'
-                 : "") +
-               (h.rooms ? '<p class="hall__rooms">' + esc(h.rooms) + '</p>' : "") +
-               (h.note ? '<p class="hall__note">' + esc(h.note) + '</p>' : "") +
-             '</article>';
-    }).join("");
-
-    html.push(
-      '<section class="block block--official">' +
-        '<h3 class="block__head">' + halls.length + ' buildings to choose from</h3>' +
-        '<div class="halls">' + cards + '</div>' +
       '</section>'
     );
   }
@@ -652,27 +793,6 @@ function buildDetail(item) {
       floorInner +
     '</section>'
   );
-
-  /* 6. 학생 의견 — 없으면 이 부분 전체가 안 나옴 */
-  const notes = Array.isArray(item.studentNote)
-    ? item.studentNote.filter(function (n) { return n; })
-    : (item.studentNote ? [item.studentNote] : []);
-
-  if (notes.length > 0) {
-    const lines = notes.map(function (n) {
-      return '<li>' + esc(n) + '</li>';
-    }).join("");
-
-    html.push(
-      '<section class="block block--student">' +
-        '<h3 class="block__head">Student notes</h3>' +
-        '<ul class="notes">' + lines + '</ul>' +
-        (item.noteSource
-          ? '<p class="credit">Source: ' + esc(item.noteSource) + '</p>'
-          : "") +
-      '</section>'
-    );
-  }
 
   /* 7. 공식 사이트로 가는 버튼 */
   if (item.officialUrl) {

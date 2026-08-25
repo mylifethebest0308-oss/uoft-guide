@@ -91,8 +91,7 @@ const RESIDENCES = [
     officialUrl: "https://innis.utoronto.ca/residence/about-the-residence/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -107,7 +106,7 @@ const RESIDENCES = [
     mealPlan: "Optional",
     college: "Woodsworth College students",
     capacity: null,
-    address: "",
+    address: "321 Bloor St W",
     winterBreak: "Closed — you have to move out",
     winterBreakDetail: "U of T lists no option to stay through the break here. If you cannot leave Toronto, contact Woodsworth directly and ask about exceptions before you accept an offer.",
     winterBreakClosed: true,
@@ -127,8 +126,7 @@ const RESIDENCES = [
     officialUrl: "https://wdw.utoronto.ca/life-in-residence",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -143,7 +141,7 @@ const RESIDENCES = [
     mealPlan: "Included",
     college: "New College students",
     capacity: null,
-    address: "",
+    address: "300 Huron St",
     winterBreak: "Closed — but you can pay to stay",
     winterBreakDetail: "New College closes the building and charges a per-night fee for any partial or full stay over the break. You apply in advance and the college emails the fee amounts to residents around mid-October. Note that U of T's central housing page lists New College as simply open, but the college's own page is the one to trust.",
     winterBreakClosed: true,
@@ -170,8 +168,7 @@ const RESIDENCES = [
     officialUrl: "https://www.newcollege.utoronto.ca/student-experience/living-in-residence/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -186,7 +183,7 @@ const RESIDENCES = [
     mealPlan: "Included",
     college: "Victoria College students",
     capacity: null,
-    address: "",
+    address: "73 Queen's Park Cres",
     winterBreak: "Stays open",
     winterBreakDetail: "Stays open and no application is needed, which makes it one of the easiest residences to stay in over the break. U of T does not publish a fee for this — contact vic.dean@utoronto.ca to confirm.",
     winterBreakClosed: false,
@@ -239,8 +236,7 @@ const RESIDENCES = [
     officialUrl: "https://www.vic.utoronto.ca/current-students/campus-life/residence-life",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -255,18 +251,18 @@ const RESIDENCES = [
     mealPlan: "Included",
     college: "University College students",
     capacity: null,
-    address: "",
+    address: "15 King's College Cir",
     winterBreak: "Stays open",
     winterBreakDetail: "The building stays open, but you must apply and UC emails the details to residents. U of T does not publish whether a fee applies here, and several other residences do charge, so ask UC directly before you count on staying for free.",
     winterBreakClosed: false,
     winterBreakCost: "unknown",
     roomOptions: [
-      { label: "Whitney Hall double + Plan B", price: 16548 },
-      { label: "Whitney Hall double + Plan A", price: 17361 },
-      { label: "Whitney / Sir Daniel Wilson single + Plan B", price: 18591 },
-      { label: "Whitney / Sir Daniel Wilson single + Plan A", price: 19404 },
-      { label: "Morrison Hall single + Plan B", price: 20423 },
-      { label: "Morrison Hall single + Plan A", price: 21236 }
+      { label: "Whitney — Double + Plan B", price: 16548 },
+      { label: "Whitney — Double + Plan A", price: 17361 },
+      { label: "Whitney / Sir Daniel Wilson — Single + Plan B", price: 18591 },
+      { label: "Whitney / Sir Daniel Wilson — Single + Plan A", price: 19404 },
+      { label: "Morrison — Single + Plan B", price: 20423 },
+      { label: "Morrison — Single + Plan A", price: 21236 }
     ],
     mealPlans: [
       {
@@ -325,8 +321,7 @@ const RESIDENCES = [
     officialUrl: "https://www.uc.utoronto.ca/residence",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -341,7 +336,7 @@ const RESIDENCES = [
     mealPlan: "Included",
     college: "St. Michael's College students",
     capacity: null,
-    address: "",
+    address: "81 St. Mary St",
     winterBreak: "Closed — you have to move out",
     winterBreakDetail: "U of T lists no option to stay through the break here. If you cannot leave Toronto, contact St. Michael's directly and ask about exceptions before you accept an offer.",
     winterBreakClosed: true,
@@ -368,8 +363,7 @@ const RESIDENCES = [
     officialUrl: "https://stmikes.utoronto.ca/community/st-michaels-college-residence",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -407,8 +401,7 @@ const RESIDENCES = [
     officialUrl: "https://knoxresidence.utoronto.ca/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -423,7 +416,7 @@ const RESIDENCES = [
     mealPlan: "Included",
     college: "Trinity College students",
     capacity: 470,
-    address: "",
+    address: "6 Hoskin Ave",
     winterBreak: "Closed — but you can pay to stay",
     winterBreakDetail: "Apply to the Office of the Dean of Students. Approval is only given for exceptional circumstances, and you are charged for every night you stay. There is no meal service during the break, even though your meal plan is mandatory.",
     winterBreakClosed: true,
@@ -452,8 +445,7 @@ const RESIDENCES = [
     officialUrl: "https://www.trinity.utoronto.ca/engage/residence/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -491,8 +483,10 @@ const RESIDENCES = [
     officialUrl: "https://chestnut.utoronto.ca/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [
+      { stars: 4, text: "Rooms are small but the location is unbeatable.", source: "Reddit r/UofT, 2025" },
+      { stars: 2, text: "Elevators get very busy around 8am on weekdays.", source: "Reddit r/UofT, 2025" }
+    ],
     lastChecked: "2026-08-24"
   },
 
@@ -532,8 +526,7 @@ const RESIDENCES = [
     officialUrl: "http://spacesandexperiences.utoronto.ca/housing/introducing-oak-house-student-residence/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   },
 
@@ -581,8 +574,7 @@ const RESIDENCES = [
     officialUrl: "https://live-campusone.ca/",
     videoUrl: "",
     videoCredit: "",
-    studentNote: [],
-    noteSource: "",
+    reviews: [],
     lastChecked: "2026-08-24"
   }
 

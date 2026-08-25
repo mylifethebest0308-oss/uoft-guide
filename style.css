@@ -404,12 +404,21 @@ body {
   letter-spacing: -0.02em;
 }
 
-.lede {
+ul.lede {
   margin: 0 0 clamp(20px, 4vw, 28px);
+  padding-left: 20px;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--ink);
-  max-width: 46ch;
+  max-width: 52ch;
+}
+
+ul.lede li {
+  margin-bottom: 7px;
+}
+
+ul.lede li::marker {
+  color: var(--uoft);
 }
 
 /* ---- 형광펜 박스: 제일 중요한 정보 ---- */
@@ -1061,3 +1070,139 @@ body {
   line-height: 1.45;
   color: var(--ink);
 }
+
+
+/* ============================================
+   위치 (주소 + 구글 지도)
+   ============================================ */
+
+.address-line {
+  margin: 0 0 11px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mapbox {
+  border: 2px solid var(--ink);
+  overflow: hidden;
+  margin-bottom: 9px;
+}
+
+.mapbox iframe {
+  display: block;
+  width: 100%;
+  height: 220px;
+  border: 0;
+}
+
+.maplink {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--uoft);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--uoft);
+}
+
+.maplink:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+
+/* ============================================
+   학생 리뷰 (별점)
+   ============================================ */
+
+.review__avg {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.review__avgnum {
+  font-family: var(--display);
+  font-size: 26px;
+  color: var(--ink);
+}
+
+.review__avgstars {
+  color: var(--student);
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.review__avgcount {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.reviews {
+  display: grid;
+  gap: 12px;
+}
+
+.review {
+  padding: 14px 16px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.review__stars {
+  color: var(--student);
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+
+.review__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.review .credit {
+  margin-top: 8px;
+}
+
+
+
+/* ============================================
+   필터 버튼 (sortbtn과 같은 생김새, 켜지면 검은색)
+   ============================================ */
+
+.filterbtn {
+  padding: 7px 13px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.filterbtn:hover {
+  background: #EDF1F7;
+}
+
+/* 필터는 정렬과 색을 다르게 해서(검정) "선택"과 "정렬"을 구분합니다 */
+.filterbtn.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #FFFFFF;
+}
+
+.filterbtn:focus-visible {
+  outline: 3px solid var(--uoft);
+  outline-offset: 2px;
+}
+
+
+

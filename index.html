@@ -130,10 +130,16 @@
       <button type="button" class="sortbtn" data-sort="name">A&ndash;Z</button>
     </div>
 
+    <!-- 필터 버튼. 여러 개 동시에 켤 수 있습니다(data-filter). -->
+    <div class="sortbar">
+      <span class="sortbar__label">Filter</span>
+      <button type="button" class="filterbtn" data-filter="meal">Meal included</button>
+      <button type="button" class="filterbtn" data-filter="open">Open over winter break</button>
+      <button type="button" class="filterbtn" data-filter="budget">Under $20,000</button>
+    </div>
+
     <p class="count" id="res-count"></p>
 
-    <!-- 기숙사 카드가 여기에 자동으로 채워집니다.
-         이 안은 비워두세요. app.js 가 data.js 를 읽어서 만듭니다. -->
     <div class="cards" id="res-list"></div>
 
     <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
