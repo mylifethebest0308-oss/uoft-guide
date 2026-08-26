@@ -23,7 +23,7 @@
   <!-- 글씨체를 인터넷에서 불러옵니다 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- 디자인 파일 연결 -->
   <link rel="stylesheet" href="style.css">
@@ -43,22 +43,22 @@
 
       <p class="stamp">Unofficial student guide</p>
 
-      <!-- 검색: 스케치처럼 네모 상자가 아니라 밑줄입니다.
-           지금은 잠겨 있습니다. 섹션이 2개 이상 생기는 4-B 단계에서 켭니다. -->
+      <!-- 검색: 이제 실제로 동작합니다. 기숙사·날짜·전공을 한 번에 찾습니다. -->
       <div class="search">
         <label class="search__label" for="search">Search</label>
         <input
           class="search__input"
           id="search"
           type="text"
-          placeholder="turns on once sections are added"
-          disabled>
+          placeholder="Residences, dates, programs…"
+          autocomplete="off">
       </div>
+      <div class="searchresults" id="home-search-results" hidden></div>
     </header>
 
     <!-- ===== 섹션 목록 ===== -->
     <!-- 줄 전체가 버튼입니다. data-key 는 app.js 가 어느 줄인지 알아보는 이름표입니다. -->
-    <nav class="sections">
+    <nav class="sections" id="home-sections">
 
       <button type="button" class="row is-live" data-key="residence">
         <span class="row__name">Residence</span>
@@ -66,16 +66,16 @@
         <span class="row__desc">Housing, costs, dates, photos</span>
       </button>
 
-      <button type="button" class="row is-soon" data-key="courses">
+      <button type="button" class="row is-live" data-key="courses">
         <span class="row__name">Courses</span>
-        <span class="row__cue">Soon</span>
-        <span class="row__desc">Major, information, requirements</span>
+        <span class="row__cue">&rarr;</span>
+        <span class="row__desc">Enrolment dates, choosing a program, degree requirements</span>
       </button>
 
-      <button type="button" class="row is-soon" data-key="fees">
+      <button type="button" class="row is-live" data-key="fees">
         <span class="row__name">Fees</span>
-        <span class="row__cue">Soon</span>
-        <span class="row__desc">Tuition, deadlines, payment</span>
+        <span class="row__cue">&rarr;</span>
+        <span class="row__desc">Every deadline from application to move-in</span>
       </button>
 
       <button type="button" class="row is-soon" data-key="clubs">
@@ -86,9 +86,11 @@
 
     </nav>
 
+    <!-- ===== 최근 업데이트 ===== -->
+    <div class="updatelog" id="update-log"></div>
+
     <!-- ===== 하단 ===== -->
     <footer class="colophon">
-      <p class="colophon__more">More sections coming soon</p>
       <p class="colophon__legal">
         Not affiliated with, endorsed by, or operated by the University of Toronto.
         Always confirm details on the official U&nbsp;of&nbsp;T website.
@@ -160,7 +162,77 @@
   </main>
 
 
-  <!-- 짧게 떴다 사라지는 알림창. 처음에는 숨어 있습니다. -->  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <!-- ===== 화면 4: Fees & Dates =====
+       지원부터 입주까지 모든 날짜를 한 타임라인으로. -->
+  <main class="sheet" id="view-fees" hidden>
+
+    <button type="button" class="backlink" data-back>&larr;&nbsp; Home</button>
+
+    <h2 class="page-title">Fees &amp; Dates</h2>
+
+    <ul class="lede">
+      <li>Every deadline from application to move-in, in order.</li>
+      <li>Some steps are the same for everyone; others only apply to one group.</li>
+      <li>Pick which applies to you below.</li>
+    </ul>
+
+    <div class="sortbar">
+      <span class="sortbar__label">I am</span>
+      <button type="button" class="sortbtn is-on" data-audience="domestic">Canadian</button>
+      <button type="button" class="sortbtn" data-audience="international">International</button>
+    </div>
+
+    <!-- 화면 4-1: 카테고리 고르기 -->
+    <nav class="feescats" id="fees-categories"></nav>
+
+    <!-- 화면 4-2: 고른 카테고리의 날짜들. 처음엔 숨어 있습니다. -->
+    <div id="fees-items" hidden>
+      <button type="button" class="backlink" data-fees-back>&larr;&nbsp; Categories</button>
+      <h3 class="page-title fees-items__title" id="fees-items-title"></h3>
+      <div class="timeline" id="fees-timeline"></div>
+    </div>
+
+    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+
+  </main>
+
+
+  <!-- ===== 화면 5: Courses (카테고리 3개만) ===== -->
+  <main class="sheet" id="view-courses" hidden>
+
+    <button type="button" class="backlink" data-back>&larr;&nbsp; Home</button>
+
+    <h2 class="page-title">Courses</h2>
+
+    <ul class="lede">
+      <li>Based on the Faculty of Arts &amp; Science, St.&nbsp;George.</li>
+      <li>Other faculties (Engineering, Music, etc.) run on different dates.</li>
+    </ul>
+
+    <nav class="feescats" id="courses-categories"></nav>
+
+    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+
+  </main>
+
+
+  <!-- ===== 화면 6: Courses 하위 페이지 (진짜 화면 전환) =====
+       Enrolment / Degree / Program 탐색·단과대·개별 과목이 전부
+       이 화면 하나를 재사용합니다. 뒤로가기는 app.js 가 스택으로 관리합니다. -->
+  <main class="sheet" id="view-course-page" hidden>
+
+    <button type="button" class="backlink" data-course-back>&larr;&nbsp; Back</button>
+
+    <p class="crumb" id="course-crumb"></p>
+    <h2 class="page-title" id="course-page-title"></h2>
+
+    <div id="course-page-content"></div>
+
+  </main>
+
+
+  <!-- 짧게 떴다 사라지는 알림창. 처음에는 숨어 있습니다. -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- 파일 연결. 순서가 중요합니다: data.js 가 app.js 보다 먼저 와야 합니다. -->
   <script src="data.js"></script>
