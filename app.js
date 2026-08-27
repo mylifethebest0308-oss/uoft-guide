@@ -167,6 +167,129 @@ document.querySelectorAll("[data-back-to]").forEach(function (btn) {
 /* ---- 글자 안전장치 ----
    데이터에 < > 같은 기호가 들어가도 화면이 깨지지 않게 바꿔줍니다. */
 
+/* ============================================
+   포인트 시스템 (에브리타임 스타일 — 가볍게)
+   ------------------------------------------------
+   리뷰를 쓰면 포인트를 얻고, 포인트로 다른 기숙사의 리뷰를 더 볼 수 있습니다.
+
+   ⚠️ localStorage(이 브라우저에만 저장) 기반입니다. 로그인도, 서버 검증도
+   없어서 개발자도구를 열면 우회할 수 있습니다. 진짜 계정 시스템이 아니라
+   "정직하게 참여하면 더 보인다"는 가벼운 장치로 만든 겁니다. */
+
+const POINTS_KEY = "uoftGuidePoints";
+const UNLOCKED_KEY = "uoftGuideUnlockedReviews";
+
+function getPoints() {
+  const n = parseInt(localStorage.getItem(POINTS_KEY) || "1", 10);
+  return isNaN(n) ? 1 : n;
+}
+
+function addPoints(n) {
+  const next = getPoints() + n;
+  localStorage.setItem(POINTS_KEY, String(next));
+  refreshPointsBadge();
+  return next;
+}
+
+function spendPoint() {
+  const cur = getPoints();
+  if (cur < 1) return false;
+  localStorage.setItem(POINTS_KEY, String(cur - 1));
+  refreshPointsBadge();
+  return true;
+}
+
+function getUnlockedList() {
+  try {
+    return JSON.parse(localStorage.getItem(UNLOCKED_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function reviewsUnlocked(id) {
+  return getUnlockedList().indexOf(id) !== -1;
+}
+
+function unlockReviews(id) {
+  const list = getUnlockedList();
+  if (list.indexOf(id) === -1) {
+    list.push(id);
+    localStorage.setItem(UNLOCKED_KEY, JSON.stringify(list));
+  }
+}
+
+/* 홈 화면 위쪽에 지금 포인트를 작게 보여줍니다 */
+function refreshPointsBadge() {
+  const el = document.getElementById("points-badge");
+  if (el) el.textContent = pointsLevel(getPoints()) + " \u2B50 " + getPoints() + " pts";
+}
+
+/* ---- 포인트 등급 ---- */
+function pointsLevel(n) {
+  if (n >= 15) return "Local Expert";
+  if (n >= 8) return "Contributor";
+  if (n >= 3) return "Regular";
+  return "Newcomer";
+}
+
+
+/* ---- 리뷰 "도움됨" 투표 (에브리타임 추천 참고) ----
+   한 리뷰에 한 번만 누를 수 있고, 이 브라우저 기준으로 기억합니다. */
+const HELPFUL_KEY = "uoftGuideHelpful";
+
+function getHelpfulMap() {
+  try {
+    return JSON.parse(localStorage.getItem(HELPFUL_KEY) || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+function getHelpfulCount(reviewId) {
+  return getHelpfulMap()[reviewId] || 0;
+}
+
+function hasVotedHelpful(reviewId) {
+  return getHelpfulMap()["voted:" + reviewId] === true;
+}
+
+function voteHelpful(reviewId) {
+  const map = getHelpfulMap();
+  if (map["voted:" + reviewId]) return false;
+  map[reviewId] = (map[reviewId] || 0) + 1;
+  map["voted:" + reviewId] = true;
+  localStorage.setItem(HELPFUL_KEY, JSON.stringify(map));
+  return true;
+}
+
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-helpful-id]");
+  if (!btn || btn.disabled) return;
+
+  const id = btn.dataset.helpfulId;
+  if (!voteHelpful(id)) return;
+
+  btn.disabled = true;
+  btn.classList.add("is-on");
+  const count = getHelpfulCount(id);
+  btn.innerHTML = "\uD83D\uDC4D Helpful <span class=\"helpfulbtn__count\">" + count + "</span>";
+});
+
+
+/* ---- 태그 선택 UI (에브리타임 강의평처럼 3단계 선택) ---- */
+function buildTagPicker(key, label, choices) {
+  return '<div class="tagpicker" data-tagpicker="' + key + '">' +
+           '<span class="tagpicker__label">' + esc(label) + '</span>' +
+           '<div class="tagpicker__choices">' +
+             choices.map(function (c, i) {
+               return '<button type="button" class="tagchip" data-tag-value="' + i + '">' + esc(c) + '</button>';
+             }).join("") +
+           '</div>' +
+         '</div>';
+}
+
+
 function esc(text) {
   return String(text == null ? "" : text)
     .replace(/&/g, "&amp;")
@@ -448,6 +571,38 @@ document.addEventListener("click", function (e) {
   });
 });
 
+/* ---- 태그 칩 클릭 — 하나만 켜지게 ---- */
+document.addEventListener("click", function (e) {
+  const chip = e.target.closest(".tagchip");
+  if (!chip) return;
+
+  const picker = chip.closest(".tagpicker");
+  picker.dataset.value = chip.dataset.tagValue;
+
+  picker.querySelectorAll(".tagchip").forEach(function (c) {
+    c.classList.remove("is-on");
+  });
+  chip.classList.add("is-on");
+});
+
+/* ---- 리뷰 잠금 해제 버튼 ---- */
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-unlock-reviews]");
+  if (!btn) return;
+
+  const id = btn.dataset.unlockReviews;
+
+  if (!spendPoint()) {
+    showToast("Not enough points \u2014 write a review to earn some");
+    return;
+  }
+
+  unlockReviews(id);
+  showToast("Unlocked! (" + getPoints() + " points left)");
+  openDetail(id);   // 상세를 다시 그려서 잠금 풀린 리뷰를 보여줍니다
+});
+
+
 // 제출 — 이메일 앱을 열어 관리자에게 보냅니다.
 // (서버가 없어서 자동으로 사이트에 올라가진 않습니다. 관리자가 받아서 data.js 에 추가합니다.)
 document.addEventListener("submit", function (e) {
@@ -459,6 +614,21 @@ document.addEventListener("submit", function (e) {
   const text = form.querySelector("[data-review-text]").value.trim();
   const name = form.querySelector("[data-review-name]").value.trim() || "Anonymous";
   const residence = form.dataset.residence;
+
+  // 태그 3개(소음/방크기/관리) 값을 모읍니다. 안 고르면 그냥 빠집니다.
+  const tagLabels = { noise: "Noise", room: "Room size", staff: "Staff & maintenance" };
+  const tagChoices = {
+    noise: ["Quiet", "Average", "Loud"],
+    room: ["Small", "Average", "Spacious"],
+    staff: ["Slow", "Average", "Responsive"]
+  };
+  const tagLines = [];
+  form.querySelectorAll("[data-tagpicker]").forEach(function (picker) {
+    const key = picker.dataset.tagpicker;
+    if (picker.dataset.value === undefined) return;
+    const idx = Number(picker.dataset.value);
+    tagLines.push(tagLabels[key] + ": " + tagChoices[key][idx]);
+  });
 
   if (!stars) {
     showToast("Pick a star rating first");
@@ -473,6 +643,7 @@ document.addEventListener("submit", function (e) {
   const body =
     "Residence: " + residence + "\n" +
     "Stars: " + stars + " / 5\n" +
+    (tagLines.length ? tagLines.join("\n") + "\n" : "") +
     "Name: " + name + "\n\n" +
     text;
 
@@ -481,7 +652,8 @@ document.addEventListener("submit", function (e) {
     "?subject=" + encodeURIComponent(subject) +
     "&body=" + encodeURIComponent(body);
 
-  showToast("Opening your email app…");
+  const earned = addPoints(2);
+  showToast("Opening your email app… +2 points (you have " + earned + ")");
 });
 
 
@@ -603,10 +775,52 @@ function renderFeesTimeline(items, color) {
                (item.officialUrl
                  ? '<a class="tl-link" href="' + esc(item.officialUrl) + '" target="_blank" rel="noopener noreferrer">Official page &nearr;</a>'
                  : "") +
+               (item.icsDate
+                 ? '<button type="button" class="icsbtn" data-ics-title="' + esc(item.title) + '" data-ics-date="' + esc(item.icsDate) + '">' +
+                     '\uD83D\uDCC5 Add to calendar' +
+                   '</button>'
+                 : "") +
              '</div>' +
            '</article>';
   }).join("");
 }
+
+
+/* ---- 캘린더에 저장 ----
+   날짜가 확실한(icsDate 가 있는) 항목만 지원합니다.
+   애매한 날짜에 잘못 저장되는 걸 막으려고, 확인 안 된 건 아예 버튼을 안 보여줍니다. */
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".icsbtn");
+  if (!btn) return;
+
+  const title = btn.dataset.icsTitle;
+  const dateStr = btn.dataset.icsDate;   // "YYYY-MM-DD"
+  const compact = dateStr.replace(/-/g, "");
+
+  const ics =
+    "BEGIN:VCALENDAR\r\n" +
+    "VERSION:2.0\r\n" +
+    "PRODID:-//UofT Guide//EN\r\n" +
+    "BEGIN:VEVENT\r\n" +
+    "UID:" + compact + "-" + Math.random().toString(36).slice(2) + "@uoft-guide\r\n" +
+    "DTSTART;VALUE=DATE:" + compact + "\r\n" +
+    "SUMMARY:" + title.replace(/,/g, "\\,") + "\r\n" +
+    "DESCRIPTION:Added from the UofT St. George unofficial student guide.\r\n" +
+    "END:VEVENT\r\n" +
+    "END:VCALENDAR\r\n";
+
+  const blob = new Blob([ics], { type: "text/calendar" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = title.replace(/[^a-z0-9]+/gi, "-") + ".ics";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast("Calendar file downloaded");
+});
 
 
 /* ---- 대상(국내/국제) 전환 ----
@@ -846,32 +1060,87 @@ function buildDetail(item) {
     );
   }
 
-  /* 3. 학생 리뷰 — 사진 바로 아래. 별점 + 글. */
+  /* 3. 학생 리뷰 — 사진 바로 아래. 별점 + 글.
+     첫 리뷰 1개는 항상 무료로 보이고, 그 이상은 포인트로 잠급니다.
+     (에브리타임처럼: 리뷰를 쓰면 포인트를 얻고, 포인트로 더 볼 수 있음)
+     ⚠️ 이 포인트는 이 브라우저에만 저장됩니다. 서버가 없어서 개발자도구로
+        우회할 수 있습니다 — 진짜 계정 시스템이 아니라 가벼운 참여 유도 장치입니다. */
   const reviews = Array.isArray(item.reviews) ? item.reviews.filter(function (r) { return r && r.text; }) : [];
+  const isUnlocked = reviewsUnlocked(item.id);
+  const lockedCount = reviews.length > 1 && !isUnlocked ? reviews.length - 1 : 0;
+  const visibleReviews = lockedCount > 0 ? reviews.slice(0, 1) : reviews;
 
   const reviewCards = reviews.length > 0
     ? (function () {
         const avg = reviews.reduce(function (sum, r) { return sum + (r.stars || 0); }, 0) / reviews.length;
-        const cards = reviews.map(function (r) {
+
+        /* ---- 태그 집계 (에브리타임 강의평처럼 색깔 막대로) ----
+           각 리뷰에 tags:{noise:0~2, room:0~2, staff:0~2} 가 있으면
+           평균 내서 3단계 중 제일 가까운 걸 색깔로 보여줍니다.
+           태그를 단 리뷰가 하나도 없으면 이 구역은 통째로 안 나옵니다. */
+        const tagDefs = [
+          { key: "noise", label: "Noise", choices: ["Quiet", "Average", "Loud"], colors: ["#0F7A4D", "#0B4DA0", "#C05A16"] },
+          { key: "room", label: "Room size", choices: ["Small", "Average", "Spacious"], colors: ["#C05A16", "#0B4DA0", "#0F7A4D"] },
+          { key: "staff", label: "Staff & maintenance", choices: ["Slow", "Average", "Responsive"], colors: ["#C05A16", "#0B4DA0", "#0F7A4D"] }
+        ];
+
+        const tagBars = tagDefs.map(function (def) {
+          const vals = reviews.filter(function (r) { return r.tags && r.tags[def.key] !== undefined; })
+                               .map(function (r) { return r.tags[def.key]; });
+          if (vals.length === 0) return "";
+
+          const idx = Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length);
+          const safeIdx = Math.max(0, Math.min(2, idx));
+
+          return '<div class="tagbar">' +
+                   '<span class="tagbar__label">' + esc(def.label) + '</span>' +
+                   '<span class="tagbar__value" style="background:' + def.colors[safeIdx] + '">' + esc(def.choices[safeIdx]) + '</span>' +
+                 '</div>';
+        }).filter(Boolean).join("");
+
+        const tagSummary = tagBars ? '<div class="tagbars">' + tagBars + '</div>' : "";
+
+        const cards = visibleReviews.map(function (r, i) {
           const stars = Math.max(0, Math.min(5, Math.round(r.stars || 0)));
+          const reviewId = item.id + "-r" + i;
+          const helpfulCount = getHelpfulCount(reviewId);
+          const iVoted = hasVotedHelpful(reviewId);
+
           return '<article class="review">' +
                    '<div class="review__stars" aria-label="' + stars + ' out of 5 stars">' +
                      '★★★★★'.slice(0, stars) + '☆☆☆☆☆'.slice(0, 5 - stars) +
                    '</div>' +
                    '<p class="review__text">' + esc(r.text) + '</p>' +
                    (r.source ? '<p class="credit">' + esc(r.source) + '</p>' : "") +
+                   '<button type="button" class="helpfulbtn' + (iVoted ? " is-on" : "") + '" ' +
+                     'data-helpful-id="' + esc(reviewId) + '" ' + (iVoted ? "disabled" : "") + '>' +
+                     '\uD83D\uDC4D Helpful' + (helpfulCount > 0 ? ' <span class="helpfulbtn__count">' + helpfulCount + '</span>' : "") +
+                   '</button>' +
                  '</article>';
         }).join("");
+
+        const gate = lockedCount > 0
+          ? '<div class="reviewgate">' +
+              '<p class="reviewgate__text">\uD83D\uDD12 ' + lockedCount + (lockedCount === 1 ? " more review is" : " more reviews are") + ' locked.</p>' +
+              '<button type="button" class="reviewgate__btn" data-unlock-reviews="' + esc(item.id) + '">' +
+                'Unlock with 1 point (you have <span data-points-inline>' + getPoints() + '</span>)' +
+              '</button>' +
+              '<p class="reviewgate__hint">Get points by writing a review \u2014 anywhere on the site.</p>' +
+            '</div>'
+          : "";
+
         return '<div class="review__avg">' +
                  '<span class="review__avgnum">' + avg.toFixed(1) + '</span>' +
                  '<span class="review__avgstars">' + '★★★★★'.slice(0, Math.round(avg)) + '</span>' +
                  '<span class="review__avgcount">' + reviews.length + (reviews.length === 1 ? " review" : " reviews") + '</span>' +
                '</div>' +
-               '<div class="reviews">' + cards + '</div>';
+               tagSummary +
+               '<div class="reviews">' + cards + '</div>' +
+               gate;
       })()
     : '<p class="empty empty--small">No reviews yet. Be the first to write one.</p>';
 
-  // 별점 선택 버튼 5개 + 글 입력칸 + 이메일로 보내기.
+  // 별점 선택 버튼 5개 + 태그 3개(소음/방크기/관리) + 글 입력칸 + 이메일로 보내기.
   // 여기서 쓴 내용이 자동으로 사이트에 올라가지는 않습니다 — 관리자가 받아서 확인 후 추가합니다.
   const formHtml =
     '<form class="reviewform" data-review-form data-residence="' + esc(item.name) + '">' +
@@ -881,6 +1150,9 @@ function buildDetail(item) {
           return '<button type="button" class="starpicker__btn" data-star="' + n + '" aria-label="' + n + ' stars">☆</button>';
         }).join("") +
       '</div>' +
+      buildTagPicker("noise", "Noise", ["Quiet", "Average", "Loud"]) +
+      buildTagPicker("room", "Room size", ["Small", "Average", "Spacious"]) +
+      buildTagPicker("staff", "Staff & maintenance", ["Slow", "Average", "Responsive"]) +
       '<textarea class="reviewform__text" data-review-text rows="3" ' +
         'placeholder="What should other students know about living here?" required></textarea>' +
       '<input class="reviewform__name" data-review-name type="text" placeholder="Your name or \'Anonymous\' (shown next to your review)">' +
@@ -1154,13 +1426,15 @@ function openDetail(id) {
 const COURSE_CATEGORIES = [
   { id: "program", label: "Choosing a Program",  desc: "How to pick and apply for your major",         icon: "\uD83C\uDFAF", color: "#7A3FA0" },
   { id: "degree",  label: "Degree Requirements",  desc: "Credits, breadth, and what it takes to graduate", icon: "\uD83C\uDF93", color: "#0F7A4D" },
-  { id: "enrol",   label: "Enrolment (ACORN)",    desc: "When you can start choosing courses",          icon: "\uD83D\uDCBB", color: "#0B4DA0" }
+  { id: "enrol",   label: "Enrolment (ACORN)",    desc: "When you can start choosing courses",          icon: "\uD83D\uDCBB", color: "#0B4DA0" },
+  { id: "coursereviews", label: "Breadth Courses", desc: "Find courses to fill your breadth requirements \u2014 with student reviews", icon: "\uD83D\uDCDD", color: "#C05A16" }
 ];
 
 function courseBadge(catId) {
   if (catId === "enrol")   return COURSE_ENROLMENT.length + " dates";
   if (catId === "program") return COURSE_FACULTIES.length + " faculties";
   if (catId === "degree")  return "Guide";
+  if (catId === "coursereviews") return COURSE_CATALOG.length + " courses";
   return "";
 }
 
@@ -1185,6 +1459,7 @@ function renderCourseCategories() {
       if (id === "enrol")   goToCourseScreen(buildEnrolScreen(), true);
       if (id === "degree")  goToCourseScreen(buildDegreeScreen(), true);
       if (id === "program") goToCourseScreen(buildProgramHomeScreen(""), true);
+      if (id === "coursereviews") goToCourseScreen(buildCourseReviewHomeScreen(""), true);
     });
   });
 }
@@ -1226,6 +1501,9 @@ function renderCourseScreen(screen) {
     const parts = courseStack.map(function (s) { return s.title; }).concat([screen.title]);
     crumbEl.textContent = parts.join(" / ");
   }
+
+  // 학점 계산기가 이 화면 안에 있으면(=Degree Requirements 화면), 결과를 바로 계산해서 보여줍니다.
+  if (document.getElementById("credit-calc-result")) renderCreditResult();
 }
 
 /* Back 버튼: 스택에 남은 게 있으면 하나 꺼내서 보여주고,
@@ -1279,13 +1557,15 @@ function buildDegreeScreen() {
       '</p>' +
     '</div>';
 
+  const calculator = buildCreditCalculator();
+
   const cats = '<div class="halls">' +
     BREADTH_CATEGORIES.map(function (c) {
       return '<article class="hall"><h4 class="hall__name">' + esc(c.name) + '</h4></article>';
     }).join("") +
   '</div>';
 
-  const html = basics + rule +
+  const html = basics + rule + calculator +
     '<h3 class="block__head" style="margin: 0 0 12px;">The 5 breadth categories</h3>' +
     cats +
     '<p class="blocknote">Category names are shown on each course in the official calendar. ' +
@@ -1294,6 +1574,100 @@ function buildDegreeScreen() {
 
   return { title: "Degree Requirements", color: "#0F7A4D", html: html };
 }
+
+
+/* ============================================
+   학점 계산기 (에브리타임 "학점계산기" 참고)
+   ------------------------------------------------
+   졸업까지 20.0학점 중 몇 학점 남았는지, Breadth 요건이
+   충족됐는지 입력한 대로 계산해줍니다.
+   ⚠️ 입력값은 이 브라우저(localStorage)에만 저장됩니다.
+   ============================================ */
+
+const CREDIT_CALC_KEY = "uoftGuideCreditCalc";
+
+function loadCreditCalc() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CREDIT_CALC_KEY) || "{}");
+    return {
+      total: saved.total || 0,
+      b1: saved.b1 || 0, b2: saved.b2 || 0, b3: saved.b3 || 0, b4: saved.b4 || 0, b5: saved.b5 || 0
+    };
+  } catch (e) {
+    return { total: 0, b1: 0, b2: 0, b3: 0, b4: 0, b5: 0 };
+  }
+}
+
+function saveCreditCalc(v) {
+  localStorage.setItem(CREDIT_CALC_KEY, JSON.stringify(v));
+}
+
+function buildCreditCalculator() {
+  const v = loadCreditCalc();
+  const catFields = ["b1", "b2", "b3", "b4", "b5"];
+
+  const catInputs = BREADTH_CATEGORIES.map(function (c, i) {
+    const key = catFields[i];
+    return '<label class="calc__field">' +
+             '<span class="calc__fieldlabel">' + esc(c.name) + '</span>' +
+             '<input type="number" step="0.5" min="0" class="calc__input" data-calc-field="' + key + '" value="' + v[key] + '">' +
+           '</label>';
+  }).join("");
+
+  return '<div class="creditcalc" id="credit-calc">' +
+           '<p class="creditcalc__title">\uD83D\uDCCA Credit Calculator</p>' +
+           '<label class="calc__field calc__field--total">' +
+             '<span class="calc__fieldlabel">Total credits completed</span>' +
+             '<input type="number" step="0.5" min="0" max="20" class="calc__input" data-calc-field="total" value="' + v.total + '">' +
+           '</label>' +
+           '<p class="creditcalc__sub">Credits per breadth category (leave 0 if unsure)</p>' +
+           '<div class="calc__grid">' + catInputs + '</div>' +
+           '<div class="creditcalc__result" id="credit-calc-result"></div>' +
+         '</div>';
+}
+
+/* ---- 계산해서 결과 보여주기 ---- */
+function renderCreditResult() {
+  const box = document.getElementById("credit-calc-result");
+  if (!box) return;
+
+  const v = loadCreditCalc();
+  const total = Math.max(0, v.total);
+  const cats = [v.b1, v.b2, v.b3, v.b4, v.b5];
+
+  const pct = Math.min(100, Math.round((total / 20) * 100));
+  const remaining = Math.max(0, 20 - total);
+
+  const full = cats.filter(function (c) { return c >= 1; }).length;
+  const half = cats.filter(function (c) { return c >= 0.5; }).length;
+  const optionA = full >= 4;
+  const optionB = full >= 3 && half >= 5;
+  const breadthDone = optionA || optionB;
+
+  box.innerHTML =
+    '<div class="creditbar">' +
+      '<div class="creditbar__fill" style="width:' + pct + '%"></div>' +
+    '</div>' +
+    '<p class="creditcalc__line"><strong>' + total.toFixed(1) + ' / 20.0 credits</strong> \u2014 ' +
+      (remaining > 0 ? remaining.toFixed(1) + " to go" : "You've hit the credit minimum \uD83C\uDF89") +
+    '</p>' +
+    '<p class="creditcalc__line ' + (breadthDone ? "creditcalc__line--good" : "") + '">' +
+      (breadthDone
+        ? "\u2705 Breadth requirement looks satisfied (based on what you entered)"
+        : "\u23F3 Breadth not yet satisfied \u2014 need 1.0+ in 4 categories, or 1.0+ in 3 and 0.5+ in the other 2") +
+    '</p>';
+}
+
+/* 입력할 때마다 저장하고 다시 계산 */
+document.addEventListener("input", function (e) {
+  const field = e.target.closest("[data-calc-field]");
+  if (!field) return;
+
+  const v = loadCreditCalc();
+  v[field.dataset.calcField] = parseFloat(field.value) || 0;
+  saveCreditCalc(v);
+  renderCreditResult();
+});
 
 
 /* ---- 화면 3: 전공 탐색 홈 (검색창 + 단과대 타일) ---- */
@@ -1815,4 +2189,338 @@ renderUpdateLog();
 
 /* ---- 페이지를 처음 열 때, 주소에 해시가 있으면(공유된 링크 등) 그 화면부터 보여줍니다 ---- */
 routeFromHash();
+
+/* ---- 포인트 뱃지 첫 표시 ---- */
+refreshPointsBadge();
+
+
+/* ============================================
+   Breadth Courses — 교양 학점 채울 과목 찾기 (Choosing a Program 과는 다름)
+   ------------------------------------------------
+   화면 1: 검색창 + 교양 카테고리 5개 (b1~b5, BREADTH_CATEGORIES 재사용)
+   화면 2: 카테고리 안 과목 목록
+   화면 3: 과목 상세 — 집계 지표 + 리뷰들(교수명 포함) + 리뷰 쓰기 폼
+   ============================================ */
+
+/* ---- 화면 1: 검색 + 교양 카테고리 + 주제 태그 ---- */
+let courseTagFilter = "";   // 지금 고른 주제 태그. 빈 문자열이면 전체.
+
+/* 태그마다 보여줄 이름과 아이콘. data.js 의 tags 값과 맞춰야 합니다. */
+const COURSE_TAGS = [
+  { id: "no-math",         label: "\uD83D\uDEAB\uD83D\uDD22 No math" },
+  { id: "beginner",        label: "\uD83C\uDF31 Beginner-friendly" },
+  { id: "first-year-only", label: "1\uFE0F\u20E3 First-years only" },
+  { id: "seminar",         label: "\uD83D\uDCAC Small seminar" },
+  { id: "hands-on",        label: "\uD83D\uDD27 Hands-on" },
+  { id: "space",           label: "\uD83E\uDE90 Space" },
+  { id: "writing",         label: "\u270D\uFE0F Writing" },
+  { id: "creative",        label: "\uD83C\uDFA8 Creative" },
+  { id: "data",            label: "\uD83D\uDCCA Data" },
+  { id: "coding",          label: "\uD83D\uDCBB Coding" },
+  { id: "psychology",      label: "\uD83E\uDDE0 Psychology" },
+  { id: "philosophy",      label: "\uD83E\uDD14 Philosophy" },
+  { id: "history",         label: "\uD83D\uDCDC History" },
+  { id: "society",         label: "\uD83D\uDC65 Society" },
+  { id: "media",           label: "\uD83D\uDCF1 Media" },
+  { id: "literature",      label: "\uD83D\uDCD6 Literature" },
+  { id: "art",             label: "\uD83D\uDDBC\uFE0F Art" },
+  { id: "music",           label: "\uD83C\uDFB5 Music" },
+  { id: "games",           label: "\uD83C\uDFAE Games" },
+  { id: "biology",         label: "\uD83E\uDDEC Biology" },
+  { id: "environment",     label: "\uD83C\uDF3F Environment" },
+  { id: "health",          label: "\uD83C\uDFE5 Health" },
+  { id: "business",        label: "\uD83D\uDCBC Business" },
+  { id: "language",        label: "\uD83D\uDDE3\uFE0F Language" }
+];
+
+function buildCourseReviewHomeScreen(term) {
+  const q = (term || "").trim().toLowerCase();
+
+  /* 태그 필터가 걸려 있으면 그 태그를 가진 과목만 대상으로 삼습니다 */
+  const pool = !courseTagFilter
+    ? COURSE_CATALOG
+    : courseTagFilter === "__noprereq"
+      ? COURSE_CATALOG.filter(function (co) { return !co.prereq; })
+      : COURSE_CATALOG.filter(function (co) { return (co.tags || []).indexOf(courseTagFilter) !== -1; });
+
+  const cats = !q
+    ? BREADTH_CATEGORIES
+    : BREADTH_CATEGORIES.filter(function (c) {
+        return c.name.toLowerCase().indexOf(q) !== -1 ||
+               pool.some(function (co) { return co.category === c.id && (co.code.toLowerCase().indexOf(q) !== -1 || co.name.toLowerCase().indexOf(q) !== -1); });
+      });
+
+  const matches = q
+    ? pool.filter(function (co) { return co.code.toLowerCase().indexOf(q) !== -1 || co.name.toLowerCase().indexOf(q) !== -1; })
+    : [];
+
+  const searchHtml =
+    '<div class="search program-search">' +
+      '<label class="search__label" for="course-review-search">Search</label>' +
+      '<input class="search__input" id="course-review-search" type="text" ' +
+      'placeholder="Course code or name" value="' + esc(term || "") + '" autocomplete="off">' +
+    '</div>';
+
+  /* 주제 태그 줄. 실제로 과목이 붙어있는 태그만 보여줍니다. */
+  const availableTags = COURSE_TAGS.filter(function (t) {
+    return COURSE_CATALOG.some(function (co) { return (co.tags || []).indexOf(t.id) !== -1; });
+  });
+
+  const tagBar =
+    '<div class="tagfilter">' +
+      '<button type="button" class="tagfilter__btn' + (courseTagFilter ? "" : " is-on") + '" data-course-tag="">All</button>' +
+      '<button type="button" class="tagfilter__btn tagfilter__btn--open' + (courseTagFilter === "__noprereq" ? " is-on" : "") + '" data-course-tag="__noprereq">' +
+        '\u2705 No prerequisites <span class="tagfilter__count">' +
+        COURSE_CATALOG.filter(function (co) { return !co.prereq; }).length + '</span>' +
+      '</button>' +
+      availableTags.map(function (t) {
+        const n = COURSE_CATALOG.filter(function (co) { return (co.tags || []).indexOf(t.id) !== -1; }).length;
+        return '<button type="button" class="tagfilter__btn' + (courseTagFilter === t.id ? " is-on" : "") + '" data-course-tag="' + t.id + '">' +
+                 t.label + ' <span class="tagfilter__count">' + n + '</span>' +
+               '</button>';
+      }).join("") +
+    '</div>';
+
+  const catCards = cats.length
+    ? '<div class="halls">' +
+        cats.map(function (c) {
+          const n = pool.filter(function (co) { return co.category === c.id; }).length;
+          return '<button type="button" class="hall hall--clickable" data-open-course-cat="' + c.id + '" style="--cat-color:' + c.color + '">' +
+                   '<h4 class="hall__name">' + c.icon + ' ' + esc(c.name) + '</h4>' +
+                   '<p class="hall__tags">' + n + (n === 1 ? " course" : " courses") + '</p>' +
+                 '</button>';
+        }).join("") +
+      '</div>'
+    : '<p class="empty">No matches for \u201c' + esc(term) + '\u201d</p>';
+
+  const matchHtml = matches.length
+    ? '<h3 class="block__head" style="margin: 20px 0 12px;">Matching courses</h3>' +
+      '<div class="halls">' +
+        matches.map(function (co) {
+          const cat = BREADTH_CATEGORIES.filter(function (c) { return c.id === co.category; })[0];
+          return '<button type="button" class="hall hall--clickable" data-open-course="' + co.id + '" style="--cat-color:' + (cat ? cat.color : "#0B4DA0") + '">' +
+                   '<h4 class="hall__name">' + esc(co.code) + '</h4>' +
+                   '<p class="hall__tags">' + esc(co.name) + '</p>' +
+                 '</button>';
+        }).join("") +
+      '</div>'
+    : "";
+
+  return {
+    title: "Breadth Courses",
+    color: "#C05A16",
+    html: '<ul class="lede">' +
+            '<li>Pick a category below, then browse courses that count toward it.</li>' +
+            '<li>Only courses open to students outside that subject \u2014 program prerequisites are left out.</li>' +
+            '<li>Already took one? Leave a review so the next student knows what to expect.</li>' +
+          '</ul>' +
+          searchHtml + tagBar + catCards + matchHtml +
+          '<p class="blocknote">\uD83D\uDCA1 marks courses that U of T\u2019s own student advice service (askastudent) flags as accessible for students outside that subject. ' +
+          'Not every course has one \u2014 that just means we haven\u2019t found a solid recommendation, not that it\u2019s hard.</p>'
+  };
+}
+
+/* 태그 버튼 클릭 */
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-course-tag]");
+  if (!btn) return;
+  courseTagFilter = btn.dataset.courseTag;
+  const input = document.getElementById("course-review-search");
+  replaceCourseScreen(buildCourseReviewHomeScreen(input ? input.value : ""));
+});
+
+document.addEventListener("input", function (e) {
+  if (e.target.id !== "course-review-search") return;
+  const caret = e.target.selectionStart;
+  replaceCourseScreen(buildCourseReviewHomeScreen(e.target.value));
+  const el = document.getElementById("course-review-search");
+  if (el) { el.focus(); el.setSelectionRange(caret, caret); }
+});
+
+
+/* ---- 화면 2: 카테고리 안 과목 목록 ---- */
+function buildCourseListScreen(catId) {
+  const cat = BREADTH_CATEGORIES.filter(function (c) { return c.id === catId; })[0];
+  let courses = COURSE_CATALOG.filter(function (co) { return co.category === catId; });
+
+  // 홈에서 주제 태그를 골라놨으면 여기서도 그대로 적용합니다
+  if (courseTagFilter === "__noprereq") {
+    courses = courses.filter(function (co) { return !co.prereq; });
+  } else if (courseTagFilter) {
+    courses = courses.filter(function (co) { return (co.tags || []).indexOf(courseTagFilter) !== -1; });
+  }
+
+  const list = courses.length
+    ? '<div class="halls">' +
+        courses.map(function (co) {
+          const n = co.reviews.length;
+          return '<button type="button" class="hall hall--clickable" data-open-course="' + co.id + '" style="--cat-color:' + (cat ? cat.color : "#0B4DA0") + '">' +
+                   '<h4 class="hall__name">' + esc(co.code) + ' \u2014 ' + esc(co.name) + '</h4>' +
+                   (co.desc ? '<p class="hall__rooms">' + esc(co.desc) + '</p>' : "") +
+                   (co.prereq
+                     ? '<p class="prereq">\uD83D\uDD10 Needs first: ' + esc(co.prereq) + '</p>'
+                     : '<p class="prereq prereq--open">\u2705 Open to everyone \u2014 no prerequisites</p>') +
+                   (co.note ? '<p class="coursenote">\uD83D\uDCA1 ' + esc(co.note) + '</p>' : "") +
+                   '<p class="hall__tags">' + (n ? n + (n === 1 ? " review" : " reviews") : "No reviews yet") + '</p>' +
+                 '</button>';
+        }).join("") +
+      '</div>'
+    : '<p class="empty">No courses here' + (courseTagFilter ? " with that tag" : "") + ' yet.</p>';
+
+  return { title: cat ? cat.name : "Category", color: cat ? cat.color : "#0B4DA0", html: list };
+}
+
+
+/* ---- 화면 3: 과목 상세 — 집계 지표 + 리뷰 + 작성 폼 ---- */
+function buildCourseDetailScreen(courseId) {
+  const co = COURSE_CATALOG.filter(function (c) { return c.id === courseId; })[0];
+  if (!co) return { title: "Not found", color: "#C05A16", html: '<p class="empty">That course isn\u2019t in data.js</p>' };
+
+  const cat = BREADTH_CATEGORIES.filter(function (c) { return c.id === co.category; })[0];
+  const reviews = co.reviews || [];
+
+  let summaryHtml = "";
+  if (reviews.length) {
+    const avg = reviews.reduce(function (s, r) { return s + (r.stars || 0); }, 0) / reviews.length;
+
+    const dims = [
+      { key: "workload", label: "Workload", choices: ["Light", "Moderate", "Heavy"], colors: ["#0F7A4D", "#0B4DA0", "#C05A16"] },
+      { key: "difficulty", label: "Difficulty", choices: ["Easy", "Medium", "Hard"], colors: ["#0F7A4D", "#0B4DA0", "#C05A16"] }
+    ];
+    const tagBars = dims.map(function (def) {
+      const vals = reviews.filter(function (r) { return r.tags && r.tags[def.key] !== undefined; }).map(function (r) { return r.tags[def.key]; });
+      if (!vals.length) return "";
+      const idx = Math.max(0, Math.min(2, Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length)));
+      return '<div class="tagbar"><span class="tagbar__label">' + esc(def.label) + '</span>' +
+             '<span class="tagbar__value" style="background:' + def.colors[idx] + '">' + esc(def.choices[idx]) + '</span></div>';
+    }).filter(Boolean).join("");
+
+    summaryHtml =
+      '<div class="review__avg">' +
+        '<span class="review__avgnum">' + avg.toFixed(1) + '</span>' +
+        '<span class="review__avgstars">' + '★★★★★'.slice(0, Math.round(avg)) + '</span>' +
+        '<span class="review__avgcount">' + reviews.length + (reviews.length === 1 ? " review" : " reviews") + '</span>' +
+      '</div>' +
+      (tagBars ? '<div class="tagbars">' + tagBars + '</div>' : "");
+  }
+
+  const reviewCards = reviews.length
+    ? '<div class="reviews">' +
+        reviews.map(function (r, i) {
+          const stars = Math.max(0, Math.min(5, Math.round(r.stars || 0)));
+          const reviewId = co.id + "-r" + i;
+          const helpfulCount = getHelpfulCount(reviewId);
+          const iVoted = hasVotedHelpful(reviewId);
+          return '<article class="review">' +
+                   '<p class="review__prof">\uD83D\uDC64 ' + esc(r.professor || "Professor not given") + '</p>' +
+                   '<div class="review__stars" aria-label="' + stars + ' out of 5 stars">' +
+                     '★★★★★'.slice(0, stars) + '☆☆☆☆☆'.slice(0, 5 - stars) +
+                   '</div>' +
+                   '<p class="review__text">' + esc(r.text) + '</p>' +
+                   (r.source ? '<p class="credit">' + esc(r.source) + '</p>' : "") +
+                   '<button type="button" class="helpfulbtn' + (iVoted ? " is-on" : "") + '" data-helpful-id="' + esc(reviewId) + '" ' + (iVoted ? "disabled" : "") + '>' +
+                     '\uD83D\uDC4D Helpful' + (helpfulCount > 0 ? ' <span class="helpfulbtn__count">' + helpfulCount + '</span>' : "") +
+                   '</button>' +
+                 '</article>';
+        }).join("") +
+      '</div>'
+    : '<p class="empty empty--small">No reviews yet. Be the first.</p>';
+
+  const formHtml =
+    '<form class="reviewform" data-course-review-form data-course-code="' + esc(co.code) + '" style="margin-top:20px;">' +
+      '<p class="reviewform__label">Write a review</p>' +
+      '<div class="starpicker" data-starpicker>' +
+        [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" class="starpicker__btn" data-star="' + n + '" aria-label="' + n + ' stars">☆</button>'; }).join("") +
+      '</div>' +
+      '<input class="reviewform__name" data-course-prof type="text" placeholder="Professor\u2019s name" required>' +
+      buildTagPicker("workload", "Workload", ["Light", "Moderate", "Heavy"]) +
+      buildTagPicker("difficulty", "Difficulty", ["Easy", "Medium", "Hard"]) +
+      '<textarea class="reviewform__text" data-review-text rows="3" placeholder="How was the course? Assignments, exams, lecture style\u2026" required></textarea>' +
+      '<input class="reviewform__name" data-review-name type="text" placeholder="Your name or \'Anonymous\'">' +
+      '<button type="submit" class="reviewform__submit">Send review</button>' +
+      '<p class="reviewform__note">Opens your email app. We read every submission and add it to the site.</p>' +
+    '</form>';
+
+  const topicsHtml = (co.topics && co.topics.length)
+    ? '<h3 class="block__head" style="margin: 18px 0 8px;">What it covers</h3>' +
+      '<ul class="lede">' + co.topics.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>'
+    : "";
+
+  const tagsHtml = (co.tags && co.tags.length)
+    ? '<div class="credbadges" style="margin-bottom:12px;">' +
+        co.tags.map(function (t) {
+          const def = COURSE_TAGS.filter(function (x) { return x.id === t; })[0];
+          return '<span class="credbadge">' + (def ? def.label : esc(t)) + '</span>';
+        }).join("") +
+      '</div>'
+    : "";
+
+  const prereqHtml = co.prereq
+    ? '<div class="prereqbox"><p class="prereqbox__label">\uD83D\uDD10 Prerequisites</p><p class="prereqbox__text">' + esc(co.prereq) + '</p></div>'
+    : '<div class="prereqbox prereqbox--open"><p class="prereqbox__label">\u2705 Open to everyone</p><p class="prereqbox__text">No prerequisites listed \u2014 anyone can enrol.</p></div>';
+
+  const html =
+    '<p class="hall__tags" style="margin-bottom:10px;">' + esc(co.name) + '</p>' +
+    tagsHtml +
+    (co.desc ? '<p class="tl-text" style="margin-bottom:14px;">' + esc(co.desc) + '</p>' : "") +
+    prereqHtml +
+    (co.note ? '<p class="coursenote coursenote--big">\uD83D\uDCA1 ' + esc(co.note) + '</p>' : "") +
+    topicsHtml +
+    '<a class="tl-link" href="https://artsci.calendar.utoronto.ca/course/' + esc(co.code) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin:14px 0 20px;">Official calendar entry &nearr;</a>' +
+    summaryHtml + reviewCards + formHtml;
+
+  return { title: co.code, color: cat ? cat.color : "#0B4DA0", html: html };
+}
+
+
+/* ---- 클릭 위임: 카테고리 → 과목목록 → 과목상세 ---- */
+document.addEventListener("click", function (e) {
+  const catBtn = e.target.closest("[data-open-course-cat]");
+  if (catBtn) {
+    goToCourseScreen(buildCourseListScreen(catBtn.dataset.openCourseCat), false);
+    return;
+  }
+  const courseBtn = e.target.closest("[data-open-course]");
+  if (courseBtn) {
+    goToCourseScreen(buildCourseDetailScreen(courseBtn.dataset.openCourse), false);
+  }
+});
+
+
+/* ---- 과목 리뷰 제출 ---- */
+document.addEventListener("submit", function (e) {
+  const form = e.target.closest("[data-course-review-form]");
+  if (!form) return;
+  e.preventDefault();
+
+  const stars = Number(form.querySelector("[data-starpicker]").dataset.value || 0);
+  const professor = form.querySelector("[data-course-prof]").value.trim();
+  const text = form.querySelector("[data-review-text]").value.trim();
+  const name = form.querySelector("[data-review-name]").value.trim() || "Anonymous";
+  const code = form.dataset.courseCode;
+
+  if (!stars) { showToast("Pick a star rating first"); return; }
+  if (!professor) { showToast("Add the professor's name"); return; }
+  if (!text) { showToast("Write a few words first"); return; }
+
+  const tagLines = [];
+  form.querySelectorAll("[data-tagpicker]").forEach(function (picker) {
+    if (picker.dataset.value === undefined) return;
+    tagLines.push(picker.dataset.tagpicker + ": " + picker.dataset.value);
+  });
+
+  const subject = "Course review: " + code;
+  const body =
+    "Course: " + code + "\n" +
+    "Professor: " + professor + "\n" +
+    "Stars: " + stars + " / 5\n" +
+    (tagLines.length ? tagLines.join("\n") + "\n" : "") +
+    "Name: " + name + "\n\n" +
+    text;
+
+  window.location.href = "mailto:" + ADMIN_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+
+  const earned = addPoints(2);
+  showToast("Opening your email app\u2026 +2 points (you have " + earned + ")");
+});
 

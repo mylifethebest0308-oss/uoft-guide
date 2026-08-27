@@ -10,6 +10,8 @@
   --bg:         #E6EAF0;   /* 화면 전체 바탕. 순백보다 어둡게 해서 눈부심을 줄입니다 */
   --paper:      #F7F8FA;   /* 종이 부분. 순백(#FFFFFF)이 아니라 살짝 낮춘 밝기 */
   --ink:        #101318;   /* 본문 글자 (거의 검정) */
+  --ink-rgb:    16, 19, 24; /* --ink 를 rgba() 안에서도 쓰려고 숫자만 따로 둔 것.
+                                다크모드에서 이 숫자만 바꾸면 모든 테두리 색이 같이 바뀝니다. */
   --ink-soft:   #101318;   /* 예전에는 회색이었지만 이제 본문과 같은 검정입니다.
                               글의 중요도는 색이 아니라 '크기'로만 구분합니다. */
   --ink-faint:  #101318;   /* 위와 같음 */
@@ -28,6 +30,8 @@
   --body:    "Archivo", "Helvetica Neue", Arial, sans-serif;
   --mono:    "Space Mono", "Courier New", monospace;
 }
+
+
 
 /* ---- 모든 요소의 크기 계산 방식을 통일합니다. 안 하면 배치가 어긋납니다. ---- */
 *,
@@ -89,7 +93,8 @@ body {
 .stamp {
   display: inline-block;
   margin: 14px 0 0;
-  padding: 5px 10px;
+  padding: 5px 12px;
+  border-radius: 999px;
   background: var(--ink);
   color: #FFFFFF;
   font-family: var(--mono);
@@ -114,10 +119,10 @@ body {
   gap: 10px;
   margin-top: clamp(24px, 5vw, 36px);
   padding: 12px 16px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 999px;
   background: var(--paper);
-  box-shadow: 0 2px 8px rgba(16, 19, 24, 0.05);
+  box-shadow: 0 2px 8px rgba(var(--ink-rgb), 0.05);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -444,7 +449,7 @@ ul.lede li::marker {
   margin: 0 0 clamp(26px, 5vw, 36px);
   padding: 16px 18px;
   background: var(--highlight);
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
 }
 
@@ -487,7 +492,7 @@ ul.lede li::marker {
   gap: 0 14px;
   width: 100%;
   padding: 12px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 14px;
   background: var(--paper);
   font: inherit;
@@ -624,7 +629,7 @@ ul.lede li::marker {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   overflow: hidden;
   background: var(--ink);
@@ -663,7 +668,7 @@ ul.lede li::marker {
   width: min(78%, 300px);
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   scroll-snap-align: start;
 }
@@ -792,7 +797,7 @@ ul.lede li::marker {
 .cta:hover,
 .cta:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 19, 24, 0.22);
+  box-shadow: 0 6px 16px rgba(var(--ink-rgb), 0.22);
 }
 
 /* ---- 좁은 폰에서는 항목 이름을 위로 ---- */
@@ -899,7 +904,7 @@ ul.lede li::marker {
 
 .floor {
   margin: 0;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   overflow: hidden;
   background: var(--paper);
@@ -994,7 +999,7 @@ ul.lede li::marker {
 
 .hall {
   padding: 15px 16px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 14px;
   background: var(--paper);
 }
@@ -1046,7 +1051,7 @@ ul.lede li::marker {
 
 .plan {
   padding: 15px 16px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 14px;
   background: var(--paper);
 }
@@ -1121,7 +1126,7 @@ ul.lede li::marker {
 }
 
 .mapbox {
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 9px;
@@ -1187,7 +1192,7 @@ ul.lede li::marker {
 
 .review {
   padding: 14px 16px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 14px;
   background: var(--paper);
 }
@@ -1266,7 +1271,7 @@ ul.lede li::marker {
 
 .reviewform {
   padding: 16px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 14px;
   background: var(--paper);
   display: grid;
@@ -1511,7 +1516,7 @@ strong {
   flex-direction: column;
   gap: 10px;
   padding: 22px 20px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 16px;
   background: var(--paper);
   cursor: pointer;
@@ -1527,7 +1532,7 @@ strong {
 .feescard:hover,
 .feescard:focus-visible {
   transform: translateY(-3px);
-  box-shadow: 0 10px 22px rgba(16, 19, 24, 0.14);
+  box-shadow: 0 10px 22px rgba(var(--ink-rgb), 0.14);
   outline: none;
 }
 
@@ -1616,11 +1621,11 @@ strong {
   padding: 18px 18px 18px 0;
   margin-bottom: 16px;
   margin-left: 54px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-left: 7px solid var(--cat-color);
   border-radius: 12px;
   background: var(--paper);
-  box-shadow: 0 3px 12px rgba(16, 19, 24, 0.08);
+  box-shadow: 0 3px 12px rgba(var(--ink-rgb), 0.08);
 }
 
 /* 순번 동그라미. 타임라인 선 위에 얹힙니다 */
@@ -1676,7 +1681,7 @@ strong {
 .hall--clickable:hover,
 .hall--clickable:focus-visible {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(16, 19, 24, 0.13);
+  box-shadow: 0 10px 20px rgba(var(--ink-rgb), 0.13);
   outline: none;
 }
 
@@ -1705,7 +1710,7 @@ strong {
   width: 100%;
   max-width: 360px;
   padding: 10px 12px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 10px;
   background: var(--paper);
   font-family: var(--body);
@@ -1726,7 +1731,7 @@ strong {
 
 .searchresults {
   margin-top: 8px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   background: var(--paper);
   max-height: 340px;
@@ -1809,7 +1814,7 @@ strong {
 .updatelog {
   margin: clamp(20px, 4vw, 32px) 0;
   padding: 16px 18px;
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   background: #F7F8FA;
 }
@@ -1860,7 +1865,7 @@ strong {
 }
 
 .azlist {
-  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -1979,4 +1984,454 @@ strong {
 @keyframes viewFadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* ============================================
+   포인트 뱃지 (홈 화면 위쪽)
+   ============================================ */
+
+.pointsbadge {
+  display: inline-block;
+  float: right;
+  margin-top: 14px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--highlight);
+  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+
+/* ============================================
+   리뷰 잠금 게이트
+   ============================================ */
+
+.reviewgate {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1.5px dashed var(--student);
+  border-radius: 14px;
+  background: #FDF3EA;
+  text-align: center;
+}
+
+.reviewgate__text {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.reviewgate__btn {
+  padding: 9px 16px;
+  border: 1.5px solid var(--student);
+  border-radius: 999px;
+  background: var(--student);
+  color: #FFFFFF;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.reviewgate__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(192, 90, 22, 0.28);
+}
+
+.reviewgate__hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+
+/* ============================================
+   리뷰 폼 안 태그 선택 (소음/방크기/관리)
+   ============================================ */
+
+.tagpicker {
+  margin: 4px 0;
+}
+
+.tagpicker__label {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.tagpicker__choices {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tagchip {
+  padding: 6px 12px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tagchip.is-on {
+  background: var(--student);
+  border-color: var(--student);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+
+/* ============================================
+   리뷰 집계 색상 지표 — 에브리타임 강의평 스타일
+   ============================================ */
+
+.tagbars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.55);
+  border-radius: 12px;
+  background: #F7F8FA;
+}
+
+.tagbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tagbar__label {
+  font-family: var(--body);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.tagbar__value {
+  padding: 3px 12px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* ============================================
+   A-Z 프로그램 목록 — 게시판처럼 촘촘하게
+   ============================================ */
+
+.azrow {
+  padding: 9px 12px;
+}
+
+.azrow:nth-child(even) {
+  background: #F5F6F8;
+}
+
+.azrow__name {
+  font-size: 14px;
+}
+
+.azrow__meta {
+  font-size: 11px;
+}
+
+
+/* ============================================
+   학점 계산기
+   ============================================ */
+
+.creditcalc {
+  margin: 16px 0 24px;
+  padding: 16px 18px;
+  border: 1.5px solid rgba(15, 122, 77, 0.6);
+  border-radius: 14px;
+  background: #F0F8F4;
+}
+
+.creditcalc__title {
+  margin: 0 0 12px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--money, #0F7A4D);
+}
+
+.calc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.calc__field--total {
+  max-width: 220px;
+}
+
+.calc__fieldlabel {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.calc__input {
+  padding: 8px 10px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
+  border-radius: 8px;
+  background: var(--paper);
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--ink);
+  width: 100%;
+}
+
+.calc__input:focus {
+  outline: none;
+  border-color: #0F7A4D;
+}
+
+.calc__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.creditcalc__sub {
+  margin: 4px 0 10px;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.creditbar {
+  height: 10px;
+  border-radius: 999px;
+  background: #DCE9E1;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.creditbar__fill {
+  height: 100%;
+  background: #0F7A4D;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.creditcalc__line {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.creditcalc__line--good {
+  color: #0F7A4D;
+  font-weight: 700;
+}
+
+
+/* ============================================
+   리뷰 "도움됨" 버튼
+   ============================================ */
+
+.helpfulbtn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.helpfulbtn:hover:not(:disabled) {
+  background: #EDF1F7;
+}
+
+.helpfulbtn.is-on {
+  background: var(--uoft);
+  border-color: var(--uoft);
+  color: #FFFFFF;
+  cursor: default;
+}
+
+.helpfulbtn:disabled {
+  cursor: default;
+}
+
+.helpfulbtn__count {
+  font-weight: 700;
+}
+/* ============================================
+   캘린더 저장 버튼
+   ============================================ */
+
+.icsbtn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 13px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.6);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.icsbtn:hover {
+  background: var(--uoft);
+  color: #FFFFFF;
+  border-color: var(--uoft);
+  transform: translateY(-1px);
+}
+
+
+/* ============================================
+   과목 리뷰 — 교수명 표시
+   ============================================ */
+
+.review__prof {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--uoft);
+}
+
+
+/* ============================================
+   교양 과목 추천 이유 (💡)
+   ============================================ */
+
+.coursenote {
+  margin: 6px 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #FFF9DB;
+  border-left: 3px solid var(--highlight);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.coursenote--big {
+  font-size: 15px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+}
+
+
+/* ============================================
+   주제 태그 필터 (교양 과목 고르기)
+   ============================================ */
+
+.tagfilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0 0 20px;
+}
+
+.tagfilter__btn {
+  padding: 7px 13px;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tagfilter__btn:hover {
+  border-color: var(--student);
+}
+
+.tagfilter__btn.is-on {
+  background: var(--student);
+  border-color: var(--student);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.tagfilter__count {
+  opacity: 0.65;
+  font-size: 11px;
+}
+
+.tagfilter__btn.is-on .tagfilter__count {
+  opacity: 0.85;
+}
+
+
+/* ============================================
+   선수과목(prerequisite) 표시
+   ============================================ */
+
+.prereq {
+  margin: 6px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.prereq--open {
+  color: #0F7A4D;
+  font-weight: 700;
+}
+
+.prereqbox {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 4px solid var(--student);
+  background: #FDF3EA;
+}
+
+.prereqbox--open {
+  border-left-color: #0F7A4D;
+  background: #F0F8F4;
+}
+
+.prereqbox__label {
+  margin: 0 0 5px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.prereqbox__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tagfilter__btn--open.is-on {
+  background: #0F7A4D;
+  border-color: #0F7A4D;
 }
