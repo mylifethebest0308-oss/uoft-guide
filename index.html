@@ -1,123 +1,190 @@
 <!DOCTYPE html>
-<!-- ============================================
-     UofT Guide — 홈 화면 (4-A 단계)
-     이 파일은 "뼈대" 입니다. 무엇이 화면에 있는지만 정합니다.
-     생김새는 style.css, 동작은 app.js 가 담당합니다.
-     ============================================ -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- 폰에서 글자가 삐져나오지 않게 하는 설정. 지우면 안 됩니다. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- ⚠️ 아래 한 줄은 "구글아, 이 사이트를 검색 결과에 넣지 마" 라는 뜻입니다.
-       주소를 아는 사람만 들어올 수 있게 막아둔 것입니다.
-       내용이 충분히 채워져서 남들에게 알려도 되겠다 싶으면,
-       이 줄만 통째로 지우세요. 며칠 뒤부터 구글에 뜨기 시작합니다. -->
   <meta name="robots" content="noindex, nofollow">
-
-  <!-- 구글 검색에 뜰 때 보이는 제목과 설명 -->
   <title>UofT St. George — Unofficial Student Guide</title>
   <meta name="description" content="A plain-language guide to residence, courses, fees and clubs at the University of Toronto St. George campus. Made by students, not by the university.">
 
-  <!-- 글씨체를 인터넷에서 불러옵니다 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- 디자인 파일 연결 -->
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <!-- ===== 화면 1: 홈 ===== -->
-  <main class="sheet" id="view-home">
+<div class="app">
 
-    <!-- ===== 상단: 제목 + 검색 ===== -->
-    <header class="masthead">
-      <h1 class="title">
-        University of Toronto
-        <span class="title__sub">St.&nbsp;George Campus</span>
-      </h1>
+  <!-- =========================================
+       TOP NAV — 모든 화면 공통
+       ========================================= -->
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="#">
+      <span class="brand__mark">U</span>
+      <span class="brand__text">
+        <span>UofT St. George</span>
+        <small>Student guide · unofficial</small>
+      </span>
+    </a>
 
-      <p class="stamp">Unofficial student guide</p>
-      <p class="pointsbadge" id="points-badge" title="Earned by writing reviews. Saved on this device only."></p>
+    <div class="nav__pills">
+      <button type="button" class="nav__pill is-on" data-nav="home">Home</button>
+      <button type="button" class="nav__pill" data-nav="residence">Residence</button>
+      <button type="button" class="nav__pill" data-nav="courses">Courses</button>
+      <button type="button" class="nav__pill" data-nav="fees">Fees</button>
+    </div>
 
-      <!-- 검색: 이제 실제로 동작합니다. 기숙사·날짜·전공을 한 번에 찾습니다. -->
-      <div class="search">
-        <label class="search__label" for="search">Search</label>
-        <input
-          class="search__input"
-          id="search"
-          type="text"
-          placeholder="Residences, dates, programs…"
-          autocomplete="off">
-      </div>
-      <div class="searchresults" id="home-search-results" hidden></div>
-    </header>
+    <div class="nav__right">
+      <span class="nav__badge nav__badge--live">
+        <span class="dot"></span>Live · Aug '26
+      </span>
+      <span class="pointsbadge" id="points-badge" title="Earned by writing reviews. Saved on this device only."></span>
+    </div>
+  </nav>
 
-    <!-- ===== 섹션 목록 ===== -->
-    <!-- 줄 전체가 버튼입니다. data-key 는 app.js 가 어느 줄인지 알아보는 이름표입니다. -->
-    <nav class="sections" id="home-sections">
+<!-- =========================================
+     VIEW 1: HOME
+     ========================================= -->
+<main class="sheet view is-active" id="view-home">
 
-      <button type="button" class="row is-live" data-key="residence">
-        <span class="row__name">Residence</span>
-        <span class="row__cue">&rarr;</span>
-        <span class="row__desc">Housing, costs, dates, photos</span>
-      </button>
-
-      <button type="button" class="row is-live" data-key="courses">
-        <span class="row__name">Courses</span>
-        <span class="row__cue">&rarr;</span>
-        <span class="row__desc">Enrolment dates, choosing a program, degree requirements</span>
-      </button>
-
-      <button type="button" class="row is-live" data-key="fees">
-        <span class="row__name">Fees</span>
-        <span class="row__cue">&rarr;</span>
-        <span class="row__desc">Every deadline from application to move-in</span>
-      </button>
-
-      <button type="button" class="row is-soon" data-key="clubs">
-        <span class="row__name">School Clubs</span>
-        <span class="row__cue">Soon</span>
-        <span class="row__desc">List, how to join</span>
-      </button>
-
-    </nav>
-
-    <!-- ===== 최근 업데이트 ===== -->
-    <div class="updatelog" id="update-log"></div>
-
-    <!-- ===== 하단 ===== -->
-    <footer class="colophon">
-      <p class="colophon__legal">
-        Not affiliated with, endorsed by, or operated by the University of Toronto.
-        Always confirm details on the official U&nbsp;of&nbsp;T website.
-      </p>
-      <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
-    </footer>
-
-  </main>
-
-
-  <!-- ===== 화면 2: Residence 목록 =====
-       hidden 이 붙어 있으면 화면에 안 보입니다.
-       Residence 를 누르면 app.js 가 이걸 떼어냅니다. -->
-  <main class="sheet" id="view-residence" hidden>
-
-    <button type="button" class="backlink" data-back>&larr;&nbsp; Back</button>
-
-    <h2 class="page-title">Residence</h2>
-
-    <p class="lede">
-      Every residence on the St.&nbsp;George campus, side by side. Figures come
-      from U&nbsp;of&nbsp;T's official housing page &mdash; always confirm before you apply.
+  <header class="masthead">
+    <span class="hero__eyebrow">
+      <em>New</em> 7 more student reviews added this week
+    </span>
+    <h1 class="title">
+      University&nbsp;of&nbsp;Toronto
+      <span class="title__sub">St.&nbsp;George Campus</span>
+    </h1>
+    <p class="hero__sub">
+      Everything you actually need to know — residence, courses, fees. Written the way a friend would explain it, by current students, checked every August.
     </p>
 
-    <!-- 제일 중요한 정보를 형광펜 박스로 -->
-    <div class="keybox">
+    <!-- 검색: 카드 형태, 아래 suggest chips -->
+    <label class="search">
+      <span class="search__label" for="search">Search</span>
+      <input
+        class="search__input"
+        id="search"
+        type="text"
+        placeholder="Search residences, deadlines, programs…"
+        autocomplete="off">
+      <span class="search__kbd">⌘K</span>
+    </label>
+    <div class="search__suggest">
+      <span>Try</span>
+      <button type="button" data-suggest="Chestnut">Chestnut price</button>
+      <button type="button" data-suggest="March 31">March 31 deadline</button>
+      <button type="button" data-suggest="Meal">Meal plans</button>
+      <button type="button" data-suggest="Computer">CS enrolment</button>
+    </div>
+    <div class="searchresults" id="home-search-results" hidden></div>
+  </header>
+
+  <!-- 큰 컬러 섹션 카드 4개 (rows 자리에 대신) -->
+  <nav class="sections" id="home-sections" aria-label="Sections">
+
+    <button type="button" class="row section-card section-card--residence is-live" data-key="residence">
+      <div class="section-card__top">
+        <span class="section-card__badge"><span class="num">01</span>Residence</span>
+        <span class="section-card__meta">7 residences · updated Aug '26</span>
+      </div>
+      <div>
+        <span class="row__name section-card__name">Where you'll<br><em>live.</em></span>
+        <p class="row__desc section-card__desc">Every residence side by side. Prices, meal plans, and what students actually think.</p>
+        <span class="row__cue section-card__cta">
+          Explore
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+    </button>
+
+    <button type="button" class="row section-card section-card--courses is-live" data-key="courses">
+      <div class="section-card__top">
+        <span class="section-card__badge"><span class="num">02</span>Courses</span>
+        <span class="section-card__meta">Arts &amp; Science · Fall '26</span>
+      </div>
+      <div>
+        <span class="row__name section-card__name">What you'll<br><em>study.</em></span>
+        <p class="row__desc section-card__desc">Enrolment dates, program choices, and degree requirements — without the jargon.</p>
+        <span class="row__cue section-card__cta">
+          Explore
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+    </button>
+
+    <button type="button" class="row section-card section-card--fees is-live" data-key="fees">
+      <div class="section-card__top">
+        <span class="section-card__badge"><span class="num">03</span>Fees &amp; Dates</span>
+        <span class="section-card__meta">Timeline view</span>
+      </div>
+      <div>
+        <span class="row__name section-card__name">What it'll<br><em>cost.</em></span>
+        <p class="row__desc section-card__desc">Every deadline from application to move-in, on one timeline. Canadian + international tracks.</p>
+        <span class="row__cue section-card__cta">
+          Explore
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+    </button>
+
+    <button type="button" class="row section-card section-card--clubs is-soon" data-key="clubs">
+      <div class="section-card__top">
+        <span class="section-card__badge"><span class="num">04</span>Clubs</span>
+        <span class="section-card__meta">Coming September</span>
+      </div>
+      <div>
+        <span class="row__name section-card__name">Who you'll<br><em>hang with.</em></span>
+        <p class="row__desc section-card__desc">A list of active clubs and how to join. Being written this term.</p>
+        <span class="row__cue section-card__cta">Soon</span>
+      </div>
+    </button>
+
+  </nav>
+
+  <!-- 홈 하단 최근 업데이트 -->
+  <div class="updatelog" id="update-log"></div>
+
+  <footer class="colophon">
+    <p class="colophon__legal">
+      Not affiliated with, endorsed by, or operated by the University of Toronto.
+      Always confirm details on the official U&nbsp;of&nbsp;T website.
+    </p>
+    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+  </footer>
+
+</main>
+
+
+<!-- =========================================
+     VIEW 2: RESIDENCE list
+     ========================================= -->
+<main class="sheet view" id="view-residence" hidden>
+
+  <button type="button" class="backlink" data-back>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    Home
+  </button>
+
+  <div class="page-head">
+    <div>
+      <span class="page-head__kicker">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+        Section 01 · Residence
+      </span>
+      <h2 class="page-title">Where you'll <em>live.</em></h2>
+    </div>
+  </div>
+
+  <p class="lede">
+    Every residence on the St.&nbsp;George campus, side by side. Figures come from U&nbsp;of&nbsp;T's official housing page — always confirm before you apply.
+  </p>
+
+  <div class="keybox keybox--alert">
+    <div class="keybox__icon">!</div>
+    <div>
       <p class="keybox__main">First-year residence guarantee</p>
       <p class="keybox__sub">
         Finish your U&nbsp;of&nbsp;T Residence Portal application by <strong>March&nbsp;31</strong>
@@ -125,118 +192,224 @@
         guarantee is gone.
       </p>
     </div>
+  </div>
 
-    <!-- 정렬 버튼. data-sort 값을 app.js 가 읽습니다. -->
-    <div class="sortbar">
-      <span class="sortbar__label">Sort</span>
+  <!-- Sort -->
+  <div class="sortbar">
+    <span class="sortbar__label">Sort</span>
+    <div class="sortbar__group">
       <button type="button" class="sortbtn is-on" data-sort="price" aria-pressed="true">Lowest price</button>
-      <button type="button" class="sortbtn" data-sort="name" aria-pressed="false">A&ndash;Z</button>
+      <button type="button" class="sortbtn" data-sort="name" aria-pressed="false">A–Z</button>
     </div>
+  </div>
 
-    <!-- 필터 버튼. 여러 개 동시에 켤 수 있습니다(data-filter). -->
-    <div class="sortbar">
-      <span class="sortbar__label">Filter</span>
-      <button type="button" class="filterbtn" data-filter="meal" aria-pressed="false">Meal included</button>
-      <button type="button" class="filterbtn" data-filter="open" aria-pressed="false">Open over winter break</button>
-      <button type="button" class="filterbtn" data-filter="budget" aria-pressed="false">Under $20,000</button>
+  <!-- Filter -->
+  <div class="sortbar sortbar--filter">
+    <span class="sortbar__label">Filter</span>
+    <button type="button" class="filterbtn" data-filter="meal" aria-pressed="false">Meal included</button>
+    <button type="button" class="filterbtn" data-filter="open" aria-pressed="false">Open over winter break</button>
+    <button type="button" class="filterbtn" data-filter="budget" aria-pressed="false">Under $20,000</button>
+  </div>
+
+  <p class="count" id="res-count"></p>
+
+  <div class="cards" id="res-list"></div>
+
+  <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+
+</main>
+
+
+<!-- =========================================
+     VIEW 3: Residence Detail
+     ========================================= -->
+<main class="sheet view" id="view-detail" hidden>
+  <button type="button" class="backlink" data-back-to="residence">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    Residences
+  </button>
+  <div id="detail-body"></div>
+</main>
+
+
+<!-- =========================================
+     VIEW 4: Fees & Dates
+     ========================================= -->
+<main class="sheet view" id="view-fees" hidden>
+
+  <button type="button" class="backlink" data-back>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    Home
+  </button>
+
+  <div class="page-head">
+    <div>
+      <span class="page-head__kicker">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+        Section 03 · Fees &amp; Dates
+      </span>
+      <h2 class="page-title">What it'll <em>cost.</em></h2>
     </div>
+  </div>
 
-    <p class="count" id="res-count"></p>
+  <ul class="lede">
+    <li>Every deadline from application to move-in, in order.</li>
+    <li>Some steps are the same for everyone; others only apply to one group.</li>
+    <li>Pick which applies to you below.</li>
+  </ul>
 
-    <div class="cards" id="res-list"></div>
-
-    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
-
-  </main>
-
-
-  <!-- ===== 화면 3: 기숙사 상세 =====
-       이 안은 거의 비어 있습니다.
-       어느 기숙사를 눌렀느냐에 따라 내용이 달라지기 때문에,
-       app.js 가 data.js 를 읽어서 그때그때 채워 넣습니다. -->
-  <main class="sheet" id="view-detail" hidden>
-
-    <button type="button" class="backlink" data-back-to="residence">&larr;&nbsp; Residence</button>
-
-    <div id="detail-body"></div>
-
-  </main>
-
-
-  <!-- ===== 화면 4: Fees & Dates =====
-       지원부터 입주까지 모든 날짜를 한 타임라인으로. -->
-  <main class="sheet" id="view-fees" hidden>
-
-    <button type="button" class="backlink" data-back>&larr;&nbsp; Home</button>
-
-    <h2 class="page-title">Fees &amp; Dates</h2>
-
-    <ul class="lede">
-      <li>Every deadline from application to move-in, in order.</li>
-      <li>Some steps are the same for everyone; others only apply to one group.</li>
-      <li>Pick which applies to you below.</li>
-    </ul>
-
-    <div class="sortbar">
-      <span class="sortbar__label">I am</span>
+  <div class="sortbar">
+    <span class="sortbar__label">I am</span>
+    <div class="sortbar__group">
       <button type="button" class="sortbtn is-on" data-audience="domestic" aria-pressed="true">Canadian</button>
       <button type="button" class="sortbtn" data-audience="international" aria-pressed="false">International</button>
     </div>
+  </div>
 
-    <!-- 화면 4-1: 카테고리 고르기 -->
-    <nav class="feescats" id="fees-categories"></nav>
+  <nav class="feescats" id="fees-categories"></nav>
 
-    <!-- 화면 4-2: 고른 카테고리의 날짜들. 처음엔 숨어 있습니다. -->
-    <div id="fees-items" hidden>
-      <button type="button" class="backlink" data-fees-back>&larr;&nbsp; Categories</button>
-      <h3 class="page-title fees-items__title" id="fees-items-title"></h3>
-      <div class="timeline" id="fees-timeline"></div>
+  <div id="fees-items" hidden>
+    <button type="button" class="backlink backlink--inner" data-fees-back>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+      Categories
+    </button>
+    <h3 class="page-title fees-items__title" id="fees-items-title"></h3>
+    <div class="timeline" id="fees-timeline"></div>
+  </div>
+
+  <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+
+</main>
+
+
+<!-- =========================================
+     VIEW 5: Courses
+     ========================================= -->
+<main class="sheet view" id="view-courses" hidden>
+
+  <button type="button" class="backlink" data-back>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    Home
+  </button>
+
+  <div class="page-head">
+    <div>
+      <span class="page-head__kicker">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+        Section 02 · Courses
+      </span>
+      <h2 class="page-title">What you'll <em>study.</em></h2>
     </div>
+  </div>
 
-    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+  <ul class="lede">
+    <li>Based on the Faculty of Arts &amp; Science, St.&nbsp;George.</li>
+    <li>Other faculties (Engineering, Music, etc.) run on different dates.</li>
+  </ul>
 
-  </main>
+  <nav class="feescats" id="courses-categories"></nav>
 
+  <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
 
-  <!-- ===== 화면 5: Courses (카테고리 3개만) ===== -->
-  <main class="sheet" id="view-courses" hidden>
-
-    <button type="button" class="backlink" data-back>&larr;&nbsp; Home</button>
-
-    <h2 class="page-title">Courses</h2>
-
-    <ul class="lede">
-      <li>Based on the Faculty of Arts &amp; Science, St.&nbsp;George.</li>
-      <li>Other faculties (Engineering, Music, etc.) run on different dates.</li>
-    </ul>
-
-    <nav class="feescats" id="courses-categories"></nav>
-
-    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
-
-  </main>
+</main>
 
 
-  <!-- ===== 화면 6: Courses 하위 페이지 (진짜 화면 전환) =====
-       Enrolment / Degree / Program 탐색·단과대·개별 과목이 전부
-       이 화면 하나를 재사용합니다. 뒤로가기는 app.js 가 스택으로 관리합니다. -->
-  <main class="sheet" id="view-course-page" hidden>
+<!-- =========================================
+     VIEW 6: Course sub-page (reused)
+     ========================================= -->
+<main class="sheet view" id="view-course-page" hidden>
+  <button type="button" class="backlink" data-course-back>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+    Back
+  </button>
+  <p class="crumb" id="course-crumb"></p>
+  <h2 class="page-title" id="course-page-title"></h2>
+  <div id="course-page-content"></div>
+</main>
 
-    <button type="button" class="backlink" data-course-back>&larr;&nbsp; Back</button>
 
-    <p class="crumb" id="course-crumb"></p>
-    <h2 class="page-title" id="course-page-title"></h2>
+</div><!-- /.app -->
 
-    <div id="course-page-content"></div>
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  </main>
+<!-- Data + engine -->
+<script src="data.js"></script>
+<script src="app.js"></script>
 
+<script>
+/* ==================================================
+   새 shell 전용 소규모 스크립트 (app.js 엔진과 공존)
+   ==================================================
+   1) 뷰 전환에 부드러운 페이드 애니메이션 붙이기
+   2) 상단 nav pill을 현재 뷰와 동기화
+   3) suggest chips를 검색창에 연결
+   4) ⌘K 단축키
+   -------------------------------------------------- */
+(function () {
+  // (1) 뷰 전환 페이드 — app.js가 hidden 을 토글할 때마다 fade-in 클래스를 붙임
+  // 이미 app.js에서 view-fade 클래스를 붙이지만, CSS만 새로 정의하면 됩니다.
 
-  <!-- 짧게 떴다 사라지는 알림창. 처음에는 숨어 있습니다. -->
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  // (2) Nav pill 동기화 — 어떤 뷰가 보이는지 감지해서 pill의 is-on 클래스 갱신
+  function activePill(){
+    const views = ['home','residence','detail','fees','courses','coursePage'];
+    let current = 'home';
+    if (!document.getElementById('view-residence').hidden) current = 'residence';
+    if (!document.getElementById('view-detail').hidden)    current = 'residence';   // detail은 residence pill
+    if (!document.getElementById('view-fees').hidden)      current = 'fees';
+    if (!document.getElementById('view-courses').hidden)   current = 'courses';
+    if (!document.getElementById('view-course-page').hidden) current = 'courses';
 
-  <!-- 파일 연결. 순서가 중요합니다: data.js 가 app.js 보다 먼저 와야 합니다. -->
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+    document.querySelectorAll('.nav__pill').forEach(p => {
+      p.classList.toggle('is-on', p.dataset.nav === current);
+    });
+  }
+
+  // MutationObserver: view <main>의 hidden 속성이 바뀔 때마다 pill 갱신 + view-fade 부여
+  const viewIds = ['view-home','view-residence','view-detail','view-fees','view-courses','view-course-page'];
+  viewIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(muts => {
+      muts.forEach(m => {
+        if (m.attributeName === 'hidden' && !el.hidden){
+          el.classList.remove('view-fade');
+          void el.offsetWidth;
+          el.classList.add('view-fade');
+        }
+      });
+      activePill();
+    }).observe(el, { attributes:true, attributeFilter:['hidden'] });
+  });
+
+  // Nav pill 클릭 → 해당 뷰로 이동
+  document.querySelectorAll('.nav__pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const target = pill.dataset.nav;
+      if (typeof showView === 'function') showView(target);
+    });
+  });
+
+  // (3) suggest chips → 검색창에 값 넣고 input 이벤트 발화
+  document.querySelectorAll('[data-suggest]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('search');
+      if (!input) return;
+      input.value = btn.dataset.suggest;
+      input.focus();
+      input.dispatchEvent(new Event('input', { bubbles:true }));
+    });
+  });
+
+  // (4) ⌘K / Ctrl+K → 검색 포커스
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+      e.preventDefault();
+      document.getElementById('search')?.focus();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

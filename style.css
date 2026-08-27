@@ -1,2437 +1,2231 @@
-/* ============================================
-   UofT Guide — 디자인 (4-A 단계)
-   컨셉: 캠퍼스 게시판에 붙은 학생용 유인물.
-   종이, 검은 잉크, 그리고 형광펜 한 줄.
-   ============================================ */
+/* ============================================================
+   UofT St. George — Unofficial Student Guide
+   New design system: soft white · U of T Blue · Inter type
+   ============================================================
+   Style guide:
+   - Background: #fbfcfd (subtle cool white)
+   - Brand: U of T Blue #002A5C (official PMS 282)
+   - Ink: #0a1628 navy-tinted charcoal
+   - Type: Inter 400/500/600/700, Instrument Serif italic accents,
+           JetBrains Mono for micro-labels
+   - Motion: cubic-bezier(0.22, 1, 0.36, 1) 220–500ms
+   ============================================================ */
 
-/* ---- 색과 글씨체를 여기 한 곳에 모아둡니다.
-        나중에 색을 바꾸고 싶으면 이 값만 고치면 전체가 바뀝니다. ---- */
-:root {
-  --bg:         #E6EAF0;   /* 화면 전체 바탕. 순백보다 어둡게 해서 눈부심을 줄입니다 */
-  --paper:      #F7F8FA;   /* 종이 부분. 순백(#FFFFFF)이 아니라 살짝 낮춘 밝기 */
-  --ink:        #101318;   /* 본문 글자 (거의 검정) */
-  --ink-rgb:    16, 19, 24; /* --ink 를 rgba() 안에서도 쓰려고 숫자만 따로 둔 것.
-                                다크모드에서 이 숫자만 바꾸면 모든 테두리 색이 같이 바뀝니다. */
-  --ink-soft:   #101318;   /* 예전에는 회색이었지만 이제 본문과 같은 검정입니다.
-                              글의 중요도는 색이 아니라 '크기'로만 구분합니다. */
-  --ink-faint:  #101318;   /* 위와 같음 */
-  --muted:      #6B7280;   /* 아직 열리지 않은 섹션에만 쓰는 회색.
-                              중요도가 아니라 '지금 못 누름'을 나타내는 색입니다. */
-  --uoft:       #0B4DA0;   /* 토론토 대학 파랑 — 더 선명하고 확실한 파란색으로 조정 */
-  --highlight:  #FFDE3D;   /* 형광펜 노랑 */
-  --rule:       #101318;
+/* ============ TOKENS ============ */
+:root{
+  --bg:#fbfcfd;
+  --bg-2:#f1f4f8;
+  --surface:#ffffff;
+  --surface-2:#f6f8fb;
+  --border:#e6ebf1;
+  --border-strong:#cfd6df;
+  --ink:#0a1628;
+  --ink-2:#324056;
+  --ink-3:#6b7688;
+  --ink-4:#a8b1c0;
+  --muted:#8a94a5;
 
-  /* --display 는 카드 이름·버튼처럼 UI 요소에 쓰는 굵은 산세리프입니다.
-     --serif 는 큰 제목에만 쓰는 우아한 세리프입니다 — 이 둘을 섞는 게
-     "고급스러운 느낌"의 핵심입니다. 굵은 산세리프 하나로만 밀어붙이면
-     포스터처럼 딱딱해 보이고, 세리프를 큰 글자에 섞으면 편집디자인처럼 보입니다. */
-  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --serif:   "Fraunces", Georgia, "Times New Roman", serif;
-  --body:    "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --mono:    "Space Mono", "Courier New", monospace;
+  /* U of T official brand */
+  --uoft:#002A5C;
+  --uoft-2:#0f4285;
+  --uoft-3:#1b5aac;
+  --uoft-soft:#e0e8f2;
+  --uoft-tint:#f0f4f9;
+  --boundless:#007FA3;
+  --boundless-soft:#d9edf3;
+
+  /* Accent palette — pastel, harmonizes with U of T blue */
+  --c-sky:#cfe1f2;       --c-sky-ink:#002A5C;
+  --c-mint:#c9e6d7;      --c-mint-ink:#0e5238;
+  --c-butter:#f3e3a8;    --c-butter-ink:#6b5411;
+  --c-lilac:#dcd9f0;     --c-lilac-ink:#3d2f7a;
+  --c-peach:#f3d5c0;     --c-peach-ink:#7a3a15;
+  --c-rose:#f1cfd8;      --c-rose-ink:#7a1e3d;
+
+  --highlight:#fef3c7;
+  --highlight-line:#e0c65b;
+
+  /* Semantic (used by app.js state colors — map to something coherent) */
+  --ok:#0F7A4D;
+  --warn:#C05A16;
+  --info:#1b5aac;
+
+  --sans:"Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --mono:"JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  --r-xs:6px;
+  --r-sm:10px;
+  --r-md:14px;
+  --r-lg:20px;
+  --r-xl:28px;
+
+  --shadow-xs:0 1px 2px rgba(10,22,40,0.04);
+  --shadow-sm:0 1px 2px rgba(10,22,40,0.05), 0 0 0 1px rgba(10,22,40,0.05);
+  --shadow-md:0 4px 14px rgba(10,22,40,0.07), 0 0 0 1px rgba(10,22,40,0.05);
+  --shadow-lg:0 14px 34px rgba(10,22,40,0.10), 0 0 0 1px rgba(10,22,40,0.05);
+  --shadow-brand:0 10px 28px rgba(0,42,92,0.22);
+
+  --ease-out:cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ============ BASE ============ */
+*, *::before, *::after{ box-sizing:border-box; margin:0; padding:0 }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth }
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-0.005em;
+}
+button{ font-family:inherit; color:inherit; cursor:pointer }
+a{ color:var(--uoft); text-decoration:none }
+a:hover{ text-decoration:underline; text-underline-offset:3px }
 
-
-/* ---- 모든 요소의 크기 계산 방식을 통일합니다. 안 하면 배치가 어긋납니다. ---- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* ============ APP SHELL ============ */
+.app{
+  max-width:1180px;
+  margin:0 auto;
+  padding:0 clamp(16px, 3vw, 32px);
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
+/* ============ TOP NAV ============ */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:20px 0;
+  flex-wrap:wrap;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:600;
+  font-size:15px;
+  color:var(--ink);
+  text-decoration:none;
+  letter-spacing:-0.01em;
+}
+.brand:hover{ text-decoration:none }
+.brand__mark{
+  width:34px; height:34px;
+  border-radius:50%;
+  background:var(--uoft);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:20px;
+  font-weight:400;
+  letter-spacing:-0.02em;
+  box-shadow:0 2px 8px rgba(0,42,92,0.18), inset 0 0 0 2px rgba(255,255,255,0.08);
+  transition:transform 0.4s var(--ease-spring);
+}
+.brand:hover .brand__mark{ transform:rotate(-8deg) scale(1.06) }
+.brand__text{ display:flex; flex-direction:column; line-height:1.2 }
+.brand__text small{
+  font-size:11px;
+  color:var(--ink-3);
+  font-weight:400;
+  letter-spacing:0.02em;
 }
 
-body {
-  margin: 0;
-  padding: 0;
+.nav__pills{
+  display:flex;
+  gap:4px;
+  padding:4px;
+  background:var(--surface);
+  border-radius:999px;
+  box-shadow:var(--shadow-sm);
+}
+.nav__pill{
+  padding:7px 14px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-3);
+  transition:color 0.25s var(--ease-out), background 0.25s var(--ease-out);
+}
+.nav__pill:hover{ color:var(--ink) }
+.nav__pill.is-on{
+  background:var(--uoft);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(0,42,92,0.2);
+}
+
+.nav__right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+}
+.nav__badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 10px;
+  background:var(--surface);
+  border-radius:999px;
+  box-shadow:var(--shadow-sm);
+  font-weight:500;
+}
+.nav__badge .dot{
+  width:6px; height:6px;
+  border-radius:50%;
+  background:#2ec46b;
+  box-shadow:0 0 0 3px rgba(46,196,107,0.18);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ box-shadow:0 0 0 3px rgba(46,196,107,0.18) }
+  50%    { box-shadow:0 0 0 6px rgba(46,196,107,0.05) }
+}
+
+.pointsbadge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 10px;
+  background:var(--uoft-tint);
+  color:var(--uoft);
+  border-radius:999px;
+  font-family:var(--sans);
+  font-size:11.5px;
+  font-weight:600;
+  cursor:default;
+}
+.pointsbadge:empty{ display:none }
+
+/* ============ VIEWS (sheets) ============ */
+.sheet{
+  padding:8px 0 80px;
+  min-height:400px;
+}
+.sheet[hidden]{ display:none }
+.view-fade{
+  animation:viewIn 0.5s var(--ease-out) both;
+}
+@keyframes viewIn{
+  from{ opacity:0; transform:translateY(12px) }
+  to  { opacity:1; transform:translateY(0) }
+}
+
+/* ============ MASTHEAD / HERO ============ */
+.masthead{
+  padding:clamp(24px,4vw,44px) 0 clamp(28px,4vw,44px);
+}
+.hero__eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px 6px 8px;
+  background:var(--surface);
+  border-radius:999px;
+  font-size:12.5px;
+  color:var(--ink-2);
+  box-shadow:var(--shadow-sm);
+  margin-bottom:20px;
+  transition:transform 0.3s var(--ease-spring);
+}
+.hero__eyebrow:hover{ transform:translateY(-1px) }
+.hero__eyebrow em{
+  display:inline-block;
+  padding:2px 8px;
+  background:var(--c-mint);
+  color:var(--c-mint-ink);
+  border-radius:999px;
+  font-style:normal;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.02em;
+}
+
+.title{
+  font-size:clamp(44px, 7.4vw, 88px);
+  line-height:0.96;
+  letter-spacing:-0.035em;
+  font-weight:700;
+  color:var(--uoft);
+  max-width:14ch;
+  text-wrap:balance;
+}
+.title__sub{
+  display:block;
+  margin-top:8px;
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:400;
+  color:var(--ink-2);
+  font-size:0.44em;
+  letter-spacing:-0.015em;
+  line-height:1.1;
+}
+.title__sub::before{
+  content:"";
+  display:inline-block;
+  width:36px;
+  height:1px;
+  background:var(--uoft);
+  vertical-align:middle;
+  margin-right:14px;
+  transform:translateY(-3px);
+}
+
+.hero__sub{
+  margin-top:20px;
+  font-size:19px;
+  line-height:1.5;
+  color:var(--ink-2);
+  max-width:56ch;
+  text-wrap:pretty;
+}
+
+/* ============ SEARCH ============ */
+.search{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 20px 16px 52px;
+  margin-top:28px;
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  box-shadow:var(--shadow-md);
+  transition:box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  max-width:640px;
+}
+.search:focus-within{
+  box-shadow:var(--shadow-lg), 0 0 0 3px var(--uoft-soft);
+  transform:translateY(-2px);
+}
+.search__label{
+  position:absolute;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:20px; height:20px;
+  font-size:0;
+}
+.search__label::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7688' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>") center/20px no-repeat;
+}
+.search__input{
+  flex:1; min-width:0;
+  border:0; outline:0;
+  background:transparent;
+  font-size:16px;
+  font-family:inherit;
+  color:var(--ink);
+}
+.search__input::placeholder{ color:var(--ink-4) }
+.search__kbd{
+  display:inline-flex;
+  align-items:center;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-3);
+  padding:4px 8px;
+  background:var(--bg-2);
+  border-radius:6px;
+  border:1px solid var(--border);
+}
+.search__suggest{
+  display:flex; gap:8px; flex-wrap:wrap;
+  margin-top:14px;
+  padding-left:4px;
+  max-width:640px;
+}
+.search__suggest > span{
+  font-size:12px;
+  color:var(--ink-3);
+  align-self:center;
+}
+.search__suggest button{
+  padding:6px 12px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:transparent;
+  font-size:12.5px;
+  color:var(--ink-2);
+  transition:all 0.2s var(--ease-out);
+  font-family:inherit;
+}
+.search__suggest button:hover{
+  background:var(--surface);
+  border-color:var(--border-strong);
+  transform:translateY(-1px);
+}
+
+/* Search results dropdown */
+.searchresults{
+  margin-top:14px;
+  max-width:640px;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+}
+.searchresult{
+  display:grid;
+  grid-template-columns:96px 1fr auto;
+  gap:14px;
+  align-items:baseline;
+  width:100%;
+  padding:12px 18px;
+  border:0;
+  border-bottom:1px solid var(--border);
+  background:transparent;
+  text-align:left;
+  transition:background 0.15s ease;
+}
+.searchresult:last-child{ border-bottom:0 }
+.searchresult:hover{ background:var(--surface-2) }
+.searchresult__kind{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--uoft);
+  font-weight:600;
+}
+.searchresult__label{
+  font-size:14.5px;
+  font-weight:500;
+  color:var(--ink);
+}
+.searchresult__sub{
+  font-size:12.5px;
+  color:var(--ink-3);
+  font-family:var(--mono);
+}
+
+/* ============ SECTION CARDS (home) ============ */
+.sections{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:14px;
+  margin-top:clamp(24px,3vw,32px);
+  border:0;
+}
+@media(max-width:720px){ .sections{ grid-template-columns:1fr } }
+
+.section-card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:220px;
+  padding:24px 26px 22px;
+  border-radius:var(--r-xl);
+  border:0;
+  background:var(--surface);
+  box-shadow:var(--shadow-sm);
+  text-align:left;
+  overflow:hidden;
+  transition:transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  /* override any .row default */
+  grid-template-columns:none;
+  gap:0;
+  align-items:stretch;
+}
+.section-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--card-bg, transparent);
+  opacity:0;
+  transition:opacity 0.4s var(--ease-out);
+  pointer-events:none;
+}
+.section-card:hover:not(.is-soon){
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
+}
+.section-card:hover:not(.is-soon)::before{ opacity:1 }
+.section-card > *{ position:relative; z-index:1 }
+
+.section-card__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:auto;
+}
+.section-card__badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 10px 5px 8px;
+  border-radius:999px;
+  background:var(--badge-bg);
+  color:var(--badge-ink);
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:0.01em;
+  transition:transform 0.4s var(--ease-spring);
+}
+.section-card:hover:not(.is-soon) .section-card__badge{ transform:scale(1.06) }
+.section-card__badge .num{
+  font-family:var(--mono);
+  font-size:10.5px;
+  opacity:0.7;
+}
+.section-card__meta{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--ink-3);
+  letter-spacing:0.02em;
+}
+.section-card__name{
+  margin-top:64px !important;
+  font-family:var(--sans) !important;
+  font-size:clamp(30px, 3.5vw, 40px);
+  line-height:1.02;
+  letter-spacing:-0.03em;
+  font-weight:600;
+  color:var(--ink);
+  transition:transform 0.4s var(--ease-out);
+  display:block;
+}
+.section-card__name em{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:400;
+  color:var(--uoft);
+  letter-spacing:-0.02em;
+}
+.section-card:hover:not(.is-soon) .section-card__name{ transform:translateX(2px) }
+.section-card__desc{
+  margin-top:8px !important;
+  font-size:14px !important;
+  line-height:1.5;
+  color:var(--ink-3) !important;
+  max-width:38ch;
+  display:block;
+}
+.section-card__cta{
+  display:inline-flex !important;
+  align-items:center;
+  gap:6px;
+  margin-top:16px;
+  font-family:var(--sans) !important;
+  font-size:13px !important;
+  font-weight:600;
+  color:var(--ink-2);
+  transition:gap 0.35s var(--ease-out), color 0.3s var(--ease-out);
+  line-height:1 !important;
+}
+.section-card:hover:not(.is-soon) .section-card__cta{ gap:12px; color:var(--uoft) }
+
+/* Per-section colors */
+.section-card--residence{
+  --card-bg:linear-gradient(135deg, var(--c-sky) 0%, transparent 60%);
+  --badge-bg:var(--c-sky);   --badge-ink:var(--c-sky-ink);
+}
+.section-card--courses{
+  --card-bg:linear-gradient(135deg, var(--c-mint) 0%, transparent 60%);
+  --badge-bg:var(--c-mint);  --badge-ink:var(--c-mint-ink);
+}
+.section-card--fees{
+  --card-bg:linear-gradient(135deg, var(--c-butter) 0%, transparent 60%);
+  --badge-bg:var(--c-butter); --badge-ink:var(--c-butter-ink);
+}
+.section-card--clubs{
+  --card-bg:linear-gradient(135deg, var(--c-lilac) 0%, transparent 60%);
+  --badge-bg:var(--c-lilac); --badge-ink:var(--c-lilac-ink);
+}
+.section-card.is-soon{ cursor:not-allowed; opacity:0.55 }
+.section-card.is-soon .section-card__cta{ opacity:0.5 }
+
+/* Section card entrance stagger */
+#view-home.view-fade .section-card{ animation:cardPop 0.6s var(--ease-out) both }
+#view-home.view-fade .section-card:nth-child(1){ animation-delay:0.05s }
+#view-home.view-fade .section-card:nth-child(2){ animation-delay:0.11s }
+#view-home.view-fade .section-card:nth-child(3){ animation-delay:0.17s }
+#view-home.view-fade .section-card:nth-child(4){ animation-delay:0.23s }
+@keyframes cardPop{
+  from{ opacity:0; transform:translateY(14px) scale(0.97) }
+  to  { opacity:1; transform:translateY(0) scale(1) }
+}
+
+/* ============ UPDATELOG (홈 하단) ============ */
+.updatelog{
+  margin-top:clamp(28px,4vw,40px);
+  padding:20px 22px;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+}
+.updatelog:empty{ display:none }
+.updatelog__head{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--uoft);
+  font-weight:600;
+  margin-bottom:12px;
+}
+.updatelog__list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.updatelog__list li{
+  font-size:14px;
+  color:var(--ink-2);
+  line-height:1.5;
+  display:flex;
+  gap:12px;
+  align-items:baseline;
+}
+.updatelog__date{
+  flex:none;
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  min-width:70px;
+}
+
+/* ============ COLOPHON (footer) ============ */
+.colophon{
+  margin-top:44px;
+  padding:20px 0;
+  border-top:1px solid var(--border);
+}
+.colophon__legal{
+  font-size:13px;
+  color:var(--ink-3);
+  line-height:1.5;
+  max-width:70ch;
+  margin-bottom:8px;
+}
+.colophon__date{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  letter-spacing:0.04em;
+}
+.colophon__more{ font-size:13px; color:var(--ink-3); text-align:center; margin-bottom:12px }
+
+/* ============ BACKLINK ============ */
+.backlink{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px 8px 10px;
+  margin-bottom:24px;
+  border:0;
+  border-radius:999px;
+  background:var(--surface);
+  box-shadow:var(--shadow-sm);
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-2);
+  transition:all 0.3s var(--ease-out);
+}
+.backlink:hover{
+  transform:translateX(-3px);
+  box-shadow:var(--shadow-md);
+  color:var(--ink);
+  text-decoration:none;
+}
+.backlink svg{ transition:transform 0.3s var(--ease-out) }
+.backlink:hover svg{ transform:translateX(-2px) }
+.backlink--inner{ margin-top:22px }
+
+/* ============ PAGE HEAD ============ */
+.page-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  padding:8px 0 20px;
+  flex-wrap:wrap;
+}
+.page-head__kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:5px 12px 5px 10px;
+  background:var(--c-sky);
+  color:var(--c-sky-ink);
+  border-radius:999px;
+  font-size:11.5px;
+  font-weight:600;
+  margin-bottom:14px;
+}
+.page-title{
+  font-size:clamp(40px, 6vw, 64px);
+  line-height:0.98;
+  letter-spacing:-0.035em;
+  font-weight:700;
+  color:var(--ink);
+  max-width:20ch;
+  text-wrap:balance;
+}
+.page-title em{
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:400;
+  color:var(--uoft);
+}
+.fees-items__title{ margin-top:8px; font-size:clamp(28px,4vw,36px) }
+
+/* ============ LEDE (intro list / paragraph) ============ */
+.lede{
+  margin:12px 0 clamp(20px,3vw,28px);
+  padding-left:22px;
+  font-size:17px;
+  line-height:1.6;
+  color:var(--ink-2);
+  max-width:64ch;
+}
+ul.lede{ list-style:none; padding-left:0 }
+ul.lede li{
+  position:relative;
+  padding-left:22px;
+  margin-bottom:10px;
+}
+ul.lede li::before{
+  content:"";
+  position:absolute;
+  left:2px;
+  top:11px;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--uoft);
+}
+ul.lede li strong{ font-weight:600; color:var(--ink) }
+
+
+/* ============ KEYBOX (yellow alert) ============ */
+.keybox{
+  display:flex;
+  gap:16px;
+  padding:18px 22px;
+  margin:20px 0 28px;
+  background:linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%);
+  border-radius:var(--r-lg);
+  border:1px solid var(--highlight-line);
+  position:relative;
+  overflow:hidden;
+  max-width:none;
+}
+.keybox__icon{
+  flex:none;
+  width:36px; height:36px;
+  border-radius:10px;
+  background:var(--ink);
+  color:#f3d97a;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:22px;
+  font-weight:400;
+}
+.keybox__main{
+  font-size:16px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:4px;
+  line-height:1.35;
+}
+.keybox__sub{
+  font-size:13.5px;
+  line-height:1.55;
+  color:var(--ink-2);
+}
+.keybox__sub strong{
+  font-weight:600;
+  background:rgba(10,22,40,0.08);
+  padding:1px 5px;
+  border-radius:4px;
+  color:var(--ink);
+}
+.keybox__unit{
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-3);
+  margin-left:4px;
+}
+
+/* ============ SORTBAR / FILTER ============ */
+.sortbar{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:16px;
+}
+.sortbar__label{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-right:4px;
+}
+.sortbar__group{
+  display:inline-flex;
+  padding:3px;
+  background:var(--surface);
+  border-radius:999px;
+  box-shadow:var(--shadow-sm);
+}
+.sortbtn{
+  padding:7px 14px;
+  border:0;
+  background:transparent;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--ink-3);
+  transition:all 0.25s var(--ease-out);
+}
+.sortbtn:hover{ color:var(--ink) }
+.sortbtn.is-on{
+  background:var(--ink);
+  color:#fff;
+}
+.filterbtn{
+  padding:7px 12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--ink-2);
+  transition:all 0.25s var(--ease-out);
+}
+.filterbtn:hover{ border-color:var(--border-strong); transform:translateY(-1px) }
+.filterbtn.is-on{
+  background:var(--uoft);
+  color:#fff;
+  border-color:var(--uoft);
+  box-shadow:0 2px 8px rgba(0,42,92,0.2);
+}
+.sortbar--filter{ margin-bottom:20px }
+
+.count{
+  margin:6px 0 14px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  padding-top:0;
+  border-top:0;
+}
+
+/* ============ RESIDENCE CARDS ============ */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:14px;
+}
+.card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  border:0;
+  overflow:hidden;
+  text-align:left;
+  transition:transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  padding:0;
+  font-family:inherit;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
+}
+.card__photo{
+  position:relative;
+  display:block;
+  aspect-ratio:5/3.4;
+  overflow:hidden;
+  background:linear-gradient(135deg, var(--c-sky) 0%, var(--surface-2) 100%);
+}
+.card__img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform 0.6s var(--ease-out);
+}
+.card:hover .card__img{ transform:scale(1.04) }
+.card__photo.is-empty{
   background:
-    radial-gradient(1100px 500px at 15% -8%, rgba(11, 77, 160, 0.05), transparent 60%),
-    var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 18px;
-  line-height: 1.5;
-  min-height: 100vh;
-}
-
-/* ============ 검은 테두리 종이 ============ */
-.sheet {
-  max-width: 1180px;
-  margin: 0 auto;
-  border: 0;
-  padding: clamp(24px, 4vw, 56px) clamp(20px, 5vw, 64px);
-  background: var(--paper);
-}
-
-/* ============ 상단 ============ */
-.masthead {
-  margin-bottom: clamp(28px, 6vw, 48px);
-}
-
-.title {
-  margin: 0;
-  color: var(--uoft);          /* 토론토 대학 파랑 */
-  font-family: var(--display);
-  font-size: clamp(30px, 7vw, 46px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-.title__sub {
-  display: block;
-  font-size: 0.62em;
-  margin-top: 0.18em;
-}
-
-/* 오른쪽에 도장처럼 찍히는 한 줄 */
-/* 비공식임을 분명히 알리는 도장.
-   학교 공식 사이트로 오해받지 않도록 일부러 눈에 띄게 만들었습니다. */
-.stamp {
-  display: inline-block;
-  margin: 14px 0 0;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: #FFFFFF;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* 도장을 오른쪽으로 밀기 위한 줄 */
-.masthead .stamp {
-  float: right;
-}
-.search {
-  clear: both;
-}
-
-/* ---- 검색: 밑줄 대신 카드 형태로 — 존재감이 확실해야 눌러보고 싶어집니다 ---- */
-.search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: clamp(24px, 5vw, 36px);
-  padding: 12px 16px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 999px;
-  background: var(--paper);
-  box-shadow: 0 2px 8px rgba(var(--ink-rgb), 0.05);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.search:focus-within {
-  border-color: var(--uoft);
-  box-shadow: 0 4px 14px rgba(11, 77, 160, 0.14);
-}
-
-/* 라벨 글자 "Search" 는 화면엔 돋보기 아이콘으로 보이고,
-   스크린리더에게는 여전히 "Search" 로 읽힙니다(글자를 지운 게 아니라 숨긴 것). */
-.search__label {
-  position: relative;
-  flex: none;
-  width: 20px;
-  height: 20px;
-  font-size: 0;
-}
-
-.search__label::before {
-  content: "\1F50D";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  opacity: 0.55;
-}
-
-.search__input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  font-family: var(--body);
-  font-size: 16px;
-  color: var(--ink);
-  padding: 2px 0;
-}
-
-.search__input::placeholder {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 13px;
-}
-
-.search__input:disabled {
-  cursor: not-allowed;
-}
-
-/* ============ 섹션 목록 ============ */
-.sections {
-  border-top: 1px solid var(--rule);
-}
-
-/* 줄 하나가 통째로 버튼입니다 */
-.row {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 2px 16px;
-  width: 100%;
-  margin: 0;
-  padding: clamp(18px, 4vw, 24px) 10px;
-  border: 0;
-  border-bottom: 1px solid var(--rule);
-  background: transparent;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-/* ---- 마우스 올렸을 때 ----
-   왼쪽에 얇은 파란 선이 위에서 아래로 조용히 자라나고,
-   이름이 파란색으로 바뀌고, 화살표가 살짝 오른쪽으로 이동합니다.
-   전부 은은하게 — 화려한 효과보다 절제된 쪽이 고급스러워 보입니다. */
-.row::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  bottom: 50%;
-  width: 3px;
-  background: var(--uoft);
-  transition: top 0.32s cubic-bezier(0.16, 0.8, 0.3, 1),
-              bottom 0.32s cubic-bezier(0.16, 0.8, 0.3, 1);
-  z-index: 0;
-}
-
-.row:hover::before,
-.row:focus-visible::before {
-  top: 14%;
-  bottom: 14%;
-}
-
-.row:hover,
-.row:focus-visible {
-  padding-left: 20px;
-  background: linear-gradient(to right, rgba(11, 77, 160, 0.05), transparent 60%);
-}
-
-.row.is-live:hover .row__name,
-.row.is-live:focus-visible .row__name {
-  color: var(--uoft);
-}
-
-.row.is-live:hover .row__cue,
-.row.is-live:focus-visible .row__cue {
-  transform: translateX(4px);
-}
-
-/* 글자는 액센트 선 위에 오게 */
-.row > * {
-  position: relative;
-  z-index: 1;
-}
-
-.row {
-  transition: padding-left 0.32s cubic-bezier(0.16, 0.8, 0.3, 1),
-              background-color 0.32s ease;
-}
-
-.row__cue {
-  display: inline-block;
-  transition: transform 0.32s cubic-bezier(0.16, 0.8, 0.3, 1);
-}
-
-.row__name {
-  font-family: var(--display);
-  font-size: clamp(22px, 5vw, 28px);
-  letter-spacing: -0.015em;
-  transition: color 0.32s ease;
-}
-
-.row__cue {
-  font-family: var(--mono);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
-
-.row__desc {
-  grid-column: 1 / -1;
-  font-size: 16px;
-  color: var(--ink-soft);
-}
-
-/* ---- 아직 안 열린 섹션: 흐리게 ---- */
-.row.is-soon .row__name,
-.row.is-soon .row__desc {
-  color: var(--muted);
-}
-
-.row.is-soon .row__cue {
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* 마우스를 올리면 흐린 글자도 살짝 진해져서 "눌러봤다"는 반응을 줍니다 */
-.row.is-soon:hover .row__name,
-.row.is-soon:hover .row__desc,
-.row.is-soon:hover .row__cue {
-  color: var(--ink);
-}
-
-/* ---- 열린 섹션: 화살표를 크게 ---- */
-.row.is-live .row__cue {
-  font-family: var(--body);
-  font-size: 26px;
-  line-height: 1;
-}
-
-.row:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: -3px;
-}
-
-/* ---- 줄이 하나씩 나타나는 효과 ---- */
-.row {
-  animation: rise 0.4s ease both;
-}
-.row:nth-child(1) { animation-delay: 0.05s; }
-.row:nth-child(2) { animation-delay: 0.11s; }
-.row:nth-child(3) { animation-delay: 0.17s; }
-.row:nth-child(4) { animation-delay: 0.23s; }
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ============ 하단 ============ */
-.colophon {
-  margin-top: clamp(24px, 5vw, 36px);
-}
-
-.colophon__more {
-  margin: 0 0 22px;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.colophon__legal {
-  margin: 0 0 8px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.colophon__date {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--ink);
-}
-
-/* ============ 알림창 ============ */
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translate(-50%, 20px);
-  max-width: calc(100% - 32px);
-  padding: 11px 18px;
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--mono);
-  font-size: 13px;
-  border-radius: 2px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.toast.is-shown {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-/* ============ 움직임을 싫어하는 사용자 배려 ============
-   기기 설정에서 '동작 줄이기'를 켠 사람에게는 애니메이션을 끕니다. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001s !important;
-    animation-delay: 0s !important;
-    transition-duration: 0.001s !important;
-  }
-}
-
-
-/* ============================================
-   여기서부터 4-B 에서 추가한 부분입니다
-   (위쪽 홈 화면 디자인은 하나도 건드리지 않았습니다)
-   ============================================ */
-
-/* ---- 뒤로 가기 ---- */
-/* 뒤로 가기 버튼.
-   전에는 작은 글씨라서 어디를 눌러야 할지 알기 어려웠습니다.
-   이제 테두리가 있는 확실한 버튼 모양이고, 손가락으로 누르기 좋은 크기입니다. */
-.backlink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 clamp(22px, 4vw, 32px);
-  padding: 11px 20px 11px 16px;
-  border: 1.5px solid var(--uoft);
-  border-radius: 999px;
-  background: var(--paper);
-  font-family: var(--body);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--uoft);
-  cursor: pointer;
-  transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
-}
-
-.backlink:hover {
-  background: var(--uoft);
-  color: #FFFFFF;
-  box-shadow: 0 3px 10px rgba(11, 77, 160, 0.25);
-}
-
-.backlink:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
-}
-
-/* ---- 섹션 제목 ---- */
-.page-title {
-  margin: 0 0 14px;
-  font-family: var(--display);
-  font-size: clamp(30px, 7vw, 42px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
-
-ul.lede {
-  margin: 0 0 clamp(20px, 4vw, 28px);
-  padding-left: 22px;
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--ink);
-  max-width: 54ch;
-}
-
-ul.lede li {
-  margin-bottom: 9px;
-}
-
-ul.lede li::marker {
-  color: var(--uoft);
-}
-
-/* ---- 형광펜 박스: 제일 중요한 정보 ---- */
-.keybox {
-  margin: 0 0 clamp(26px, 5vw, 36px);
-  padding: 16px 18px;
-  background: var(--highlight);
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-}
-
-.keybox__main {
-  margin: 0 0 5px;
-  font-family: var(--display);
-  font-size: 18px;
-  line-height: 1.25;
-}
-
-.keybox__sub {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-/* ---- 개수 표시 ---- */
-/* 총 몇 곳인지 보여주는 줄. 검은 굵은 글씨로 또렷하게. */
-.count {
-  margin: 0 0 14px;
-  font-family: var(--display);
-  font-size: 15px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink);
-  border-top: 2px solid var(--rule);
-  padding-top: 14px;
-}
-
-/* ---- 카드 목록 ---- */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.card {
-  display: grid;
-  grid-template-columns: minmax(84px, 30%) 1fr;
-  gap: 0 14px;
-  width: 100%;
-  padding: 12px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 14px;
-  background: var(--paper);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  /* 카드를 움직이지 않습니다.
-     전에는 마우스를 올리면 2px 움직였는데, 그때 사진이 같이 움직이면서
-     브라우저가 사진을 다시 그리느라 가장자리가 지글거렸습니다.
-     이제 그림자만 나타나므로 사진은 한 번 그려진 자리에 그대로 있습니다. */
-  transition: box-shadow 0.22s ease, background-color 0.22s ease, transform 0.22s ease;
-}
-
-.card:hover,
-.card:focus-visible {
-  box-shadow: 0 6px 18px rgba(11, 77, 160, 0.16);
-  background-color: #EDF1F7;
-  transform: translateY(-2px);
-}
-
-.card:focus-visible {
-  outline: none;
-}
-
-/* ---- 카드 사진 ---- */
-.card__photo {
-  position: relative;
-  display: block;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #E2E6EC;
-}
-
-.card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  /* 사진을 별도 레이어로 분리해 다시 그려지는 일을 줄입니다 */
-  backface-visibility: hidden;
-}
-
-/* 사진이 없거나 주소가 깨졌을 때 나오는 회색 네모 */
-.card__photo.is-empty::after {
-  content: "no photo";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-
-/* ---- 카드 글자 ---- */
-.card__body {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-content: center;
-  gap: 3px 10px;
-}
-
-.card__name {
-  font-family: var(--display);
-  font-size: clamp(17px, 3.8vw, 20px);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
-
-.card__cue {
-  font-size: 19px;
-  line-height: 1;
-  align-self: center;
-}
-
-/* 카드 안 위계는 색이 아니라 크기와 굵기로만 만듭니다.
-   이름 19px 굵게 > 가격 17px 굵게 > 방 형태 14px */
-.card__price,
-.card__meta {
-  grid-column: 1 / -1;
-  color: var(--ink);
-}
-
-.card__price {
-  margin-top: 4px;
-  font-family: var(--display);
-  font-size: 18px;
-  letter-spacing: -0.01em;
-}
-
-.card__meta {
-  margin-top: 3px;
-  font-size: 15px;
-}
-
-/* ---- 데이터가 하나도 없을 때 ---- */
-.empty {
-  margin: 0;
-  padding: 30px 16px;
-  border: 2px dashed var(--ink-faint);
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--ink-soft);
-}
-
-/* ---- 아주 좁은 폰에서는 사진을 조금 줄입니다 ---- */
-@media (max-width: 380px) {
-  .card {
-    grid-template-columns: 76px 1fr;
-    gap: 0 11px;
-  }
-}
-
-
-/* ============================================
-   여기서부터 4-C 에서 추가한 부분입니다
-   (상세 화면. 위쪽은 하나도 건드리지 않았습니다)
-   ============================================ */
-
-:root {
-  --official: #0B4DA0;   /* 공식 정보 = 토론토 대학 파랑 */
-  --student:  #C05A16;   /* 학생 의견 = 주황 */
-}
-
-/* ---- 영상 ---- */
-.media {
-  margin: 0 0 clamp(20px, 4vw, 28px);
-}
-
-.video {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--ink);
-}
-
-.video iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* 영상이나 사진 아래 붙는 출처 한 줄 */
-.credit {
-  margin: 7px 0 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-}
-
-/* ---- 사진 여러 장: 옆으로 넘겨 보기 ---- */
-.strip {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  margin: 0 0 clamp(20px, 4vw, 28px);
-  padding-bottom: 8px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.strip__img {
-  flex: 0 0 auto;
-  width: min(78%, 300px);
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  scroll-snap-align: start;
-}
-
-/* ---- 노란 박스 안 가격 단위 ---- */
-.keybox__unit {
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-/* ---- 정보 구역: 공식 / 학생 ---- */
-.block {
-  margin: 0 0 clamp(22px, 4vw, 30px);
-  padding-top: 16px;
-  border-top: 3px solid var(--ink);
-}
-
-.block__head {
-  margin: 0 0 12px;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.block--official .block__head { color: var(--official); }
-.block--student  .block__head { color: var(--student); }
-
-/* 구역 색을 왼쪽 세로선으로도 한 번 더 표시 */
-.block--official { border-left: 4px solid var(--official); padding-left: 14px; }
-.block--student  { border-left: 4px solid var(--student);  padding-left: 14px; }
-
-/* ---- 공식 정보 목록 ---- */
-.facts {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.fact {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid #D4D9E0;
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.fact:last-child {
-  border-bottom: 0;
-}
-
-/* 항목 이름. 전에는 연한 회색 작은 글씨였는데
-   검은 굵은 글씨로 키워서 훨씬 읽기 쉽게 만들었습니다. */
-.fact__label {
-  font-family: var(--body);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--ink);
-  padding-top: 1px;
-}
-
-.fact__value {
-  color: var(--ink);
-}
-
-/* 가격 목록은 왼쪽에 이름, 오른쪽에 금액 */
-.fact--price {
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 14px;
-  font-size: 16px;
-}
-
-.fact__amount {
-  font-family: var(--display);
-  font-size: 16px;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-/* 구역 아래 붙는 설명 문단 */
-.blocknote {
-  margin: 12px 0 0;
-  padding: 13px 15px;
-  background: #EDF1F7;
-  border-left: 4px solid var(--uoft);
-  border-radius: 4px 10px 10px 4px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ink);
-}
-
-/* ---- 학생 의견 ---- */
-.notes {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.notes li {
-  margin-bottom: 7px;
-}
-
-/* ---- 공식 사이트로 가는 큰 버튼 ---- */
-.cta {
-  display: block;
-  margin: 0 0 18px;
-  padding: 15px 18px;
-  border: 1.5px solid var(--ink);
-  border-radius: 12px;
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--display);
-  font-size: 16px;
-  text-align: center;
-  text-decoration: none;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.cta:hover,
-.cta:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(var(--ink-rgb), 0.22);
-}
-
-/* ---- 좁은 폰에서는 항목 이름을 위로 ---- */
-@media (max-width: 420px) {
-  .fact {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-  /* 가격 목록은 좁은 화면에서도 이름/금액을 좌우로 유지 */
-  .fact--price {
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-  }
-}
-
-
-
-/* ============================================
-   정렬 버튼 · 주의 딱지 (여기서부터 추가분)
-   ============================================ */
-
-.sortbar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 12px;
-}
-
-.sortbar__label {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-right: 2px;
-}
-
-.sortbtn {
-  padding: 7px 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
-}
-
-.sortbtn:hover {
-  background: #E4EAF3;
-}
-
-/* 지금 켜져 있는 정렬 버튼 */
-.sortbtn.is-on {
-  background: var(--uoft);
-  border-color: var(--uoft);
-  color: #FFFFFF;
-}
-
-.sortbtn:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
-}
-
-/* ---- 카드에 붙는 주의 딱지 ---- */
-.card__badges {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 6px;
-}
-
-/* 주의 딱지 — 가격을 오해할 수 있는 경우.
-   형광펜과 같은 노란색을 써서 "여기 주의" 라는 뜻을 통일했습니다.
-   식사 미포함과 계약 기간, 둘 다 똑같이 중요하므로 같은 모양입니다. */
-.badge {
-  padding: 3px 10px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--highlight);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-
-/* ============================================
-   층별 방 사진 구역
-   ============================================ */
-
-.floors {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin: 0;
-}
-
-.floor {
-  margin: 0;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--paper);
-}
-
-.floor__img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
-  backface-visibility: hidden;
-}
-
-.floor__cap {
-  padding: 8px 10px;
-  border-top: 2px solid var(--ink);
-  font-size: 14px;
-  line-height: 1.4;
-  color: var(--ink);
-}
-
-/* 층 번호를 작은 태그로 */
-.floor__num {
-  display: inline-block;
-  margin-right: 6px;
-  padding: 1px 6px;
-  background: var(--student);
-  color: #FFFFFF;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-/* ---- 아직 사진이 없을 때 나오는 자리 ----
-   비어 보이지 않고 "여기가 채워질 곳"으로 읽히게 만들었습니다. */
-.floors-empty {
-  padding: 26px 20px;
-  border: 2px dashed var(--student);
-  background: #FDF3EA;
-  text-align: center;
-}
-
-.floors-empty__title {
-  margin: 0 0 7px;
-  font-family: var(--display);
-  font-size: 16px;
-  color: var(--student);
-}
-
-.floors-empty__body {
-  margin: 0 auto;
-  max-width: 42ch;
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-
-
-/* ============================================
-   겨울방학 판정 한 줄
-   ============================================ */
-
-.verdict {
-  margin: 0;
-  padding: 13px 15px;
-  border: 1.5px solid rgba(11, 77, 160, 0.55);
-  border-radius: 12px;
-  background: var(--paper);
-  font-family: var(--display);
-  font-size: 18px;
-  line-height: 1.3;
-  color: var(--ink);
-}
-
-/* 문을 닫는 곳은 노란 경고색으로 */
-.verdict--warn {
-  border-color: var(--ink);
-  background: var(--highlight);
-}
-
-
-/* ============================================
-   건물별 설명 (UC 처럼 건물이 여러 채인 경우)
-   ============================================ */
-
-.halls {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.hall {
-  padding: 15px 16px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 14px;
-  background: var(--paper);
-}
-
-.hall__name {
-  margin: 0 0 5px;
-  font-family: var(--display);
-  font-size: 19px;
-  line-height: 1.25;
-  color: var(--uoft);
-}
-
-/* 건축 연도, 수용 인원 같은 짧은 사실 */
-.hall__tags {
-  margin: 0 0 9px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-}
-
-.hall__rooms {
-  margin: 0 0 7px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.hall__note {
-  margin: 0;
-  padding-top: 9px;
-  border-top: 1px solid #D4D9E0;
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-
-/* ============================================
-   밀플랜 카드
-   (건물 카드와 같은 생김새로 맞췄습니다)
-   ============================================ */
-
-.plans {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.plan {
-  padding: 15px 16px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 14px;
-  background: var(--paper);
-}
-
-.plan__top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.plan__name {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 18px;
-  line-height: 1.2;
-  color: var(--uoft);
-}
-
-.plan__price {
-  font-family: var(--display);
-  font-size: 17px;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.plan__pricelabel {
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-/* 점 찍은 설명 */
-.plan__list {
-  margin: 11px 0 0;
-  padding-left: 22px;
-  font-size: 17px;
-  line-height: 1.55;
-  color: var(--ink);
-}
-
-.plan__list li {
-  margin-bottom: 5px;
-}
-
-.plan__list li::marker {
-  color: var(--uoft);
-}
-
-/* 아래 붙는 기울임체 한 줄 */
-.plan__note {
-  margin: 11px 0 0;
-  padding-top: 9px;
-  border-top: 1px solid #D4D9E0;
-  font-size: 14px;
-  font-style: italic;
-  line-height: 1.45;
-  color: var(--ink);
-}
-
-
-/* ============================================
-   위치 (주소 + 구글 지도)
-   ============================================ */
-
-.address-line {
-  margin: 0 0 11px;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.mapbox {
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 9px;
-}
-
-.mapbox iframe {
-  display: block;
-  width: 100%;
-  height: 220px;
-  border: 0;
-}
-
-.maplink {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--uoft);
-  text-decoration: none;
-  border-bottom: 1.5px solid var(--uoft);
-}
-
-.maplink:hover {
-  color: var(--ink);
-  border-color: var(--ink);
-}
-
-
-/* ============================================
-   학생 리뷰 (별점)
-   ============================================ */
-
-.review__avg {
-  display: flex;
-  align-items: baseline;
-  gap: 9px;
-  margin: 0 0 14px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--ink);
-}
-
-.review__avgnum {
-  font-family: var(--display);
-  font-size: 26px;
-  color: var(--ink);
-}
-
-.review__avgstars {
-  color: var(--student);
-  font-size: 17px;
-  letter-spacing: 1px;
-}
-
-.review__avgcount {
-  font-size: 13px;
-  color: var(--ink);
-}
-
-.reviews {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.review {
-  padding: 14px 16px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 14px;
-  background: var(--paper);
-}
-
-.review__stars {
-  color: var(--student);
-  font-size: 15px;
-  letter-spacing: 1px;
-  margin-bottom: 7px;
-}
-
-.review__text {
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ink);
-}
-
-.review .credit {
-  margin-top: 8px;
-}
-
-
-
-/* ============================================
-   필터 버튼 (sortbtn과 같은 생김새, 켜지면 검은색)
-   ============================================ */
-
-.filterbtn {
-  padding: 7px 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
-}
-
-.filterbtn:hover {
-  background: #EDF1F7;
-}
-
-/* 필터는 정렬과 색을 다르게 해서(검정) "선택"과 "정렬"을 구분합니다 */
-.filterbtn.is-on {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #FFFFFF;
-}
-
-.filterbtn:focus-visible {
-  outline: 3px solid var(--uoft);
-  outline-offset: 2px;
-}
-
-
-
-
-
-
-/* ============================================
-   리뷰 작성 폼
-   ============================================ */
-
-.empty--small {
-  margin: 0 0 16px;
-  padding: 16px;
-  border: 2px dashed var(--student);
-  background: #FDF3EA;
-  text-align: center;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.reviewform {
-  padding: 16px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 14px;
-  background: var(--paper);
-  display: grid;
-  gap: 10px;
-}
-
-.reviewform__label {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 16px;
-  color: var(--student);
-}
-
-.starpicker {
-  display: flex;
-  gap: 4px;
-}
-
-.starpicker__btn {
-  border: 0;
-  background: transparent;
-  font-size: 26px;
-  line-height: 1;
-  color: var(--student);
-  cursor: pointer;
-  padding: 2px;
-}
-
-.starpicker__btn:focus-visible {
-  outline: 2px solid var(--ink);
+    repeating-linear-gradient(135deg,
+      transparent 0 10px,
+      rgba(10,22,40,0.04) 10px 11px),
+    linear-gradient(135deg, var(--c-sky) 0%, var(--surface-2) 100%);
+}
+.card__photo.is-empty::after{
+  content:"no photo";
+  position:absolute;
+  inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+}
+.card__body{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:16px 18px 18px;
+  flex:1;
+}
+.card__name{
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+  line-height:1.25;
+}
+.card__cue{ display:none } /* 새 톤에서는 화살표 대신 hover 상승 */
+.card__price{
+  margin-top:6px;
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+  font-family:var(--sans);
+}
+.card__meta{
+  margin-top:2px;
+  font-size:13px;
+  color:var(--ink-3);
+  line-height:1.45;
+}
+.card__badges{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.badge{
+  padding:3px 8px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:500;
+  background:var(--c-butter);
+  color:var(--c-butter-ink);
+  font-family:var(--sans);
+}
+/* Card stagger */
+#view-residence.view-fade .card{ animation:cardPop 0.55s var(--ease-out) both }
+#view-residence.view-fade .card:nth-child(1){ animation-delay:0.05s }
+#view-residence.view-fade .card:nth-child(2){ animation-delay:0.09s }
+#view-residence.view-fade .card:nth-child(3){ animation-delay:0.13s }
+#view-residence.view-fade .card:nth-child(4){ animation-delay:0.17s }
+#view-residence.view-fade .card:nth-child(5){ animation-delay:0.21s }
+#view-residence.view-fade .card:nth-child(6){ animation-delay:0.25s }
+#view-residence.view-fade .card:nth-child(7){ animation-delay:0.29s }
+#view-residence.view-fade .card:nth-child(8){ animation-delay:0.33s }
+#view-residence.view-fade .card:nth-child(9){ animation-delay:0.37s }
+#view-residence.view-fade .card:nth-child(10){ animation-delay:0.41s }
+
+/* ============ EMPTY STATE ============ */
+.empty{
+  margin:0;
+  padding:32px 20px;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  text-align:center;
+  font-size:14px;
+  color:var(--ink-3);
+  font-family:inherit;
+}
+.empty--small{ padding:20px 16px; font-size:13px }
+
+/* ============ TITLE + RATING (residence detail top) ============ */
+.title-rating{
+  font-family:var(--sans);
+  font-size:0.42em;
+  font-weight:600;
+  color:var(--ink-2);
+  margin-left:14px;
+  vertical-align:middle;
+  white-space:nowrap;
+}
+.title-rating__count{
+  font-family:var(--mono);
+  font-size:0.75em;
+  font-weight:500;
+  color:var(--ink-3);
+  margin-left:6px;
+}
+
+/* ============ MEDIA STRIP (photos row) ============ */
+.media{ margin:0 0 clamp(20px,4vw,28px) }
+.strip{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:8px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+.strip__img{
+  flex:0 0 auto;
+  width:min(78%, 320px);
+  aspect-ratio:4/3;
+  object-fit:cover;
+  border-radius:var(--r-md);
+  scroll-snap-align:start;
+  box-shadow:var(--shadow-sm);
+}
+.credit{
+  margin-top:8px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.04em;
+  color:var(--ink-3);
+}
+
+/* Video */
+.video{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:var(--r-md);
+  overflow:hidden;
+  background:var(--ink);
+  box-shadow:var(--shadow-md);
+}
+.video iframe{
+  position:absolute;
+  inset:0;
+  width:100%; height:100%;
+  display:block;
+  border:0;
+}
+
+/* Address / map */
+.address-line{
+  font-size:15px;
+  color:var(--ink-2);
+  margin-bottom:10px;
+}
+.mapbox{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:var(--r-md);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  background:var(--surface-2);
+}
+.mapbox iframe{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  border:0;
+}
+.maplink{
+  display:inline-block;
+  margin-top:10px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--uoft);
+  font-weight:500;
+}
+
+/* ============ BLOCK (Official / Student sections) ============ */
+.block{
+  margin:0 0 clamp(28px,4vw,40px);
+  padding:0;
+}
+.block__head{
+  display:block;
+  padding-bottom:12px;
+  margin-bottom:16px;
+  border-bottom:1px solid var(--border);
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+  position:relative;
+}
+.block__head::after{
+  content:"";
+  position:absolute;
+  left:0; bottom:-1px;
+  width:40px; height:2px;
+  background:var(--block-accent, var(--uoft));
+  border-radius:2px;
+}
+.block--official{ --block-accent:var(--uoft) }
+.block--student{  --block-accent:var(--warn) }
+
+/* ============ FACTS TABLE ============ */
+.facts{
+  list-style:none;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+  margin:0;
+  padding:0;
+}
+.fact{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:20px;
+  align-items:baseline;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  transition:background-color 0.2s ease;
+}
+.fact:last-child{ border-bottom:0 }
+.fact:hover{ background:var(--surface-2) }
+.fact__label{
+  font-size:13.5px;
+  color:var(--ink-3);
+  font-weight:500;
+}
+.fact__value{
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  text-align:right;
+  letter-spacing:-0.01em;
+}
+.fact--price .fact__value{ text-align:left; font-weight:500 }
+.fact__amount{
+  font-family:var(--sans);
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+  letter-spacing:-0.01em;
+}
+
+/* ============ VERDICT (winter break etc.) ============ */
+.verdict{
+  padding:12px 16px;
+  margin-bottom:10px;
+  background:var(--c-mint);
+  color:var(--c-mint-ink);
+  border-radius:var(--r-md);
+  font-size:14.5px;
+  font-weight:500;
+  line-height:1.4;
+}
+.verdict--warn{
+  background:var(--c-peach);
+  color:var(--c-peach-ink);
+}
+
+/* ============ BLOCKNOTE (soft callout) ============ */
+.blocknote{
+  margin:12px 0 0;
+  padding:14px 16px;
+  background:var(--surface-2);
+  border-left:3px solid var(--uoft);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+  font-size:14.5px;
+  line-height:1.55;
+  color:var(--ink-2);
+}
+.blocknote strong{ color:var(--ink); font-weight:600 }
+
+/* ============ PLANS (meal plans) ============ */
+.plans{
+  display:grid;
+  gap:12px;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  margin-bottom:12px;
+}
+.plan{
+  padding:16px 18px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+}
+.plan__top{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:12px;
+  margin-bottom:10px;
+}
+.plan__name{
+  font-size:15.5px;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.plan__price{
+  font-size:16px;
+  font-weight:600;
+  color:var(--uoft);
+  letter-spacing:-0.01em;
+}
+.plan__pricelabel{
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:400;
+  color:var(--ink-3);
+  margin-left:4px;
+}
+.plan__list{
+  padding-left:18px;
+  margin:6px 0 0;
+  font-size:13.5px;
+  line-height:1.55;
+  color:var(--ink-2);
+}
+.plan__list li{ margin-bottom:2px }
+.plan__note{
+  font-style:italic;
+  font-size:13px;
+  color:var(--ink-3);
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dotted var(--border);
+}
+
+/* ============ HALLS (buildings within a residence) ============ */
+.halls{
+  display:grid;
+  gap:12px;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+}
+.hall{
+  padding:18px 20px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  text-align:left;
+  border:0;
+  font-family:inherit;
+  color:inherit;
+  transition:transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  display:block;
+  width:100%;
+}
+.hall--clickable{ cursor:pointer }
+.hall--clickable:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-md);
+}
+.hall__name{
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+  margin-bottom:6px;
+  line-height:1.3;
+}
+.hall__tags{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.06em;
+  color:var(--cat-color, var(--ink-3));
+  text-transform:uppercase;
+  font-weight:600;
+  margin-bottom:6px;
+}
+.hall__rooms{
+  font-size:13.5px;
+  color:var(--ink-2);
+  line-height:1.5;
+  margin-bottom:8px;
+}
+.hall__note{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dotted var(--border);
+  font-size:13px;
+  color:var(--ink-3);
+  font-style:italic;
+  line-height:1.5;
+}
+.hall .facts{ margin-top:10px; box-shadow:none; background:var(--surface-2) }
+
+/* ============ REVIEWS ============ */
+.review__avg{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin-bottom:16px;
+  padding:14px 18px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+}
+.review__avgnum{
+  font-size:34px;
+  font-weight:700;
+  letter-spacing:-0.03em;
+  color:var(--ink);
+  line-height:1;
+}
+.review__avgstars{
+  color:#f3b23a;
+  font-size:16px;
+  letter-spacing:2px;
+}
+.review__avgcount{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  margin-left:auto;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+}
+
+.tagbars{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:16px;
+}
+.tagbar{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px 6px 12px;
+  background:var(--surface);
+  border-radius:999px;
+  box-shadow:var(--shadow-sm);
+  font-size:12px;
+}
+.tagbar__label{
+  color:var(--ink-3);
+  font-weight:500;
+}
+.tagbar__value{
+  color:#fff;
+  padding:3px 9px;
+  border-radius:999px;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.02em;
+}
+
+.reviews{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:16px;
+}
+.review{
+  padding:16px 20px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  transition:transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.review:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md) }
+.review__prof{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  margin-bottom:6px;
+  letter-spacing:0.02em;
+}
+.review__stars{
+  color:#f3b23a;
+  letter-spacing:2px;
+  font-size:15px;
+  margin-bottom:6px;
+}
+.review__text{
+  font-size:15px;
+  line-height:1.55;
+  color:var(--ink);
+  text-wrap:pretty;
+}
+.review .credit{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dotted var(--border);
+}
+
+/* Helpful button */
+.helpfulbtn{
+  margin-top:12px;
+  padding:6px 12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:500;
+  color:var(--ink-2);
+  transition:all 0.25s var(--ease-out);
+}
+.helpfulbtn:hover:not(:disabled){
+  border-color:var(--uoft);
+  color:var(--uoft);
+  transform:translateY(-1px);
+}
+.helpfulbtn.is-on{
+  background:var(--uoft-tint);
+  border-color:var(--uoft);
+  color:var(--uoft);
+}
+.helpfulbtn:disabled{ cursor:default }
+.helpfulbtn__count{
+  margin-left:4px;
+  padding:1px 6px;
+  background:var(--uoft);
+  color:#fff;
+  border-radius:999px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:600;
+}
+
+/* Review gate (lock) */
+.reviewgate{
+  padding:22px 24px;
+  margin:14px 0 20px;
+  background:linear-gradient(135deg, var(--uoft-tint) 0%, var(--surface-2) 100%);
+  border:1px dashed var(--uoft);
+  border-radius:var(--r-md);
+  text-align:center;
+}
+.reviewgate__text{
+  font-size:14.5px;
+  color:var(--ink-2);
+  margin-bottom:12px;
+  font-weight:500;
+}
+.reviewgate__btn{
+  padding:10px 20px;
+  background:var(--uoft);
+  color:#fff;
+  border:0;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  transition:all 0.3s var(--ease-out);
+  box-shadow:0 4px 12px rgba(0,42,92,0.2);
+}
+.reviewgate__btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,42,92,0.28);
+}
+.reviewgate__hint{
+  margin-top:10px;
+  font-size:12px;
+  color:var(--ink-3);
+  font-style:italic;
+}
+[data-points-inline]{ font-weight:700 }
+
+
+/* ============ REVIEW FORM ============ */
+.reviewform{
+  padding:22px 24px;
+  margin-top:16px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);
+}
+.reviewform__label{
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:14px;
+  letter-spacing:-0.01em;
+}
+
+/* Star picker */
+.starpicker{
+  display:flex;
+  gap:4px;
+  margin-bottom:16px;
+}
+.starpicker__btn{
+  width:38px; height:38px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#f3b23a;
+  font-size:26px;
+  line-height:1;
+  transition:transform 0.2s var(--ease-spring);
+}
+.starpicker__btn:hover{ transform:scale(1.15) }
+
+/* Tag picker (3-choice segmented) */
+.tagpicker{
+  margin-bottom:14px;
+}
+.tagpicker__label{
+  display:block;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:6px;
+  font-weight:600;
+}
+.tagpicker__choices{
+  display:inline-flex;
+  padding:3px;
+  background:var(--surface-2);
+  border-radius:999px;
+  border:1px solid var(--border);
+}
+.tagchip{
+  padding:6px 14px;
+  border:0;
+  background:transparent;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--ink-3);
+  transition:all 0.25s var(--ease-out);
+}
+.tagchip:hover{ color:var(--ink) }
+.tagchip.is-on{
+  background:var(--uoft);
+  color:#fff;
 }
 
 .reviewform__text,
-.reviewform__name {
-  width: 100%;
-  padding: 10px 11px;
-  border: 1.5px solid var(--ink);
-  border-radius: 10px;
-  background: var(--paper);
-  font-family: var(--body);
-  font-size: 15px;
-  color: var(--ink);
-  resize: vertical;
+.reviewform__name{
+  display:block;
+  width:100%;
+  padding:12px 14px;
+  margin-top:12px;
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  background:var(--bg);
+  font-family:inherit;
+  font-size:14.5px;
+  color:var(--ink);
+  transition:border 0.2s ease, box-shadow 0.2s ease;
+  resize:vertical;
+}
+.reviewform__text:focus,
+.reviewform__name:focus{
+  outline:0;
+  border-color:var(--uoft);
+  box-shadow:0 0 0 3px var(--uoft-soft);
+}
+.reviewform__text::placeholder,
+.reviewform__name::placeholder{ color:var(--ink-4) }
+
+.reviewform__submit{
+  margin-top:14px;
+  padding:11px 20px;
+  border:0;
+  border-radius:999px;
+  background:var(--ink);
+  color:#fff;
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  transition:all 0.3s var(--ease-out);
+  box-shadow:var(--shadow-md);
+}
+.reviewform__submit:hover{
+  background:var(--uoft);
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-brand);
+}
+.reviewform__note{
+  margin-top:10px;
+  font-size:11.5px;
+  color:var(--ink-3);
+  font-style:italic;
 }
 
-.reviewform__submit {
-  justify-self: start;
-  padding: 10px 20px;
-  border: 1.5px solid var(--ink);
-  border-radius: 10px;
-  background: var(--ink);
-  color: #FFFFFF;
-  font-family: var(--display);
-  font-size: 14px;
-  cursor: pointer;
+/* ============ CTA (big link button) ============ */
+.cta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:16px 22px;
+  margin:16px 0 8px;
+  background:var(--ink);
+  color:#fff;
+  border:0;
+  border-radius:var(--r-md);
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform 0.3s var(--ease-out), background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  box-shadow:var(--shadow-md);
+  width:100%;
+  text-align:left;
+  letter-spacing:-0.01em;
+}
+.cta::after{
+  content:"→";
+  font-family:var(--mono);
+  font-size:18px;
+  transition:transform 0.3s var(--ease-out);
+}
+.cta:hover{
+  background:var(--uoft);
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-brand);
+  text-decoration:none;
+  color:#fff;
+}
+.cta:hover::after{ transform:translateX(4px) }
+.cta--outline{
+  background:var(--surface);
+  color:var(--uoft);
+  border:1px solid var(--uoft);
+  box-shadow:var(--shadow-sm);
+}
+.cta--outline:hover{
+  background:var(--uoft);
+  color:#fff;
 }
 
-.reviewform__submit:hover {
-  background: var(--student);
-  border-color: var(--student);
+/* ============ FLOORS (student room photos) ============ */
+.floors{
+  display:grid;
+  gap:12px;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+}
+.floor{
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.floor__img{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  display:block;
+}
+.floor__cap{
+  padding:10px 12px;
+  font-size:13px;
+  color:var(--ink-2);
+  display:flex;
+  gap:8px;
+  align-items:baseline;
+}
+.floor__num{
+  padding:2px 8px;
+  background:var(--uoft-tint);
+  color:var(--uoft);
+  border-radius:4px;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.04em;
+}
+.floors-empty{
+  padding:32px 24px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  border:1px dashed var(--border-strong);
+  text-align:center;
+}
+.floors-empty__title{
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.floors-empty__body{
+  font-size:13.5px;
+  color:var(--ink-3);
+  line-height:1.55;
+  max-width:44ch;
+  margin:0 auto;
 }
 
-.reviewform__note {
-  margin: 0;
-  font-size: 12px;
-  color: var(--ink);
+/* ============ FEES CATEGORY CARDS ============ */
+.feescats{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+  margin:16px 0 clamp(28px,3vw,36px);
 }
-
-
-/* ============================================
-   제목 옆 작은 평균 별점
-   ============================================ */
-
-.title-rating {
-  display: inline-block;
-  margin-left: 8px;
-  font-family: var(--body);
-  font-size: 0.42em;
-  font-weight: 700;
-  vertical-align: middle;
-  color: var(--student);
-  white-space: nowrap;
+.feescard{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:22px 22px 20px;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  border:0;
+  text-align:left;
+  font-family:inherit;
+  color:inherit;
+  overflow:hidden;
+  transition:transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
 }
-
-.title-rating__count {
-  margin-left: 3px;
-  font-weight: 500;
-  color: var(--ink);
+.feescard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 100% 0%, var(--cat-color, var(--uoft)) 0%, transparent 55%);
+  opacity:0.12;
+  transition:opacity 0.4s var(--ease-out);
+  pointer-events:none;
 }
-
-
-/* ============================================
-   Fees & Dates 타임라인
-   ============================================ */
-
-/* 날짜가 하나뿐일 때 (예: Aug 11) */
-.tl-single {
-  font-size: 16px;
+.feescard:hover:not(.is-off){
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
 }
+.feescard:hover:not(.is-off)::before{ opacity:0.24 }
+.feescard > *{ position:relative; z-index:1 }
 
-/* 기간일 때 (예: Sep - Jan) — 시작과 끝을 위아래로 나눠서
-   "언제부터 언제까지"가 한눈에 들어오게 만듭니다. */
+.feescard__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.feescard__icon{
+  width:40px; height:40px;
+  border-radius:12px;
+  background:var(--surface-2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  box-shadow:inset 0 0 0 1px var(--border);
+}
+.feescard__badge{
+  padding:4px 10px;
+  background:var(--cat-color, var(--uoft));
+  color:#fff;
+  border-radius:999px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.02em;
+}
+.feescard__badge--off{
+  background:var(--border);
+  color:var(--ink-4);
+}
+.feescard__name{
+  font-size:19px;
+  font-weight:600;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+  line-height:1.2;
+}
+.feescard__desc{
+  font-size:13px;
+  color:var(--ink-3);
+  line-height:1.5;
+}
+.feescard.is-off{ opacity:0.5; cursor:not-allowed }
+
+/* ============ TIMELINE (Fees dates) ============ */
+.timeline{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-top:20px;
+  padding-left:52px;
+}
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:22px;
+  top:20px; bottom:20px;
+  width:2px;
+  background:linear-gradient(180deg, var(--cat-color, var(--uoft)) 0%, var(--cat-color, var(--uoft)) 92%, transparent 100%);
+  opacity:0.3;
+}
+.tl-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:20px;
+  padding:20px 22px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  transition:transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.tl-item:hover{
+  transform:translateX(3px);
+  box-shadow:var(--shadow-md);
+}
+.tl-num{
+  position:absolute;
+  left:-42px;
+  top:20px;
+  width:32px; height:32px;
+  border-radius:50%;
+  background:var(--cat-color, var(--uoft));
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:700;
+  box-shadow:0 2px 8px rgba(0,42,92,0.25), 0 0 0 4px var(--bg);
+}
+.tl-month{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+  padding-top:2px;
+}
+.tl-single,
 .tl-from,
-.tl-to {
-  display: block;
-  font-size: 14px;
+.tl-to{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:17px;
+  color:var(--cat-color, var(--uoft));
+  font-weight:400;
+  letter-spacing:-0.01em;
+  line-height:1.15;
+}
+.tl-arrow{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink-4);
+  margin:2px 0;
+}
+.tl-body{ min-width:0 }
+.tl-title{
+  font-size:16px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:6px;
+  letter-spacing:-0.01em;
+  line-height:1.35;
+  display:flex;
+  gap:8px;
+  align-items:baseline;
+  flex-wrap:wrap;
+}
+.tl-tag{
+  padding:2px 8px;
+  background:var(--uoft-tint);
+  color:var(--uoft);
+  border-radius:999px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:0.02em;
+}
+.tl-text{
+  font-size:14px;
+  line-height:1.55;
+  color:var(--ink-2);
+}
+.tl-text strong{ font-weight:600; color:var(--ink) }
+.tl-link{
+  display:inline-block;
+  margin-top:10px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--uoft);
+  font-weight:600;
 }
 
-.tl-from {
-  opacity: 0.85;
+/* Add to calendar button */
+.icsbtn{
+  margin-top:8px;
+  margin-left:8px;
+  padding:6px 12px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12px;
+  color:var(--ink-2);
+  transition:all 0.25s var(--ease-out);
+}
+.icsbtn:hover{
+  border-color:var(--uoft);
+  color:var(--uoft);
+  transform:translateY(-1px);
 }
 
-.tl-to {
-  font-size: 16px;
+@media(max-width:600px){
+  .tl-item{ grid-template-columns:1fr; gap:8px }
+  .tl-num{ left:-40px; width:28px; height:28px; font-size:11px }
+  .timeline{ padding-left:44px }
 }
 
-.tl-arrow {
-  display: block;
-  font-size: 11px;
-  opacity: 0.7;
-  line-height: 1.6;
+/* ============ CRUMB (course sub-pages) ============ */
+.crumb{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.06em;
+  color:var(--ink-3);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  font-weight:600;
 }
 
-.tl-title {
-  margin: 0 0 9px;
-  font-family: var(--display);
-  font-size: 21px;
-  line-height: 1.3;
+/* ============ CREDIT CALCULATOR ============ */
+.creditcalc{
+  padding:22px 24px;
+  margin:16px 0 24px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);
+}
+.creditcalc__title{
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:14px;
+}
+.creditcalc__sub{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin:14px 0 8px;
+  font-weight:600;
+}
+.calc__field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.calc__field--total{ margin-bottom:6px }
+.calc__fieldlabel{
+  font-size:13px;
+  color:var(--ink-2);
+  font-weight:500;
+}
+.calc__input{
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  background:var(--bg);
+  font-family:var(--sans);
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  width:100%;
+  transition:border 0.2s, box-shadow 0.2s;
+}
+.calc__input:focus{
+  outline:0;
+  border-color:var(--uoft);
+  box-shadow:0 0 0 3px var(--uoft-soft);
+}
+.calc__grid{
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+}
+.creditcalc__result{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+.creditbar{
+  height:8px;
+  background:var(--border);
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+.creditbar__fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--uoft) 0%, var(--boundless) 100%);
+  border-radius:999px;
+  transition:width 0.5s var(--ease-out);
+}
+.creditcalc__line{
+  font-size:14px;
+  color:var(--ink-2);
+  margin-bottom:6px;
+  line-height:1.5;
+}
+.creditcalc__line strong{
+  color:var(--ink);
+  font-weight:600;
+}
+.creditcalc__line--good{ color:var(--ok) }
+
+/* ============ PROGRAM SEARCH & AZ LIST ============ */
+.program-search{
+  padding:14px 18px 14px 48px;
+  margin-bottom:16px;
+}
+.program-search .search__label{ left:16px }
+
+.azlist{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  background:var(--border);
+  border-radius:var(--r-md);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.azrow{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:16px;
+  padding:14px 20px;
+  background:var(--surface);
+  transition:background 0.2s ease;
+  text-decoration:none;
+}
+.azrow:hover{
+  background:var(--surface-2);
+  text-decoration:none;
+}
+.azrow__name{
+  font-size:15px;
+  font-weight:500;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+}
+.azrow__meta{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  letter-spacing:0.02em;
+}
+.azrow__go{
+  color:var(--uoft);
+  font-family:var(--mono);
+  font-size:14px;
+  font-weight:600;
 }
 
-.tl-tag {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 7px;
-  background: var(--highlight);
-  border: 1.5px solid var(--ink);
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  vertical-align: middle;
+/* ============ CREDENTIAL BADGES ============ */
+.credbadges{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.credbadge{
+  padding:4px 10px;
+  border-radius:999px;
+  background:var(--surface);
+  color:var(--ink-2);
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:0.01em;
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);
+}
+.credbadge--specialist{
+  background:var(--uoft);
+  color:#fff;
+  border-color:var(--uoft);
 }
 
-.tl-text {
-  margin: 0 0 12px;
-  font-size: 17px;
-  line-height: 1.65;
-  max-width: 56ch;
-  color: var(--ink);
+/* Province picker */
+.province-picker{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  margin-bottom:14px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+}
+.province-picker .search__label{
+  position:static;
+  width:auto;
+  height:auto;
+  font-size:11px;
+  color:var(--ink-3);
+  font-family:var(--mono);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  font-weight:600;
+}
+.province-picker .search__label::before{ display:none }
+.province-select{
+  flex:1;
+  padding:8px 12px;
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  background:var(--bg);
+  font-family:inherit;
+  font-size:14px;
+  color:var(--ink);
 }
 
-/* 문장 안에서 특히 중요한 부분(마감일, 금액 등)을 굵게 강조할 때 씁니다.
-   data.js 에서 **이렇게** 감싸면 굵게 나옵니다. */
-/* 굵게 강조한 부분(<strong>)은 어디서든 노란 형광펜이 깔립니다.
-   중요한 숫자·마감일·조건을 눈에 확 띄게 만드는 이 사이트 공통 규칙입니다. */
-strong {
-  background: var(--highlight);
-  padding: 0 3px;
-  border-radius: 2px;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+/* ============ BREADTH COURSE TAG FILTER ============ */
+.tagfilter{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:14px 0 20px;
+  padding:12px;
+  background:var(--surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+}
+.tagfilter__btn{
+  padding:6px 12px;
+  border:1px solid var(--border);
+  background:transparent;
+  border-radius:999px;
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--ink-2);
+  transition:all 0.25s var(--ease-out);
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+.tagfilter__btn:hover{ border-color:var(--border-strong); transform:translateY(-1px) }
+.tagfilter__btn.is-on{
+  background:var(--uoft);
+  color:#fff;
+  border-color:var(--uoft);
+  box-shadow:0 2px 8px rgba(0,42,92,0.2);
+}
+.tagfilter__btn--open.is-on{
+  background:var(--ok);
+  border-color:var(--ok);
+}
+.tagfilter__count{
+  padding:1px 6px;
+  background:rgba(255,255,255,0.2);
+  border-radius:999px;
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:600;
+}
+.tagfilter__btn:not(.is-on) .tagfilter__count{
+  background:var(--bg-2);
+  color:var(--ink-3);
 }
 
-/* 색이 있는 제목(hall__name, tl-title 등) 안의 strong 은 배경을 빼고 그냥 굵게만.
-   안 그러면 파란/주황 글씨 위에 노란 배경이 겹쳐 지저분해집니다. */
-.hall__name strong,
-.tl-title strong,
-.page-title strong,
-.feescard__name strong,
-.title-rating strong,
-.plan__name strong {
-  background: none;
-  padding: 0;
+/* ============ PREREQ BOX (course detail) ============ */
+.prereq{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--warn);
+  margin-top:8px;
+  letter-spacing:0.02em;
+}
+.prereq--open{ color:var(--ok) }
+.coursenote{
+  font-size:13px;
+  color:var(--ink-2);
+  margin-top:6px;
+  padding:8px 10px;
+  background:var(--c-butter);
+  border-radius:var(--r-xs);
+  color:var(--c-butter-ink);
+}
+.coursenote--big{
+  padding:14px 18px;
+  font-size:14px;
+  margin:12px 0 16px;
+}
+.prereqbox{
+  padding:14px 18px;
+  margin:12px 0 16px;
+  background:var(--c-peach);
+  color:var(--c-peach-ink);
+  border-radius:var(--r-md);
+}
+.prereqbox--open{
+  background:var(--c-mint);
+  color:var(--c-mint-ink);
+}
+.prereqbox__label{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.prereqbox__text{
+  font-size:14px;
+  line-height:1.5;
 }
 
-.tl-link {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--uoft);
-  text-decoration: none;
-  border-bottom: 1.5px solid var(--uoft);
+/* ============ TOAST ============ */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translate(-50%, 20px);
+  max-width:calc(100% - 32px);
+  padding:12px 20px;
+  background:var(--ink);
+  color:#fff;
+  font-size:13.5px;
+  font-weight:500;
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.25s ease, transform 0.3s var(--ease-spring);
+  z-index:1000;
+}
+.toast.is-shown{
+  opacity:1;
+  transform:translate(-50%, 0);
 }
 
-.tl-link:hover {
-  color: var(--ink);
-  border-color: var(--ink);
-}
-
-@media (max-width: 420px) {
-  .tl-item {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .tl-month {
-    display: inline-block;
-    width: auto;
-  }
-}
-
-
-/* ============================================
-   Fees 카테고리 목록 (홈 메뉴와 같은 줄 스타일 재사용)
-   ============================================ */
-
-.fees-items__title {
-  font-size: clamp(24px, 6vw, 34px);
-  margin: 0 0 16px;
-}
-
-.row__count {
-  color: var(--ink-faint);
-  font-weight: 400;
-}
-
-
-
-/* Fees 카테고리 줄은 다른 곳보다 여유 있게 */
-.feescats .row {
-  padding-top: clamp(22px, 4.5vw, 28px);
-  padding-bottom: clamp(22px, 4.5vw, 28px);
-}
-
-.feescats .row__desc {
-  margin-top: 2px;
-  font-size: 16px;
-}
-
-
-
-/* ============================================
-   Fees 카테고리 카드 (색이 있는 큰 타일)
-   ============================================ */
-
-.feescats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
-}
-
-.feescard {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 22px 20px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 16px;
-  background: var(--paper);
-  cursor: pointer;
-  text-align: left;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-/* 위쪽에 카테고리 색이 굵은 띠로 깔립니다 (왼쪽 세로선보다 카드 느낌이 남) */
-/* 위쪽 색띠는 없앴습니다 — 아이콘과 뱃지 색만으로 카테고리를 구분합니다 */
-
-.feescard:hover,
-.feescard:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 22px rgba(var(--ink-rgb), 0.14);
-  outline: none;
-}
-
-.feescard.is-off {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.feescard__top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.feescard__icon {
-  font-size: 34px;
-  line-height: 1;
-}
-
-/* 개수를 동그란 알약 뱃지로. 카드 색과 맞춰서 통일감을 줍니다 */
-.feescard__badge {
-  flex: none;
-  padding: 4px 11px;
-  border-radius: 999px;
-  background: var(--cat-color);
-  color: #FFFFFF;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.feescard__badge--off {
-  background: var(--ink-faint);
-}
-
-.feescard__name {
-  font-family: var(--display);
-  font-size: 19px;
-  line-height: 1.25;
-  color: var(--cat-color);
-}
-
-.feescard.is-off .feescard__name {
-  color: var(--ink);
-}
-
-.feescard__desc {
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--ink);
-}
-
-
-/* ============================================
-   Fees 타임라인 카드 (논문 느낌 없애기)
-   ============================================ */
-
-.timeline {
-  position: relative;
-  border-top: 0;
-  padding-left: 6px;
-}
-
-/* 세로로 이어지는 진행선 — "여정" 느낌을 줍니다 */
-.timeline::before {
-  content: "";
-  position: absolute;
-  left: 27px;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--ink) 0, var(--ink) 6px, transparent 6px, transparent 12px
-  );
-}
-
-.tl-item {
-  position: relative;
-  display: grid;
-  grid-template-columns: 118px 1fr;
-  gap: 6px 24px;
-  padding: 18px 18px 18px 0;
-  margin-bottom: 16px;
-  margin-left: 54px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-left: 7px solid var(--cat-color);
-  border-radius: 12px;
-  background: var(--paper);
-  box-shadow: 0 3px 12px rgba(var(--ink-rgb), 0.08);
-}
-
-/* 순번 동그라미. 타임라인 선 위에 얹힙니다 */
-.tl-num {
-  position: absolute;
-  left: -54px;
-  top: 18px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 3px solid var(--ink);
-  background: var(--cat-color);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-size: 14px;
-  z-index: 1;
-}
-
-.tl-month {
-  align-self: start;
-  border-radius: 10px;
-  padding: 10px 6px;
-  background: var(--cat-color);
-  color: #FFFFFF;
-  font-family: var(--display);
-  line-height: 1.15;
-  text-align: center;
-}
-
-@media (max-width: 560px) {
-  .timeline::before { left: 19px; }
-  .tl-item { margin-left: 40px; }
-  .tl-num { left: -40px; width: 28px; height: 28px; font-size: 12px; top: 18px; }
-}
-
-
-/* ============================================
-   Courses — 눌러서 넘어가는 카드 (halls 스타일 재사용)
-   ============================================ */
-
-.hall--clickable {
-  display: block;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font: inherit;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.hall--clickable:hover,
-.hall--clickable:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(var(--ink-rgb), 0.13);
-  outline: none;
-}
-
-/* Choosing a Program 검색창 — 밑줄 대신 박스 형태로, 조금 더 눈에 띄게 */
-/* Courses/A-Z 검색은 홈 검색과 같은 박스 스타일을 그대로 씁니다.
-   여기서는 여백만 조금 다르게 잡습니다. */
-.program-search {
-  margin-bottom: 22px;
-}
-
-.program-search .search__input {
-  font-size: 16px;
-}
-
-
-/* ============================================
-   주(province) 선택 드롭다운
-   ============================================ */
-
-.province-picker {
-  margin: 0 0 14px;
-}
-
-.province-select {
-  display: block;
-  width: 100%;
-  max-width: 360px;
-  padding: 10px 12px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 10px;
-  background: var(--paper);
-  font-family: var(--body);
-  font-size: 15px;
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.province-select:focus-visible {
-  outline: 3px solid var(--uoft);
-  outline-offset: 2px;
-}
-
-
-/* ============================================
-   홈 검색 결과 드롭다운
-   ============================================ */
-
-.searchresults {
-  margin-top: 8px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  background: var(--paper);
-  max-height: 340px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.searchresult {
-  display: grid;
-  grid-template-columns: 74px 1fr auto;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 14px;
-  border: 0;
-  border-bottom: 1px solid #D4D9E0;
-  background: transparent;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
-}
-
-.searchresult:last-child {
-  border-bottom: 0;
-}
-
-.searchresult:hover,
-.searchresult:focus-visible {
-  background: #EDF1F7;
-  outline: none;
-}
-
-.searchresult__kind {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--uoft);
-}
-
-.searchresult__label {
-  font-family: var(--display);
-  font-size: 15px;
-}
-
-.searchresult__sub {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-@media (max-width: 420px) {
-  .searchresult {
-    grid-template-columns: 1fr;
-    gap: 2px;
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:0.01ms !important;
+    animation-delay:0s !important;
+    transition-duration:0.01ms !important;
   }
 }
 
-
-/* ============================================
-   Courses 브레드크럼
-   ============================================ */
-
-.crumb {
-  margin: 0 0 8px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  color: var(--ink);
-  word-break: break-word;
-}
-
-
-/* ============================================
-   홈 하단 — 최근 업데이트
-   ============================================ */
-
-.updatelog {
-  margin: clamp(20px, 4vw, 32px) 0;
-  padding: 16px 18px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  background: #F7F8FA;
-}
-
-.updatelog__head {
-  margin: 0 0 10px;
-  font-family: var(--display);
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.updatelog__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.updatelog__list li {
-  margin-bottom: 7px;
-}
-
-.updatelog__date {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--uoft);
-  margin-right: 6px;
-}
-
-
-/* ============================================
-   전체 프로그램 A-Z 목록
-   ============================================ */
-
-.cta--outline {
-  display: block;
-  background: var(--paper);
-  color: var(--uoft);
-  border-color: var(--uoft);
-}
-
-.cta--outline:hover {
-  background: var(--uoft);
-  color: #FFFFFF;
-}
-
-.azlist {
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.azrow {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 14px;
-  border-bottom: 1px solid #D4D9E0;
-  text-decoration: none;
-  color: var(--ink);
-}
-
-.azrow:hover,
-.azrow:focus-visible {
-  background: #EDF1F7;
-}
-
-.azrow__name {
-  font-family: var(--display);
-  font-size: 16px;
-}
-
-.azrow__meta {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.azrow__go {
-  font-size: 16px;
-  color: var(--uoft);
-}
-
-@media (max-width: 480px) {
-  .azrow {
-    grid-template-columns: 1fr auto;
-  }
-  .azrow__meta {
-    grid-column: 1 / -1;
-    text-align: left;
-  }
-}
-
-
-/* ============================================
-   Major / Minor / Specialist 뱃지
-   ============================================ */
-
-.credbadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 16px;
-}
-
-.credbadge {
-  padding: 4px 11px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--paper);
-  font-family: var(--display);
-  font-size: 13px;
-  color: var(--ink);
-}
-
-/* Specialist 는 대체로 제일 힘든 옵션이라 눈에 띄게 강조합니다 */
-.credbadge--specialist {
-  background: var(--highlight);
-  border-color: var(--ink);
-  font-weight: 700;
-}
-
-
-/* ============================================
-   고급스러운 느낌으로: 세리프 큰 제목 + 산세리프 굵기 보강
-   ============================================ */
-
-/* Archivo Black을 뺐으니, --display 를 쓰는 곳은 전부 굵게 보강합니다 */
-.title, .page-title, .fees-items__title, .row__name, .card__name, .card__price,
-.hall__name, .plan__name, .feescard__name, .tl-title, .credbadge,
-.searchresult__label, .azrow__name, .title-rating {
-  font-weight: 700;
-}
-
-/* 이 세 곳 — 사이트에서 제일 큰 제목들 — 만 우아한 세리프로 바꿉니다.
-   나머지(카드 이름, 버튼 등)는 여전히 굵은 산세리프라, 대비가 생겨서
-   "손으로 골라 짠 편집 디자인" 같은 느낌이 납니다. */
-.title, .page-title, .fees-items__title {
-  font-family: var(--serif);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-/* 세리프는 이탤릭이 예쁘게 나오는 폰트라, 부제목에 살짝 써봅니다 */
-.title__sub {
-  font-style: italic;
-  font-weight: 500;
-}
-
-
-
-/* ============================================
-   화면 전환 페이드 — showView() 가 화면을 바꿀 때마다
-   살짝 떠오르며 나타나서, 뚝 끊기지 않고 자연스럽습니다.
-   ============================================ */
-
-.view-fade {
-  animation: viewFadeIn 0.42s cubic-bezier(0.16, 0.8, 0.3, 1) both;
-}
-
-@keyframes viewFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* ============================================
-   포인트 뱃지 (홈 화면 위쪽)
-   ============================================ */
-
-.pointsbadge {
-  display: inline-block;
-  float: right;
-  margin-top: 14px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: var(--highlight);
-  border: 1.5px solid rgba(var(--ink-rgb), 0.7);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-
-/* ============================================
-   리뷰 잠금 게이트
-   ============================================ */
-
-.reviewgate {
-  margin-top: 10px;
-  padding: 14px 16px;
-  border: 1.5px dashed var(--student);
-  border-radius: 14px;
-  background: #FDF3EA;
-  text-align: center;
-}
-
-.reviewgate__text {
-  margin: 0 0 8px;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--ink);
-}
-
-.reviewgate__btn {
-  padding: 9px 16px;
-  border: 1.5px solid var(--student);
-  border-radius: 999px;
-  background: var(--student);
-  color: #FFFFFF;
-  font-family: var(--body);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.reviewgate__btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(192, 90, 22, 0.28);
-}
-
-.reviewgate__hint {
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: var(--ink);
-}
-
-
-/* ============================================
-   리뷰 폼 안 태그 선택 (소음/방크기/관리)
-   ============================================ */
-
-.tagpicker {
-  margin: 4px 0;
-}
-
-.tagpicker__label {
-  display: block;
-  margin-bottom: 5px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.tagpicker__choices {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.tagchip {
-  padding: 6px 12px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.tagchip.is-on {
-  background: var(--student);
-  border-color: var(--student);
-  color: #FFFFFF;
-  font-weight: 600;
-}
-
-
-/* ============================================
-   리뷰 집계 색상 지표 — 에브리타임 강의평 스타일
-   ============================================ */
-
-.tagbars {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 12px 0 16px;
-  padding: 12px 14px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.55);
-  border-radius: 12px;
-  background: #F7F8FA;
-}
-
-.tagbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.tagbar__label {
-  font-family: var(--body);
-  font-size: 13px;
-  color: var(--ink);
-}
-
-.tagbar__value {
-  padding: 3px 12px;
-  border-radius: 999px;
-  color: #FFFFFF;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-
-/* ============================================
-   A-Z 프로그램 목록 — 게시판처럼 촘촘하게
-   ============================================ */
-
-.azrow {
-  padding: 9px 12px;
-}
-
-.azrow:nth-child(even) {
-  background: #F5F6F8;
-}
-
-.azrow__name {
-  font-size: 14px;
-}
-
-.azrow__meta {
-  font-size: 11px;
-}
-
-
-/* ============================================
-   학점 계산기
-   ============================================ */
-
-.creditcalc {
-  margin: 16px 0 24px;
-  padding: 16px 18px;
-  border: 1.5px solid rgba(15, 122, 77, 0.6);
-  border-radius: 14px;
-  background: #F0F8F4;
-}
-
-.creditcalc__title {
-  margin: 0 0 12px;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--money, #0F7A4D);
-}
-
-.calc__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-
-.calc__field--total {
-  max-width: 220px;
-}
-
-.calc__fieldlabel {
-  font-size: 12px;
-  color: var(--ink);
-}
-
-.calc__input {
-  padding: 8px 10px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
-  border-radius: 8px;
-  background: var(--paper);
-  font-family: var(--body);
-  font-size: 14px;
-  color: var(--ink);
-  width: 100%;
-}
-
-.calc__input:focus {
-  outline: none;
-  border-color: #0F7A4D;
-}
-
-.calc__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.creditcalc__sub {
-  margin: 4px 0 10px;
-  font-size: 12px;
-  color: var(--ink);
-}
-
-.creditbar {
-  height: 10px;
-  border-radius: 999px;
-  background: #DCE9E1;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.creditbar__fill {
-  height: 100%;
-  background: #0F7A4D;
-  border-radius: 999px;
-  transition: width 0.3s ease;
-}
-
-.creditcalc__line {
-  margin: 0 0 6px;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.creditcalc__line--good {
-  color: #0F7A4D;
-  font-weight: 700;
-}
-
-
-/* ============================================
-   리뷰 "도움됨" 버튼
-   ============================================ */
-
-.helpfulbtn {
-  margin-top: 10px;
-  padding: 6px 12px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.helpfulbtn:hover:not(:disabled) {
-  background: #EDF1F7;
-}
-
-.helpfulbtn.is-on {
-  background: var(--uoft);
-  border-color: var(--uoft);
-  color: #FFFFFF;
-  cursor: default;
-}
-
-.helpfulbtn:disabled {
-  cursor: default;
-}
-
-.helpfulbtn__count {
-  font-weight: 700;
-}
-/* ============================================
-   캘린더 저장 버튼
-   ============================================ */
-
-.icsbtn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 7px 13px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.6);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
-}
-
-.icsbtn:hover {
-  background: var(--uoft);
-  color: #FFFFFF;
-  border-color: var(--uoft);
-  transform: translateY(-1px);
-}
-
-
-/* ============================================
-   과목 리뷰 — 교수명 표시
-   ============================================ */
-
-.review__prof {
-  margin: 0 0 6px;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--uoft);
-}
-
-
-/* ============================================
-   교양 과목 추천 이유 (💡)
-   ============================================ */
-
-.coursenote {
-  margin: 6px 0 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #FFF9DB;
-  border-left: 3px solid var(--highlight);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.coursenote--big {
-  font-size: 15px;
-  margin-bottom: 16px;
-  padding: 12px 14px;
-}
-
-
-/* ============================================
-   주제 태그 필터 (교양 과목 고르기)
-   ============================================ */
-
-.tagfilter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: 0 0 20px;
-}
-
-.tagfilter__btn {
-  padding: 7px 13px;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.5);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.tagfilter__btn:hover {
-  border-color: var(--student);
-}
-
-.tagfilter__btn.is-on {
-  background: var(--student);
-  border-color: var(--student);
-  color: #FFFFFF;
-  font-weight: 600;
-}
-
-.tagfilter__count {
-  opacity: 0.65;
-  font-size: 11px;
-}
-
-.tagfilter__btn.is-on .tagfilter__count {
-  opacity: 0.85;
-}
-
-
-/* ============================================
-   선수과목(prerequisite) 표시
-   ============================================ */
-
-.prereq {
-  margin: 6px 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.prereq--open {
-  color: #0F7A4D;
-  font-weight: 700;
-}
-
-.prereqbox {
-  margin: 0 0 16px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border-left: 4px solid var(--student);
-  background: #FDF3EA;
-}
-
-.prereqbox--open {
-  border-left-color: #0F7A4D;
-  background: #F0F8F4;
-}
-
-.prereqbox__label {
-  margin: 0 0 5px;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.prereqbox__text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.tagfilter__btn--open.is-on {
-  background: #0F7A4D;
-  border-color: #0F7A4D;
+/* ============ RESPONSIVE ============ */
+@media(max-width:640px){
+  .nav{ padding:14px 0 }
+  .nav__pills{ order:3; width:100%; justify-content:space-between }
+  .nav__pills .nav__pill{ flex:1; text-align:center }
+  .title__sub::before{ display:none }
+  .review__avgcount{ margin-left:0 }
+  .review__avg{ flex-wrap:wrap }
 }
