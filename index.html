@@ -128,16 +128,16 @@
     <!-- 정렬 버튼. data-sort 값을 app.js 가 읽습니다. -->
     <div class="sortbar">
       <span class="sortbar__label">Sort</span>
-      <button type="button" class="sortbtn is-on" data-sort="price">Lowest price</button>
-      <button type="button" class="sortbtn" data-sort="name">A&ndash;Z</button>
+      <button type="button" class="sortbtn is-on" data-sort="price" aria-pressed="true">Lowest price</button>
+      <button type="button" class="sortbtn" data-sort="name" aria-pressed="false">A&ndash;Z</button>
     </div>
 
     <!-- 필터 버튼. 여러 개 동시에 켤 수 있습니다(data-filter). -->
     <div class="sortbar">
       <span class="sortbar__label">Filter</span>
-      <button type="button" class="filterbtn" data-filter="meal">Meal included</button>
-      <button type="button" class="filterbtn" data-filter="open">Open over winter break</button>
-      <button type="button" class="filterbtn" data-filter="budget">Under $20,000</button>
+      <button type="button" class="filterbtn" data-filter="meal" aria-pressed="false">Meal included</button>
+      <button type="button" class="filterbtn" data-filter="open" aria-pressed="false">Open over winter break</button>
+      <button type="button" class="filterbtn" data-filter="budget" aria-pressed="false">Under $20,000</button>
     </div>
 
     <p class="count" id="res-count"></p>
@@ -178,8 +178,8 @@
 
     <div class="sortbar">
       <span class="sortbar__label">I am</span>
-      <button type="button" class="sortbtn is-on" data-audience="domestic">Canadian</button>
-      <button type="button" class="sortbtn" data-audience="international">International</button>
+      <button type="button" class="sortbtn is-on" data-audience="domestic" aria-pressed="true">Canadian</button>
+      <button type="button" class="sortbtn" data-audience="international" aria-pressed="false">International</button>
     </div>
 
     <!-- 화면 4-1: 카테고리 고르기 -->

@@ -80,18 +80,71 @@ const views = {
   coursePage: document.getElementById("view-course-page")
 };
 
-function showView(name) {
+/* ---- 화면 전환 + 주소창 동기화 ----
+   화면을 바꿀 때마다 주소 끝에 #residence 같은 해시를 남깁니다.
+   그래서 (1) 링크를 공유하면 그 화면으로 바로 열리고,
+   (2) 브라우저 뒤로가기를 눌러도 사이트 밖으로 안 나가고 이전 화면으로 돌아옵니다.
+
+   hashOverride 를 따로 주면 그걸 쓰고(예: "residence/chestnut"),
+   안 주면 화면 이름을 그대로 씁니다. 홈은 해시를 비워서 주소를 깔끔하게 둡니다. */
+function showView(name, hashOverride) {
   // 일단 전부 숨기고
   Object.values(views).forEach(function (el) {
     if (el) el.hidden = true;
   });
 
   // 요청받은 것 하나만 꺼냅니다
-  if (views[name]) views[name].hidden = false;
+  if (views[name]) {
+    views[name].hidden = false;
+
+    // 화면이 뚝 끊기지 않고 살짝 떠오르며 나타나게.
+    // 클래스를 뺐다 다시 넣어야 매번 애니메이션이 재생됩니다(reflow 강제).
+    views[name].classList.remove("view-fade");
+    void views[name].offsetWidth;
+    views[name].classList.add("view-fade");
+  }
 
   // 화면 맨 위로 올려줍니다 (안 하면 스크롤이 중간에 걸려 있습니다)
   window.scrollTo(0, 0);
+
+  // 주소창 해시 갱신 (뒤로가기가 이 해시를 다시 불러옵니다)
+  const wantHash = hashOverride || (name === "home" ? "" : name);
+  const currentHash = location.hash.replace(/^#/, "");
+  if (currentHash !== wantHash && !isRestoringFromHash) {
+    if (wantHash) location.hash = wantHash;
+    else history.pushState("", document.title, location.pathname + location.search);
+  }
 }
+
+
+/* ---- 뒤로/앞으로가기, 직접 링크 접속 처리 ----
+   주소 해시가 바뀌면(사람이 직접 치거나, 브라우저 뒤로가기를 누르거나) 그에 맞는 화면을 엽니다. */
+let isRestoringFromHash = false;
+
+function routeFromHash() {
+  const hash = location.hash.replace(/^#/, "");
+  isRestoringFromHash = true;
+
+  if (!hash) {
+    showView("home");
+  } else if (hash.indexOf("residence/") === 0) {
+    const id = hash.slice("residence/".length);
+    if (typeof openDetail === "function" && typeof RESIDENCES !== "undefined" && RESIDENCES.some(function (r) { return r.id === id; })) {
+      showView("residence");   // 뒤로 눌렀을 때 목록이 먼저 보이게
+      openDetail(id);
+    } else {
+      showView("residence");
+    }
+  } else if (views[hash]) {
+    showView(hash);
+  } else {
+    showView("home");
+  }
+
+  isRestoringFromHash = false;
+}
+
+window.addEventListener("hashchange", routeFromHash);
 
 
 /* ---- Back 버튼 ----
@@ -340,11 +393,13 @@ document.querySelectorAll(".sortbtn").forEach(function (btn) {
 
     sortMode = btn.dataset.sort;
 
-    // 눌린 버튼만 켜진 모양으로 바꿉니다
+    // 눌린 버튼만 켜진 모양으로 바꿉니다 (스크린리더용 aria-pressed 도 같이)
     document.querySelectorAll(".sortbtn").forEach(function (b) {
       b.classList.remove("is-on");
+      b.setAttribute("aria-pressed", "false");
     });
     btn.classList.add("is-on");
+    btn.setAttribute("aria-pressed", "true");
 
     // 목록을 새 순서로 다시 그립니다
     renderResidenceList();
@@ -363,9 +418,11 @@ document.querySelectorAll(".filterbtn").forEach(function (btn) {
     if (i === -1) {
       activeFilters.push(key);
       btn.classList.add("is-on");
+      btn.setAttribute("aria-pressed", "true");
     } else {
       activeFilters.splice(i, 1);
       btn.classList.remove("is-on");
+      btn.setAttribute("aria-pressed", "false");
     }
 
     renderResidenceList();
@@ -562,8 +619,10 @@ document.querySelectorAll("[data-audience]").forEach(function (btn) {
 
     document.querySelectorAll("[data-audience]").forEach(function (b) {
       b.classList.remove("is-on");
+      b.setAttribute("aria-pressed", "false");
     });
     btn.classList.add("is-on");
+    btn.setAttribute("aria-pressed", "true");
 
     document.getElementById("fees-items").hidden = true;
     document.getElementById("fees-categories").hidden = false;
@@ -1073,7 +1132,7 @@ function openDetail(id) {
   }
 
   box.innerHTML = buildDetail(item);
-  showView("detail");
+  showView("detail", "residence/" + id);
 }
 
 
@@ -1667,10 +1726,26 @@ function renderHomeSearch(term) {
   }).join("");
 }
 
+/* ---- 디바운스 ----
+   타이핑을 멈추고 나서야 실제로 실행합니다. 데이터가 커져도
+   글자 하나 칠 때마다 전체를 다시 검색하지 않도록 막아줍니다. */
+function debounce(fn, wait) {
+  let timer = null;
+  return function () {
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function () { fn.apply(null, args); }, wait);
+  };
+}
+
+const debouncedHomeSearch = debounce(function (value) {
+  renderHomeSearch(value);
+}, 150);
+
 const homeSearchInput = document.getElementById("search");
 if (homeSearchInput) {
   homeSearchInput.addEventListener("input", function (e) {
-    renderHomeSearch(e.target.value);
+    debouncedHomeSearch(e.target.value);
   });
 }
 
@@ -1695,6 +1770,7 @@ document.addEventListener("click", function (e) {
       feesAudience = item.audience;
       document.querySelectorAll("[data-audience]").forEach(function (b) {
         b.classList.toggle("is-on", b.dataset.audience === feesAudience);
+        b.setAttribute("aria-pressed", b.dataset.audience === feesAudience ? "true" : "false");
       });
     }
     showView("fees");
@@ -1735,3 +1811,8 @@ function renderUpdateLog() {
 }
 
 renderUpdateLog();
+
+
+/* ---- 페이지를 처음 열 때, 주소에 해시가 있으면(공유된 링크 등) 그 화면부터 보여줍니다 ---- */
+routeFromHash();
+

@@ -107,19 +107,44 @@ body {
   clear: both;
 }
 
-/* ---- 검색: 밑줄 형태 ---- */
+/* ---- 검색: 밑줄 대신 카드 형태로 — 존재감이 확실해야 눌러보고 싶어집니다 ---- */
 .search {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   margin-top: clamp(24px, 5vw, 36px);
-  border-bottom: 2px solid var(--ink);
-  padding-bottom: 6px;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 0 2px 8px rgba(16, 19, 24, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.search:focus-within {
+  border-color: var(--uoft);
+  box-shadow: 0 4px 14px rgba(11, 77, 160, 0.14);
+}
+
+/* 라벨 글자 "Search" 는 화면엔 돋보기 아이콘으로 보이고,
+   스크린리더에게는 여전히 "Search" 로 읽힙니다(글자를 지운 게 아니라 숨긴 것). */
 .search__label {
-  font-family: var(--display);
-  font-size: 19px;
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  font-size: 0;
+}
+
+.search__label::before {
+  content: "\1F50D";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0.55;
 }
 
 .search__input {
@@ -419,7 +444,7 @@ ul.lede li::marker {
   margin: 0 0 clamp(26px, 5vw, 36px);
   padding: 16px 18px;
   background: var(--highlight);
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
 }
 
@@ -599,7 +624,7 @@ ul.lede li::marker {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   overflow: hidden;
   background: var(--ink);
@@ -638,7 +663,7 @@ ul.lede li::marker {
   width: min(78%, 300px);
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   scroll-snap-align: start;
 }
@@ -874,7 +899,7 @@ ul.lede li::marker {
 
 .floor {
   margin: 0;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   overflow: hidden;
   background: var(--paper);
@@ -941,7 +966,7 @@ ul.lede li::marker {
 .verdict {
   margin: 0;
   padding: 13px 15px;
-  border: 1.5px solid var(--uoft);
+  border: 1.5px solid rgba(11, 77, 160, 0.55);
   border-radius: 12px;
   background: var(--paper);
   font-family: var(--display);
@@ -1096,7 +1121,7 @@ ul.lede li::marker {
 }
 
 .mapbox {
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 9px;
@@ -1656,10 +1681,10 @@ strong {
 }
 
 /* Choosing a Program 검색창 — 밑줄 대신 박스 형태로, 조금 더 눈에 띄게 */
+/* Courses/A-Z 검색은 홈 검색과 같은 박스 스타일을 그대로 씁니다.
+   여기서는 여백만 조금 다르게 잡습니다. */
 .program-search {
   margin-bottom: 22px;
-  border-bottom: 2px solid var(--ink);
-  padding-bottom: 8px;
 }
 
 .program-search .search__input {
@@ -1680,7 +1705,7 @@ strong {
   width: 100%;
   max-width: 360px;
   padding: 10px 12px;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 10px;
   background: var(--paper);
   font-family: var(--body);
@@ -1701,7 +1726,7 @@ strong {
 
 .searchresults {
   margin-top: 8px;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   background: var(--paper);
   max-height: 340px;
@@ -1784,7 +1809,7 @@ strong {
 .updatelog {
   margin: clamp(20px, 4vw, 32px) 0;
   padding: 16px 18px;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(16, 19, 24, 0.7);
   border-radius: 12px;
   background: #F7F8FA;
 }
@@ -1938,4 +1963,20 @@ strong {
 .title__sub {
   font-style: italic;
   font-weight: 500;
+}
+
+
+
+/* ============================================
+   화면 전환 페이드 — showView() 가 화면을 바꿀 때마다
+   살짝 떠오르며 나타나서, 뚝 끊기지 않고 자연스럽습니다.
+   ============================================ */
+
+.view-fade {
+  animation: viewFadeIn 0.42s cubic-bezier(0.16, 0.8, 0.3, 1) both;
+}
+
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

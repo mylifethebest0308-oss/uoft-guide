@@ -783,6 +783,16 @@ const FEES_TIMELINE = [
   },
 
   {
+    id: "tcard",
+    month: "Aug",
+    title: "Get your TCard (Student ID)",
+    body: "Start online **before you arrive**: enable your JOINid, then upload your photo and ID. Processing takes 2\u20137 business days, so don't leave it until you land.",
+    category: "prep",
+    audience: "both",
+    officialUrl: "https://tcard.utoronto.ca/get-your-utorid-tcard/"
+  },
+
+  {
     id: "begin",
     month: "September",
     title: "Classes begin",
@@ -2040,3 +2050,4 @@ const ALL_PROGRAMS_AZ = [
   { id: "az-writing-and-rhetoric", name: "Writing and Rhetoric", degree: "Honours Bachelor of Arts", types: "Minor", officialUrl: "https://artsci.calendar.utoronto.ca/section/Innis-College" },
   { id: "az-yiddish-al-and-malka-green-program-in", name: "Yiddish, Al and Malka Green Program in", degree: "Honours Bachelor of Arts", types: "Minor", officialUrl: "https://artsci.calendar.utoronto.ca/section/Yiddish-Studies" },
 ];
+
