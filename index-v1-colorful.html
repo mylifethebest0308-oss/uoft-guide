@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>UofT St. George — Unofficial Student Guide</title>
-  <meta name="description" content="A plain-language guide to residence, academics, and admissions at the University of Toronto St. George campus. Made by students, not by the university.">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="UofT St. George — Unofficial Student Guide">
-  <meta property="og:description" content="Residence prices, course reviews, and every deadline that matters — in plain language. Made by students, not by the university.">
-  <meta name="twitter:card" content="summary">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23002A5C'/%3E%3Ctext x='30' y='46' font-family='Georgia,serif' font-size='38' font-weight='bold' fill='white' text-anchor='middle'%3EU%3C/text%3E%3Ccircle cx='49' cy='42' r='6' fill='%23FFDE3D'/%3E%3C/svg%3E">
+  <meta name="description" content="A plain-language guide to residence, courses, fees and clubs at the University of Toronto St. George campus. Made by students, not by the university.">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,12 +32,14 @@
     <div class="nav__pills">
       <button type="button" class="nav__pill is-on" data-nav="home">Home</button>
       <button type="button" class="nav__pill" data-nav="residence">Residence</button>
-      <button type="button" class="nav__pill" data-nav="courses">Academics</button>
-      <button type="button" class="nav__pill" data-nav="fees">Undergraduate Students</button>
-      <button type="button" class="nav__pill" data-nav="facilities">Facilities</button>
+      <button type="button" class="nav__pill" data-nav="courses">Courses</button>
+      <button type="button" class="nav__pill" data-nav="fees">Fees</button>
     </div>
 
     <div class="nav__right">
+      <span class="nav__badge nav__badge--live">
+        <span class="dot"></span>Live · Aug '26
+      </span>
       <span class="pointsbadge" id="points-badge" title="Earned by writing reviews. Saved on this device only."></span>
     </div>
   </nav>
@@ -52,12 +50,15 @@
 <main class="sheet view is-active" id="view-home">
 
   <header class="masthead">
+    <span class="hero__eyebrow">
+      <em>New</em> 7 more student reviews added this week
+    </span>
     <h1 class="title">
       University&nbsp;of&nbsp;Toronto
       <span class="title__sub">St.&nbsp;George Campus</span>
     </h1>
     <p class="hero__sub">
-      A student-written guide to living, studying, and paying for the St.&nbsp;George campus. Figures come from U&nbsp;of&nbsp;T's own pages; we check them each August.
+      Everything you actually need to know — residence, courses, fees. Written the way a friend would explain it, by current students, checked every August.
     </p>
 
     <!-- 검색: 카드 형태, 아래 suggest chips -->
@@ -71,6 +72,13 @@
         autocomplete="off">
       <span class="search__kbd">⌘K</span>
     </label>
+    <div class="search__suggest">
+      <span>Try</span>
+      <button type="button" data-suggest="Chestnut">Chestnut price</button>
+      <button type="button" data-suggest="March 31">March 31 deadline</button>
+      <button type="button" data-suggest="Meal">Meal plans</button>
+      <button type="button" data-suggest="Computer">CS enrolment</button>
+    </div>
     <div class="searchresults" id="home-search-results" hidden></div>
   </header>
 
@@ -80,13 +88,13 @@
     <button type="button" class="row section-card section-card--residence is-live" data-key="residence">
       <div class="section-card__top">
         <span class="section-card__badge"><span class="num">01</span>Residence</span>
-        <span class="section-card__meta">11 places</span>
+        <span class="section-card__meta">7 residences · updated Aug '26</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Residence</span>
-        <p class="row__desc section-card__desc">All 11 residences on campus. Prices, meal plans, and what students say.</p>
+        <span class="row__name section-card__name">Where you'll<br><em>live.</em></span>
+        <p class="row__desc section-card__desc">Every residence side by side. Prices, meal plans, and what students actually think.</p>
         <span class="row__cue section-card__cta">
-          Open
+          Explore
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </span>
       </div>
@@ -94,14 +102,14 @@
 
     <button type="button" class="row section-card section-card--courses is-live" data-key="courses">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">02</span>Academics</span>
-        <span class="section-card__meta">Arts &amp; Science</span>
+        <span class="section-card__badge"><span class="num">02</span>Courses</span>
+        <span class="section-card__meta">Arts &amp; Science · Fall '26</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Academics</span>
-        <p class="row__desc section-card__desc">Enrolment dates, degree requirements, and course reviews — for current and incoming students.</p>
+        <span class="row__name section-card__name">What you'll<br><em>study.</em></span>
+        <p class="row__desc section-card__desc">Enrolment dates, program choices, and degree requirements — without the jargon.</p>
         <span class="row__cue section-card__cta">
-          Open
+          Explore
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </span>
       </div>
@@ -109,31 +117,28 @@
 
     <button type="button" class="row section-card section-card--fees is-live" data-key="fees">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">03</span>Undergraduate Students</span>
-        <span class="section-card__meta">Timeline</span>
+        <span class="section-card__badge"><span class="num">03</span>Fees &amp; Dates</span>
+        <span class="section-card__meta">Timeline view</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Undergraduate Students</span>
-        <p class="row__desc section-card__desc">Every deadline from application to move-in, plus how to choose your program. Canadian and international.</p>
+        <span class="row__name section-card__name">What it'll<br><em>cost.</em></span>
+        <p class="row__desc section-card__desc">Every deadline from application to move-in, on one timeline. Canadian + international tracks.</p>
         <span class="row__cue section-card__cta">
-          Open
+          Explore
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </span>
       </div>
     </button>
 
-    <button type="button" class="row section-card section-card--facilities is-live" data-key="facilities">
+    <button type="button" class="row section-card section-card--clubs is-soon" data-key="clubs">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">04</span>Campus Facilities</span>
-        <span class="section-card__meta">Libraries, gym, food & more</span>
+        <span class="section-card__badge"><span class="num">04</span>Clubs</span>
+        <span class="section-card__meta">Coming September</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Campus Facilities</span>
-        <p class="row__desc section-card__desc">Where to study, eat, work out, print, and get help — all in one place.</p>
-        <span class="row__cue section-card__cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </span>
+        <span class="row__name section-card__name">Who you'll<br><em>hang with.</em></span>
+        <p class="row__desc section-card__desc">A list of active clubs and how to join. Being written this term.</p>
+        <span class="row__cue section-card__cta">Soon</span>
       </div>
     </button>
 
@@ -169,7 +174,7 @@
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
         Section 01 · Residence
       </span>
-      <h2 class="page-title">Residence</h2>
+      <h2 class="page-title">Where you'll <em>live.</em></h2>
     </div>
   </div>
 
@@ -177,7 +182,17 @@
     Every residence on the St.&nbsp;George campus, side by side. Figures come from U&nbsp;of&nbsp;T's official housing page — always confirm before you apply.
   </p>
 
-  <div id="residence-deadlines"></div>
+  <div class="keybox keybox--alert">
+    <div class="keybox__icon">!</div>
+    <div>
+      <p class="keybox__main">First-year residence guarantee</p>
+      <p class="keybox__sub">
+        Finish your U&nbsp;of&nbsp;T Residence Portal application by <strong>March&nbsp;31</strong>
+        and accept your admission offer by <strong>June&nbsp;2</strong>. Miss either date and the
+        guarantee is gone.
+      </p>
+    </div>
+  </div>
 
   <!-- Sort -->
   <div class="sortbar">
@@ -213,10 +228,6 @@
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
     Residences
   </button>
-  <button type="button" class="copylink copylink--float" data-copy-link title="Copy a link to this residence">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-    Copy link
-  </button>
   <div id="detail-body"></div>
 </main>
 
@@ -235,14 +246,14 @@
     <div>
       <span class="page-head__kicker">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
-        Section 03 · Undergraduate Students
+        Section 03 · Fees &amp; Dates
       </span>
-      <h2 class="page-title">Undergraduate Students</h2>
+      <h2 class="page-title">What it'll <em>cost.</em></h2>
     </div>
   </div>
 
   <ul class="lede">
-    <li>Every deadline from application to move-in, plus how to pick your program.</li>
+    <li>Every deadline from application to move-in, in order.</li>
     <li>Some steps are the same for everyone; others only apply to one group.</li>
     <li>Pick which applies to you below.</li>
   </ul>
@@ -285,9 +296,9 @@
     <div>
       <span class="page-head__kicker">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
-        Section 02 · Academics
+        Section 02 · Courses
       </span>
-      <h2 class="page-title">Academics</h2>
+      <h2 class="page-title">What you'll <em>study.</em></h2>
     </div>
   </div>
 
@@ -304,59 +315,6 @@
 
 
 <!-- =========================================
-     VIEW 5.5: Campus Facilities
-     ========================================= -->
-<main class="sheet view" id="view-facilities" hidden>
-
-  <button type="button" class="backlink" data-back>
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
-    Home
-  </button>
-
-  <div class="page-head">
-    <div>
-      <span class="page-head__kicker">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
-        Section 04 · Campus Facilities
-      </span>
-      <h2 class="page-title">Campus Facilities</h2>
-    </div>
-  </div>
-
-  <ul class="lede">
-    <li>Libraries, gyms, health services, food, printing, and other everyday spots.</li>
-    <li>Hours change with the term — each entry links to the official page for today's hours.</li>
-  </ul>
-
-  <div class="search program-search">
-    <label class="search__label" for="facility-search">Filter</label>
-    <input class="search__input" id="facility-search" type="text" placeholder="Try “gym” or “printing”" autocomplete="off">
-  </div>
-
-  <div id="facilities-list"></div>
-
-  <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
-
-</main>
-
-
-<!-- =========================================
-     VIEW 5.6: Facility Detail
-     ========================================= -->
-<main class="sheet view" id="view-facility-detail" hidden>
-  <button type="button" class="backlink" data-back-to="facilities">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
-    Facilities
-  </button>
-  <button type="button" class="copylink copylink--float" data-copy-link title="Copy a link to this facility">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-    Copy link
-  </button>
-  <div id="facility-detail-body"></div>
-</main>
-
-
-<!-- =========================================
      VIEW 6: Course sub-page (reused)
      ========================================= -->
 <main class="sheet view" id="view-course-page" hidden>
@@ -365,13 +323,7 @@
     Back
   </button>
   <p class="crumb" id="course-crumb"></p>
-  <div class="page-head page-head--row">
-    <h2 class="page-title" id="course-page-title"></h2>
-    <button type="button" class="copylink" data-copy-link title="Copy a link to this page">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-      Copy link
-    </button>
-  </div>
+  <h2 class="page-title" id="course-page-title"></h2>
   <div id="course-page-content"></div>
 </main>
 
@@ -400,19 +352,13 @@
 
   // (2) Nav pill 동기화 — 어떤 뷰가 보이는지 감지해서 pill의 is-on 클래스 갱신
   function activePill(){
-    const views = ['home','residence','detail','fees','courses','facilities','coursePage'];
+    const views = ['home','residence','detail','fees','courses','coursePage'];
     let current = 'home';
     if (!document.getElementById('view-residence').hidden) current = 'residence';
     if (!document.getElementById('view-detail').hidden)    current = 'residence';   // detail은 residence pill
     if (!document.getElementById('view-fees').hidden)      current = 'fees';
     if (!document.getElementById('view-courses').hidden)   current = 'courses';
-    if (!document.getElementById('view-facilities').hidden) current = 'facilities';
-    if (!document.getElementById('view-facility-detail').hidden) current = 'facilities';
-    if (!document.getElementById('view-course-page').hidden) {
-      // Choosing a Program은 Undergraduate(fees) 쪽에서도 들어올 수 있어서,
-      // app.js의 courseReturnView를 물어봐서 맞는 pill을 켭니다.
-      current = (typeof window.getCourseReturnView === 'function') ? window.getCourseReturnView() : 'courses';
-    }
+    if (!document.getElementById('view-course-page').hidden) current = 'courses';
 
     document.querySelectorAll('.nav__pill').forEach(p => {
       p.classList.toggle('is-on', p.dataset.nav === current);
@@ -444,6 +390,24 @@
     });
   });
 
+  // (3) suggest chips → 검색창에 값 넣고 input 이벤트 발화
+  document.querySelectorAll('[data-suggest]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('search');
+      if (!input) return;
+      input.value = btn.dataset.suggest;
+      input.focus();
+      input.dispatchEvent(new Event('input', { bubbles:true }));
+    });
+  });
+
+  // (4) ⌘K / Ctrl+K → 검색 포커스
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+      e.preventDefault();
+      document.getElementById('search')?.focus();
+    }
+  });
 })();
 </script>
 

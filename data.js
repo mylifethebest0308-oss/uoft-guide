@@ -89,8 +89,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://innis.utoronto.ca/residence/about-the-residence/",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=fpxObSIGwdI",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -124,8 +124,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://wdw.utoronto.ca/life-in-residence",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=a-W9mWSSbzs",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -166,8 +166,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://www.newcollege.utoronto.ca/student-experience/living-in-residence/",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=LGi9VvtJnPw",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -234,8 +234,8 @@ const RESIDENCES = [
     morePhotos: [],
     floorPhotos: [],
     officialUrl: "https://www.vic.utoronto.ca/current-students/campus-life/residence-life",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=HLMOF_WC-qQ",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -319,8 +319,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://www.uc.utoronto.ca/residence",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=B2P6z0hhAv0",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -361,8 +361,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://stmikes.utoronto.ca/community/st-michaels-college-residence",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=twsOQwhuwUw",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -443,8 +443,8 @@ const RESIDENCES = [
     ],
     floorPhotos: [],
     officialUrl: "https://www.trinity.utoronto.ca/engage/residence/",
-    videoUrl: "",
-    videoCredit: "",
+    videoUrl: "https://www.youtube.com/watch?v=l7T8H51mNKs",
+    videoCredit: "U of T Faculty of Arts & Science — official college tour",
     reviews: [],
     lastChecked: "2026-08-24"
   },
@@ -606,7 +606,9 @@ const RESIDENCES = [
    audience  : "both"          — 모두 해당
                "domestic"      — 캐나다 거주자만
                "international" — 국제학생만
-   category    : "apply" / "money" / "residence" / "aid" / "visa" 중 하나
+   category    : "prep" / "money" / "residence" / "aid" / "visa" 중 하나
+               (residence 카테고리는 Undergraduate 페이지 카드에는 더 이상
+               안 뜨고, Residence 페이지 상단 keybox에 렌더링됩니다)
    officialUrl : 자세히 볼 공식 페이지
 ------------------------------------------------------------- */
 
@@ -685,8 +687,8 @@ const FEES_TIMELINE = [
   {
     id: "residence-apply",
     month: "Jan - Mar",
-    title: "Apply for residence",
-    body: "The deadline to apply for first-year residence is **March 31**. This is separate from your admission application.",
+    title: "First-year residence guarantee",
+    body: "Finish your U of T Residence Portal application by **March 31** and accept your admission offer by **June 2**. Miss either date and the guarantee is gone. This is separate from your admission application.",
     category: "residence",
     audience: "both",
     officialUrl: "https://residence.utoronto.ca/"
@@ -873,18 +875,105 @@ const COURSE_ENROLMENT = [
   {
     id: "lwd-fall",
     month: "Dec 8",
-    title: "Last day to withdraw from Fall courses",
-    body: "After this, dropping a Fall course still shows as a **W (withdrawal)** on your transcript instead of disappearing.",
+    title: "Last day to withdraw from Fall courses (LWD)",
+    body: "Final deadline to request **LWD (Late Withdrawal)**. Withdrawing after the drop date and by today puts \u201cLWD\u201d on your transcript instead of a mark. After today you can't leave the course without a petition \u2014 whatever mark you earn stands.",
     officialUrl: "https://www.artsci.utoronto.ca/current/dates-deadlines/academic-dates"
   },
   {
     id: "lwd-winter",
     month: "Apr 12",
-    title: "Last day to withdraw from Winter courses",
-    body: "Same rule as Fall, for Winter and full-year (Y) courses.",
+    title: "Last day to withdraw from Winter courses (LWD)",
+    body: "Same rule as Fall, for Winter and full-year (Y) courses \u2014 last day to request **LWD** before the mark becomes final.",
     officialUrl: "https://www.artsci.utoronto.ca/current/dates-deadlines/academic-dates"
   }
 ];
+
+
+/* ============================================
+   과목코드 & ACORN/TTB 용어 가이드
+   ------------------------------------------------
+   출처: 사용자가 제공한 자료 기반 (artsci.calendar.utoronto.ca 및
+   ACORN/TTB 화면에서 흔히 쓰이는 표준 표기법). 학과코드 표는
+   공식 페이지에서 건별로 재확인하지 않았으니, 신청 전에는
+   반드시 artsci.calendar.utoronto.ca 검색으로 코드를 다시 확인하세요.
+   확인일: 2026-08-27
+   ============================================ */
+
+const COURSE_CODE_GUIDE = {
+  format: "Department code (3 letters) + level (3 digits) + H or Y (credit weight) + 1 (St. George campus). Example: CSC108H1 = Computer Science, 100-level, 0.5 credit, St. George.",
+  formatNote: "H = 0.5 credit (one term), Y = 1.0 credit (runs the full year).",
+
+  terms: [
+    { term: "Prerequisite", def: "A course you must complete before you can take this one." },
+    { term: "Corequisite", def: "A course you must take in the same term as this one (or have taken already)." },
+    { term: "Exclusion", def: "A course that overlaps too much — if you've already taken it, you won't get credit for both." }
+  ],
+
+  sessionCodes: [
+    { code: "F", meaning: "Fall Session — September to December" },
+    { code: "S", meaning: "Winter Session — January to April" },
+    { code: "Y", meaning: "Full Year — September through April" }
+  ],
+
+  activityCodes: [
+    { code: "LEC", meaning: "Lecture — the main class" },
+    { code: "TUT", meaning: "Tutorial — smaller discussion / problem-solving session" },
+    { code: "PRA", meaning: "Practical / Lab — hands-on work" }
+  ],
+
+  enrolCodes: [
+    { code: "P", meaning: "Priority — certain program students can enrol first; opens to everyone after the priority period." },
+    { code: "R", meaning: "Restricted — only students in the listed programs can enrol." },
+    { code: "E", meaning: "Enrolment control — departmental approval required." },
+    { code: "AE", meaning: "Automated Enrolment — the tutorial/practical is added automatically with the lecture." }
+  ],
+
+  uoftTime: {
+    text: "U of T Time: most lectures and events start ten minutes after the hour, not on the hour (e.g. a 10:00 class actually begins at 10:10). The gap gives you time to walk between buildings.",
+    sourceLabel: "U of T EngSci orientation page (official utoronto.ca)",
+    sourceUrl: "https://orientation.engsci.utoronto.ca/timetables/"
+  },
+
+  deptCodes: [
+    { code: "ACT", name: "Actuarial Science" }, { code: "AFR", name: "African Studies" },
+    { code: "ANA", name: "Anatomy" }, { code: "ANT", name: "Anthropology" },
+    { code: "ARH", name: "Archaeology" }, { code: "AST", name: "Astronomy and Astrophysics" },
+    { code: "BCH", name: "Biochemistry" }, { code: "BIO", name: "Biology" },
+    { code: "BMS", name: "Book and Media Studies" }, { code: "CAR", name: "Caribbean Studies" },
+    { code: "CDN", name: "Canadian Studies" }, { code: "CHM", name: "Chemistry" },
+    { code: "CIN", name: "Cinema Studies" }, { code: "CLA", name: "Classics" },
+    { code: "COG", name: "Cognitive Science" }, { code: "CRI", name: "Criminology and Sociolegal Studies" },
+    { code: "CSC", name: "Computer Science" }, { code: "CSB", name: "Cell and Systems Biology" },
+    { code: "DRM", name: "Drama, Theatre and Performance Studies" }, { code: "DTS", name: "Diaspora and Transnational Studies" },
+    { code: "EAS", name: "East Asian Studies" }, { code: "ECO", name: "Economics" },
+    { code: "EEB", name: "Ecology and Evolutionary Biology" }, { code: "ENG", name: "English" },
+    { code: "ENV", name: "Environment (School of the Environment)" }, { code: "ESS", name: "Earth Sciences" },
+    { code: "EUR", name: "European Studies" }, { code: "FAH", name: "Fine Art History" },
+    { code: "FIN", name: "Finnish Studies" }, { code: "FRE", name: "French" },
+    { code: "GGR", name: "Geography and Planning" }, { code: "GER", name: "German" },
+    { code: "GRK", name: "Greek" }, { code: "HIS", name: "History" },
+    { code: "HMB", name: "Human Biology" }, { code: "HPS", name: "History and Philosophy of Science and Technology" },
+    { code: "HUN", name: "Hungarian Studies" }, { code: "IMM", name: "Immunology" },
+    { code: "INS", name: "Indigenous Studies" }, { code: "IRE", name: "Industrial Relations and Human Resources" },
+    { code: "ITA", name: "Italian" }, { code: "JLS", name: "Joint Language Studies" },
+    { code: "JSU", name: "Joint Studies / Interdisciplinary" }, { code: "LAT", name: "Latin" },
+    { code: "LIN", name: "Linguistics" }, { code: "LMP", name: "Laboratory Medicine and Pathobiology" },
+    { code: "MAT", name: "Mathematics" }, { code: "MGY", name: "Molecular Genetics" },
+    { code: "MUS", name: "Music / Music History" }, { code: "NMC", name: "Near and Middle Eastern Civilizations" },
+    { code: "NTR", name: "Nutritional Sciences" }, { code: "PCL", name: "Pharmacology and Toxicology" },
+    { code: "PHL", name: "Philosophy" }, { code: "PHY", name: "Physics" },
+    { code: "PLA", name: "Planning" }, { code: "POL", name: "Political Science" },
+    { code: "PSL", name: "Physiology" }, { code: "PSY", name: "Psychology" },
+    { code: "RLG", name: "Religion" }, { code: "RSM", name: "Rotman Commerce" },
+    { code: "SLA", name: "Slavic Languages and Literatures" }, { code: "SOC", name: "Sociology" },
+    { code: "SPA", name: "Spanish and Portuguese" }, { code: "STA", name: "Statistical Sciences" },
+    { code: "TRN", name: "Trinity College Programs" }, { code: "UNI", name: "University College Programs" },
+    { code: "URB", name: "Urban Studies" }, { code: "VIC", name: "Victoria College Programs" },
+    { code: "WGS", name: "Women and Gender Studies" }, { code: "WDW", name: "Woodsworth College Programs" }
+  ],
+
+  verifyUrl: "https://artsci.calendar.utoronto.ca/search-courses"
+};
 
 
 /* ---- 전공(Subject POSt) 종류 ---- */
@@ -953,8 +1042,12 @@ const BREADTH_CATEGORIES = [
 /* ============================================
    교양(Breadth) 과목 목록
 
-   ⚠️ 전공 필수과목은 일부러 뺐습니다. 목적이 "교양 학점 채우기"라서,
-      CSC207(전공필수)나 CSC110/111(CS 전공자 전용)은 방해만 됩니다.
+   ⚠️ 전공 필수/전공생 전용 과목도 사용자 요청으로 포함되어 있습니다.
+      (예: CSC207H1, CSC236H1, CSC301H1, CSC373H1, CSC413H1, CSC488H1,
+      RSM219H1, RSM222H1, RSM430H1) 이런 과목은 note 필드에
+      "⚠️" 로 선수과목 부담이나 프로그램 제한을 명시해뒀습니다.
+      CSC110Y1/CSC111H1(CS 전공자 전용 입학 트랙 과목)처럼 완전히
+      제한된 과목은 여전히 제외합니다.
 
    출처
      과목명·설명·다루는내용 : artsci.calendar.utoronto.ca (공식 학사요람)
@@ -992,7 +1085,7 @@ const COURSE_CATALOG = [
 { id: "wrr315h1", code: "WRR315H1", name: "Creative Writing and Territory", category: "b1", desc: "Creative writing rooted in place — classes held outdoors around Toronto.", topics: ["Writing grounded in a specific place", "Guided outdoor writing activities", "Any genre welcome"], tags: ["writing", "creative", "hands-on"], note: "Classes are held outdoors at various locations in Toronto.", prereq: "Completion of 4.0 credits", reviews: [] },
 { id: "wrr316h1", code: "WRR316H1", name: "Developmental and Substantive Editing", category: "b1", desc: "The early stages of editing — content and structure.", topics: ["Assessing content and argument", "Reorganizing a draft", "Explaining edits persuasively"], tags: ["writing"], prereq: "Completion of 4.0 credits", reviews: [] },
 { id: "wrr414h1", code: "WRR414H1", name: "Writing for Social Change", category: "b1", desc: "Writing aimed at changing something.", topics: ["Theories of social change", "Journalism, critical theory, fiction", "A focused final project"], tags: ["writing", "society"], prereq: "Completion of 4.0 credits", reviews: [] },
-  // ── b2 (43개) ──
+  // ── b2 (45개) ──
 { id: "cla204h1", code: "CLA204H1", name: "Introduction to Classical Mythology", category: "b2", desc: "Greek and Roman myth.", topics: ["Major myths and their meanings", "Gods, heroes, and monsters", "How myth shaped later culture"], tags: ["history", "stories"], note: "Recommended by askastudent as an accessible breadth 2 option.", reviews: [] },
 { id: "hps100h1", code: "HPS100H1", name: "Introduction to History and Philosophy of Science", category: "b2", desc: "How science developed and what it means to know something scientifically.", topics: ["History of scientific ideas", "Philosophy of scientific method"], tags: ["philosophy", "history"], note: "Recommended by askastudent. Often available online.", reviews: [] },
 { id: "phl200y1", code: "PHL200Y1", name: "Ancient Philosophy", category: "b2", desc: "The foundational texts of Western philosophy.", topics: ["The pre-Socratics", "Plato", "Aristotle", "Post-Aristotelian philosophy"], tags: ["philosophy", "history"], note: "No 200-series PHL course requires a 100-series PHL prerequisite.", reviews: [] },
@@ -1036,13 +1129,25 @@ const COURSE_CATALOG = [
 { id: "wrr307h1", code: "WRR307H1", name: "Rhetoric of Health and Medicine", category: "b2", desc: "How persuasion works in health research and pharmaceutical advertising.", topics: ["Medicalized phenomena and influence", "Pharmaceutical advertising", "Health narratives and media"], tags: ["writing", "health"], prereq: "Completion of 4.0 credits", reviews: [] },
 { id: "wrr314h1", code: "WRR314H1", name: "Style in Creative, Professional, and Academic Writing", category: "b2", desc: "Style across three very different kinds of writing.", topics: ["Storytelling in non-fiction", "AI-assisted professional writing", "Academic blogs and research on social media"], tags: ["writing"], prereq: "Completion of 4.0 credits", reviews: [] },
 { id: "wrr319h1", code: "WRR319H1", name: "Rhetoric of Race", category: "b2", desc: "Communication and rhetoric through critical race studies.", topics: ["Black and Indigenous scholarship on communication", "Rhetoric of sovereignty", "Colonialism and systemic prejudice"], tags: ["writing", "society"], prereq: "Completion of 4.0 credits", reviews: [] },
-  // ── b3 (5개) ──
+{ id: "phl245h1", code: "PHL245H1", name: "Modern Symbolic Logic", category: "b2", desc: "A rigorous introduction to formal deductive logic.", topics: ["Semantics and symbolization in sentential logic", "Natural deduction techniques", "Monadic and polyadic predicate logic", "Advanced first-order logic concepts"], tags: ["philosophy", "logic"], note: "No prerequisite \u2014 open to anyone. Also satisfies the prereq for several other logic courses.", reviews: [] },
+{ id: "psy370h1", code: "PSY370H1", name: "Thinking and Reasoning", category: "b2", desc: "How people actually think \u2014 problem-solving, reasoning, and creativity.", topics: ["Problem-solving as directed thinking", "Conceptual behaviour and mental representation", "Induction, deduction, and learning", "Probabilistic and creative reasoning"], tags: ["psychology"], prereq: "PSY201H1 (or equivalent stats course), plus PSY270H1/COG250Y1", reviews: [] },
+  // ── b3 (15개) ──
 { id: "psy100h1", code: "PSY100H1", name: "Introductory Psychology", category: "b3", desc: "The standard first course in psychology.", topics: ["How the mind and behaviour work", "Major areas of psychology research"], tags: ["psychology", "beginner"], note: "One of the most popular breadth choices at U of T.", reviews: [] },
 { id: "ren242h1", code: "REN242H1", name: "Scientific Worldviews of the Renaissance", category: "b3", desc: "How people understood the natural world before modern science.", topics: ["Natural philosophy and cosmology", "Astronomy, optics, medicine", "Free will versus determinism", "Finite versus infinite universe", "Theism and deism"], tags: ["history", "science", "philosophy"], prereq: "Recommended: 4.0 credits completed", reviews: [] },
 { id: "ren338h1", code: "REN338H1", name: "Renaissance in the City", category: "b3", desc: "One Renaissance city, examined from every angle.", topics: ["History, art, and architecture", "Literature and music", "How local politics shaped culture"], tags: ["history", "art"], prereq: "Recommended: REN240Y1 or another Renaissance Studies course", reviews: [] },
 { id: "ren343h1", code: "REN343H1", name: "Sex and Gender", category: "b3", desc: "Gender and sexuality in early modern Europe.", topics: ["Representations of sexual drive", "Gender roles of men and women", "Varieties of sexual experience in art and literature"], tags: ["history", "society"], note: "A 300-level course with no prerequisites \u2014 open to anyone.", reviews: [] },
 { id: "wrr313h1", code: "WRR313H1", name: "Visual Rhetoric", category: "b3", desc: "How images and objects persuade viewers.", topics: ["The 'language' of visual display", "How objects carry meaning", "Museum and exhibition analysis", "Ceramics, jewellery, architecture, fashion"], tags: ["art", "writing"], prereq: "Completion of 4.0 credits", reviews: [] },
-  // ── b4 (10개) ──
+{ id: "eco101h1", code: "ECO101H1", name: "Principles of Microeconomics", category: "b3", desc: "An introduction to how prices, markets, and public policy actually work.", topics: ["Price determination through supply and demand", "Market structure and competition", "Decision-making by individuals and firms", "Public policy applications"], tags: ["society", "business"], note: "No U of T prerequisite \u2014 open to first-years. Heavy use of graphs and quantitative reasoning.", reviews: [] },
+{ id: "eco102h1", code: "ECO102H1", name: "Principles of Macroeconomics", category: "b3", desc: "The economy as a whole \u2014 growth, money, trade, and government policy.", topics: ["International trade and finance", "The banking system and money supply", "Monetary and fiscal policy"], tags: ["society", "business"], prereq: "ECO101H1", reviews: [] },
+{ id: "eco200y1", code: "ECO200Y1", name: "Microeconomic Theory", category: "b3", desc: "A full-year, more rigorous follow-up to intro microeconomics.", topics: ["Theory of markets and prices", "Household and firm decision-making", "How the price system allocates goods in a market economy"], tags: ["society", "business", "math"], prereq: "ECO101H1 + ECO102H1 (63%) or ECO105Y1 (80%), plus a calculus course (e.g. MAT137Y1)", reviews: [] },
+{ id: "eco220y1", code: "ECO220Y1", name: "Introduction to Data Analysis and Applied Econometrics", category: "b3", desc: "Learn to analyze real data and interpret statistical results, Excel-based.", topics: ["Data description and sampling", "Probability and statistical inference", "Simple and multiple regression analysis", "Replicating real economics research in Excel"], tags: ["society", "math"], prereq: "ECO101H1 + ECO102H1 (63%) or ECO105Y1 (80%), plus a calculus course (e.g. MAT137Y1)", reviews: [] },
+{ id: "eco375h1", code: "ECO375H1", name: "Applied Econometrics I", category: "b3", desc: "Hands-on regression analysis applied to real economic questions and data.", topics: ["Statistical foundations of multiple regression", "Cross-sectional data analysis", "Using statistical software on real datasets", "Identifying causality and common statistical pitfalls"], tags: ["society", "math"], prereq: "ECO200Y1/ECO204Y1/ECO206Y1, plus ECO220Y1 or a stats course", reviews: [] },
+{ id: "eco466h1", code: "ECO466H1", name: "Empirical Microeconomics", category: "b3", desc: "Building macro/policy forecasting skills on top of earlier econometrics courses.", topics: ["Monetary policy conduct", "Central bank general equilibrium models", "Predicting key macroeconomic variables", "Group presentations on current economic issues"], tags: ["society", "math"], prereq: "ECO208Y1/ECO209Y1/ECO202Y1/ECO325H1, plus ECO374H1 or ECO375H1", reviews: [] },
+{ id: "his311h1", code: "HIS311H1", name: "Canada in the World", category: "b3", desc: "How Canada's relationships with the rest of the world have been built, from the 1400s to today.", topics: ["Treaties, trade agreements, and alliances", "Informal traditions and cultural ties", "Military, political, economic, and immigration policy", "15th century to the turn of the 21st century"], tags: ["history", "society"], note: "No hard prerequisite \u2014 a course in Canadian history or politics is recommended, not required.", reviews: [] },
+{ id: "rsm219h1", code: "RSM219H1", name: "Introduction to Financial Accounting", category: "b3", desc: "How to read and prepare basic financial statements, using real companies as examples.", topics: ["Decision-making from financial statements", "Interpreting real-world company reports", "Preparing a basic set of financial statements"], tags: ["business"], note: "\u26a0\ufe0f Offered through Rotman Commerce \u2014 normally taken by Commerce students in first year. Confirm with Rotman Commerce whether non-Commerce students can enrol before counting on this.", reviews: [] },
+{ id: "rsm222h1", code: "RSM222H1", name: "Introduction to Management Accounting", category: "b3", desc: "How companies use cost data to make decisions and control operations.", topics: ["Conceptual and analytical foundations of management accounting", "Costing systems", "Using cost information for business decisions and performance evaluation"], tags: ["business"], note: "\u26a0\ufe0f Offered through Rotman Commerce. Confirm with Rotman Commerce whether non-Commerce students can enrol before counting on this.", reviews: [] },
+{ id: "rsm430h1", code: "RSM430H1", name: "Fixed Income Securities", category: "b3", desc: "How bond markets work, using real-time data in the Rotman trading lab.", topics: ["Traditional bond and term structure concepts", "Government participation in fixed income markets", "Hands-on work in the Rotman Financial Research & Trading Lab"], tags: ["business", "math"], prereq: "RSM219H1, RSM222H1", note: "\u26a0\ufe0f Offered through Rotman Commerce, upper-year \u2014 requires completing RSM219H1 and RSM222H1 first.", reviews: [] },
+  // ── b4 (11개) ──
 { id: "eeb202h1", code: "EEB202H1", name: "Evolution and Society", category: "b4", desc: "Evolution explained for students with no science background.", topics: ["Evidence supporting the fact of evolution", "How species form", "The evolution of sex", "Infanticide and disease"], tags: ["biology", "beginner", "no-math"], note: "The calendar states this is 'for non-science students in all years and disciplines.'", reviews: [] },
 { id: "eeb215h1", code: "EEB215H1", name: "Conservation Biology", category: "b4", desc: "The science of protecting threatened species and habitats.", topics: ["Threatened species", "Habitat loss", "Conservation science"], tags: ["biology", "environment"], reviews: [] },
 { id: "eeb240h1", code: "EEB240H1", name: "Ecology and Environmental Biology", category: "b4", desc: "How organisms, populations, and ecosystems affect each other.", topics: ["Organisms, populations, communities, ecosystems", "Human impact on environmental conditions", "Global change and biological diversity", "Aquatic and terrestrial ecosystems", "Field trips and labs — includes one mandatory weekend day trip"], tags: ["biology", "environment", "hands-on"], reviews: [] },
@@ -1053,7 +1158,8 @@ const COURSE_CATALOG = [
 { id: "psy494h1", code: "PSY494H1", name: "Physiology and Psychology of Emotion", category: "b4", desc: "The role of brain and body in emotion.", topics: ["Experimental approaches", "Physiological approaches", "Theoretical and clinical literatures"], tags: ["psychology", "health"], prereq: "A stats course and one of PSY260H1, PSY270H1/COG250Y1, or PSY290H1", reviews: [] },
 { id: "psy496h1", code: "PSY496H1", name: "Cognitive Dysfunction in Neurological Disorders", category: "b4", desc: "Cognitive impairment in Alzheimer's, Parkinson's, and schizophrenia.", topics: ["Alzheimer's Disease", "Parkinson's Disease", "Schizophrenia", "How impairments map onto neuropsychological models"], tags: ["psychology", "health"], prereq: "A stats course and PSY270H1/COG250Y1 or PSY290H1/HMB200H1/PSL300H1", reviews: [] },
 { id: "psy497h1", code: "PSY497H1", name: "Seminar in Biological Timing", category: "b4", desc: "Body clocks and why timing matters in living things.", topics: ["Clocks and oscillations in physiology", "Timing in sensorimotor integration", "Timing in memory and decision making", "Health implications"], tags: ["psychology", "biology", "health"], prereq: "A stats course and PSY290H1/HMB200H1/PSL300H1. Capacity 20 — PSY Specialists get priority", reviews: [] },
-  // ── b5 (11개) ──
+{ id: "bio120h1", code: "BIO120H1", name: "Adaptation and Biodiversity", category: "b4", desc: "The first-year foundation course for life sciences \u2014 evolution and ecology.", topics: ["Genetic diversity and natural selection", "Speciation", "Population and community ecology", "Conservation, extinction, and global environmental change"], tags: ["biology"], prereq: "Grade 12 Biology or equivalent", note: "Includes a lab (lab coat required, $26 materials fee).", reviews: [] },
+  // ── b5 (31개) ──
 { id: "act100h1", code: "ACT100H1", name: "Wizard Managers of Risks: Exploring Actuarial Science", category: "b5", desc: "First-year intro to risk and insurance — only high school math needed.", topics: ["Where math, finance, and risk meet", "Actuarial principles", "Real-world case studies"], tags: ["business", "beginner"], note: "Only high school math required.", reviews: [] },
 { id: "ast101h1", code: "AST101H1", name: "The Sun and Its Neighbours", category: "b5", desc: "Our place in the Universe, built for students with no science background.", topics: ["Phenomena we see in the sky", "The Sun, planets, and comets", "How the solar system formed", "What makes a planet suitable for life", "Nearby stars and their planets"], tags: ["space", "no-math", "beginner"], note: "Recommended by U of T's askastudent as a light, non-math option for humanities students.", reviews: [] },
 { id: "ast198h1", code: "AST198H1", name: "Great Astronomical Issues", category: "b5", desc: "First-year seminar on the biggest questions humans have asked about the sky.", topics: ["Where did it all begin?", "Are we alone?", "Origin of the elements and of Earth", "Extinction of the dinosaurs", "Global warming and the scientific method"], tags: ["space", "seminar", "first-year-only"], note: "Restricted to first-years. Small seminar format — askastudent recommends these as the easiest breadth options.", reviews: [] },
@@ -1065,6 +1171,26 @@ const COURSE_CATALOG = [
 { id: "phl356h1", code: "PHL356H1", name: "Philosophy of Physics", category: "b5", desc: "Philosophical puzzles raised by relativity and quantum mechanics.", topics: ["Relativity", "Quantum mechanics", "Philosophical challenges modern physics poses"], tags: ["philosophy", "science"], note: "Accessible to students without a significant physics background — one MAT/PHY course required.", prereq: "One full course in MAT or PHY (two recommended)", reviews: [] },
 { id: "phy100h1", code: "PHY100H1", name: "The Magic of Physics", category: "b5", desc: "Physics for people who aren't scientists — no math or physics background needed.", topics: ["How physicists unravel the universe's secrets", "Elementary classical physics is reviewed as needed", "Two lectures and one tutorial per week", "Small-group tutorials to pursue your own interests"], tags: ["science", "no-math", "beginner"], note: "The calendar states this is primarily a Breadth Requirement course for Humanities and Social Science students. ⚠️ Anyone with university-level physics credit (including high school transfer credit) cannot take it.", reviews: [] },
 { id: "phy207h1", code: "PHY207H1", name: "Physics of Music", category: "b5", desc: "The science behind sound and music — an online course for non-science students.", topics: ["Oscillations and waves", "Human hearing and music perception", "Musical scales and instruments", "Recording and storing sound digitally", "Producing sound and broadcasting"], tags: ["science", "music", "no-math", "beginner"], note: "Online, but tutorials require live webinars and the final exam is written on the St. George campus. ⚠️ Not open to students with university-level physics credit.", reviews: [] },
+{ id: "csc108h1", code: "CSC108H1", name: "Introduction to Computer Programming", category: "b5", desc: "Learn to program in a language like Python — no experience needed.", topics: ["Elementary data types, lists, and maps", "Control flow, functions, classes, and objects", "Algorithms: searching, sorting, and complexity", "Unit testing and floating-point computation"], tags: ["coding", "beginner"], note: "No prior programming experience required. One of the most common breadth 5 picks.", reviews: [] },
+{ id: "mat137y1", code: "MAT137Y1", name: "Calculus with Proofs", category: "b5", desc: "A full-year, proof-based calculus course for students with a serious interest in math.", topics: ["Limits, continuity, and the mean value theorem", "Differentiation and integration", "Elementary transcendental functions", "Taylor's theorem, sequences, and series"], tags: ["math"], prereq: "High school level calculus", note: "Useful prep for later courses in CS, economics, math, physics, or statistics.", reviews: [] },
+{ id: "sta130h1", code: "STA130H1", name: "An Introduction to Statistical Reasoning and Data Science", category: "b5", desc: "How statistical reasoning is used to tackle real problems across science, health, tech, and policy.", topics: ["Data collection, analysis, and interpretation", "Statistical computation and simulation", "Communicating statistical findings"], tags: ["math", "coding"], prereq: "Corequisite: a calculus course (e.g. MAT137Y1) and a first programming course (e.g. CSC108H1)", note: "⚠️ Restricted to first-year students — plan to take it in year one if you want it.", reviews: [] },
+{ id: "csc148h1", code: "CSC148H1", name: "Introduction to Computer Science", category: "b5", desc: "The natural follow-on to CSC108H1 \u2014 data structures and object-oriented programming.", topics: ["Abstract data types and linked data structures", "Encapsulation and information-hiding", "Object-oriented programming", "Analyzing the efficiency of programs", "Recursion"], tags: ["coding"], prereq: "CSC108H1 (or equivalent programming experience)", reviews: [] },
+{ id: "mat157y1", code: "MAT157Y1", name: "Analysis I", category: "b5", desc: "A rigorous, proof-heavy alternative to MAT137Y1 for students who want the theory in full.", topics: ["Limits, continuity, and least upper bounds", "Derivatives and the mean value theorem", "Integrals and the fundamental theorem", "Taylor's theorem, sequences, and series"], tags: ["math"], prereq: "High school level calculus", note: "More theoretical/demanding than MAT137Y1 \u2014 choose this if you want maximum rigour.", reviews: [] },
+{ id: "mat223h1", code: "MAT223H1", name: "Linear Algebra I", category: "b5", desc: "A first course on linear algebra in R^n, blending algebra and geometry.", topics: ["Systems of equations and Gaussian elimination", "Vectors, subspaces, and change of basis", "Rank, nullity, and matrix inverses", "Determinants, eigenvectors, and diagonalization"], tags: ["math"], prereq: "High school level calculus", reviews: [] },
+{ id: "mat237y1", code: "MAT237Y1", name: "Multivariable Calculus with Proofs", category: "b5", desc: "A full-year, proof-based follow-up to first-year calculus.", topics: ["Differential calculus of vector-valued functions", "Optimization and Lagrange multipliers", "Integral calculus and change of variables", "Green's, Divergence, and Stokes' theorems"], tags: ["math"], prereq: "MAT137Y1 or MAT157Y1, plus MAT223H1", reviews: [] },
+{ id: "mat327h1", code: "MAT327H1", name: "Introduction to Topology", category: "b5", desc: "An introduction to how mathematicians formalize the idea of \u2018closeness\u2019 and shape.", topics: ["Metric and topological spaces", "Separation, compactness, connectedness", "Fundamental group and covering spaces", "The Brouwer fixed-point theorem"], tags: ["math"], prereq: "MAT157Y1, plus MAT237Y1 or MAT246H1", reviews: [] },
+{ id: "sta237h1", code: "STA237H1", name: "Probability, Statistics and Data Analysis I", category: "b5", desc: "An introduction to probability using both simulation and mathematical frameworks.", topics: ["Probability spaces and random variables", "Discrete and continuous distributions", "Expectation, variance, and independence", "The law of large numbers and central limit theorem"], tags: ["math"], prereq: "A calculus course (e.g. MAT137Y1)", reviews: [] },
+{ id: "sta302h1", code: "STA302H1", name: "Methods of Data Analysis I", category: "b5", desc: "A hands-on introduction to regression analysis.", topics: ["Correlation and regression models using least squares", "Confidence and prediction intervals", "Diagnostics and variable selection", "Interactions and dummy variables"], tags: ["math", "coding"], prereq: "A stats course, a programming course (e.g. CSC108H1), and MAT223H1", reviews: [] },
+{ id: "chm135h1", code: "CHM135H1", name: "Chemistry: Physical Principles", category: "b5", desc: "First-year chemistry for students who want the fundamentals without a heavy course load.", topics: ["Structure of matter: gases, liquids, solids", "Phase equilibria and phase diagrams", "Chemical equilibria and electrochemistry", "Reaction kinetics and intro thermodynamics"], tags: ["science"], note: "Paired with CHM136H1 for students in Life/Health Sciences who don't need a heavy chemistry load. Can't be taken in the same term as CHM136H1.", reviews: [] },
+{ id: "chm136h1", code: "CHM136H1", name: "Introductory Organic Chemistry I", category: "b5", desc: "An introduction to organic chemistry \u2014 structure, bonding, and reactivity.", topics: ["Structure, bonding, and reactivity of organic molecules", "Structural identification", "Fundamentals of chemical reactivity"], tags: ["science"], note: "Can't be taken in the same term as CHM135H1.", reviews: [] },
+{ id: "phy131h1", code: "PHY131H1", name: "Introduction to Physics I", category: "b5", desc: "A first university physics course, built for students not majoring in physical or math sciences.", topics: ["Classical kinematics and dynamics", "Momentum, energy, force, and friction", "Work, power, and angular momentum", "Oscillations, waves, and sound"], tags: ["science"], note: "No prerequisite \u2014 open to anyone.", reviews: [] },
+{ id: "csc207h1", code: "CSC207H1", name: "Software Design", category: "b5", desc: "Software design and development using a statically-typed OO language like Java.", topics: ["Version control and unit testing", "Refactoring and object-oriented design", "Design patterns", "Advanced IDE usage, regular expressions, reflection"], tags: ["coding"], prereq: "60%+ in CSC148H1 (or CSC111H1)", note: "\u26a0\ufe0f Effectively CS-track \u2014 needs CSC108H1 then CSC148H1 completed first.", reviews: [] },
+{ id: "csc236h1", code: "CSC236H1", name: "Introduction to the Theory of Computation", category: "b5", desc: "Logic and proof techniques applied to computer science.", topics: ["Mathematical induction", "Correctness proofs for iterative and recursive algorithms", "Recurrence equations and their solutions", "Automata and formal languages"], tags: ["coding", "math", "logic"], prereq: "60%+ in CSC148H1, plus 60%+ in CSC165H1 (or CSC111H1)", note: "\u26a0\ufe0f Effectively CS-track \u2014 needs two prior CS courses.", reviews: [] },
+{ id: "csc301h1", code: "CSC301H1", name: "Introduction to Software Engineering", category: "b5", desc: "Agile development for real, team-sized software projects.", topics: ["Requirements elicitation and tracking", "Estimation and prioritization", "Basic modelling, design patterns, refactoring", "Ethics and professional responsibility"], tags: ["coding"], prereq: "CSC209H1, plus one of CSC263H1/CSC265H1/CSC309H1/CSC343H1 as corequisite", note: "\u26a0\ufe0f Effectively CS-track \u2014 needs several prior CS courses.", reviews: [] },
+{ id: "csc373h1", code: "CSC373H1", name: "Algorithm Design, Analysis, and Complexity", category: "b5", desc: "Standard techniques for designing and analyzing algorithms.", topics: ["Divide-and-conquer, greedy strategies, dynamic programming", "Linear programming and network flows", "Randomization and approximation algorithms", "Intro to NP-completeness"], tags: ["coding", "math"], prereq: "CSC263H1 or CSC265H1", note: "\u26a0\ufe0f Effectively CS-track \u2014 needs the CS data structures course first.", reviews: [] },
+{ id: "csc413h1", code: "CSC413H1", name: "Neural Networks and Deep Learning", category: "b5", desc: "An introduction to how modern neural networks are built and trained.", topics: ["Backpropagation and automatic differentiation", "Convolutional and recurrent network architectures", "Optimization and generalization methods", "Unsupervised and reinforcement learning"], tags: ["coding", "math"], prereq: "CSC311H1 or STA314H1, plus multivariable calculus and linear algebra", note: "\u26a0\ufe0f Advanced CS/stats course \u2014 needs an intro machine-learning course plus upper-year math first.", reviews: [] },
+{ id: "csc488h1", code: "CSC488H1", name: "Compilers and Interpreters", category: "b5", desc: "Build a working compiler from scratch, start to finish.", topics: ["Scanning with regular expressions", "Parsing with context-free grammars", "Semantic analysis and runtime organization", "Code generation and optimization"], tags: ["coding"], prereq: "CSC258H1, CSC324H1, and CSC263H1/CSC265H1", note: "\u26a0\ufe0f Deep in the CS-major sequence \u2014 needs three prior CS courses.", reviews: [] },
+{ id: "sta414h1", code: "STA414H1", name: "Statistical Methods for Machine Learning II", category: "b5", desc: "The probabilistic foundations underneath machine learning methods.", topics: ["Naive Bayes, mixture models, logistic regression", "Gradient-based fitting including neural nets", "Exact inference and stochastic variational inference", "Variational autoencoders and GANs"], tags: ["math", "coding"], prereq: "CSC311H1 or STA314H1 (an intro machine-learning course)", note: "\u26a0\ufe0f Advanced \u2014 needs an intro ML/stats course first.", reviews: [] },
 ];
 
 
@@ -1977,9 +2103,240 @@ const PROVINCES = [
    재방문하는 학생에게 "이 사이트가 계속 관리되고 있다"는 신뢰를 줍니다.
    새 걸 위에 추가하세요. 최근 3개만 화면에 보입니다. */
 
+/* =====================================================
+   UofT 용어사전 (GLOSSARY)
+   -----------------------------------------------------
+   출처: Faculty of Arts & Science Academic Calendar 2026-27
+        https://artsci.calendar.utoronto.ca/glossary-terms
+        (2026-08-28 확인 — 공식 정의를 쉬운 말로 다시 쓴 것.
+        숫자·코드·명칭은 원문 그대로.)
+   "systems" 카테고리(ACORN 등)는 공식 용어사전에는 없지만
+   학사요람 곳곳에서 공식적으로 쓰이는 시스템 이름들입니다.
+   필드: id / term / abbr(줄임말 풀이, 없으면 생략) / cat / def
+   cat: courses(수업 읽는 법) / rules(수강 규칙) /
+        programs(프로그램) / records(성적·기록) / systems(시스템)
+   ===================================================== */
+const GLOSSARY = [
+  /* ---- courses: 수업·코드 읽는 법 ---- */
+  { id: "course-code",  term: "Course code",  cat: "courses",
+    def: "Every course's unique ID, like PSY100H1. The letters = subject, the number = level, and the letter near the end tells you the credit weight (H or Y)." },
+  { id: "credit",       term: "Credit",       cat: "courses",
+    def: "The weight of a course. Almost every course is 0.5 credit (an \u201cH\u201d in the code) or 1.0 credit (a \u201cY\u201d). You need 20.0 credits in total to graduate." },
+  { id: "course-weight", term: "Course weight", cat: "courses",
+    def: "Same idea as credit \u2014 how much a course counts, based on its teaching hours. With few exceptions it's 0.5 or 1.0." },
+  { id: "fce",          term: "FCE",          abbr: "Full-Course Equivalent", cat: "courses",
+    def: "Older way of saying 1.0 credit. If someone says \u201c1 FCE\u201d, they mean one full credit; \u201c0.5 FCE\u201d is a half course." },
+  { id: "lecture",      term: "Lecture (L)",  cat: "courses",
+    def: "The standard class format \u2014 the instructor teaches, you listen and take notes. In course listings, \u201c36L\u201d means 36 hours of lecture." },
+  { id: "tutorial",     term: "Tutorial (T)", cat: "courses",
+    def: "A smaller group session for discussing lecture material and asking questions, usually run by a TA (teaching assistant). \u201c24T\u201d = 24 tutorial hours." },
+  { id: "practical",    term: "Practical (P)", cat: "courses",
+    def: "Hands-on sessions \u2014 for science courses this means labs. \u201c18P\u201d = 18 hours of practical work." },
+  { id: "seminar",      term: "Seminar (S)",  cat: "courses",
+    def: "A small discussion-heavy class, common in upper years \u2014 part lecture, part structured discussion, often with student presentations. \u201c24S\u201d = 24 seminar hours." },
+
+  /* ---- rules: 수강 규칙 ---- */
+  { id: "prerequisite", term: "Prerequisite", cat: "rules",
+    def: "A course you must finish before taking another one \u2014 sometimes with a minimum grade (e.g. \u201cCSC148 with at least 60%\u201d)." },
+  { id: "corequisite",  term: "Co-requisite", cat: "rules",
+    def: "A course you must take at the same time as (or before) another course." },
+  { id: "exclusion",    term: "Exclusion",    cat: "rules",
+    def: "A course you can't get credit for because it overlaps too much with one you've already taken (or are taking now). Check this before enrolling \u2014 taking an exclusion wastes money and credit." },
+  { id: "recommended-prep", term: "Recommended preparation", cat: "rules",
+    def: "A course the department suggests taking first, but it's not required. You can enrol without it." },
+  { id: "extra",        term: "Extra (EXT)",  cat: "rules",
+    def: "A course marked EXT on your transcript doesn't count toward your 20.0 credits. This happens to courses you designate as Extra." },
+  { id: "lop",          term: "Letter of Permission", cat: "rules",
+    def: "Official pre-approval to take a course at another university and transfer the credit back to U of T. Get this approved before you enrol elsewhere." },
+
+  /* ---- programs: 프로그램 ---- */
+  { id: "specialist",   term: "Specialist",   cat: "programs",
+    def: "The deepest program type \u2014 10.0 to 14.0 credits in one subject. Usually the main focus of your whole degree. Program codes start with ASSPE." },
+  { id: "major",        term: "Major",        cat: "programs",
+    def: "A solid, medium-depth program \u2014 6.0 to 8.0 credits. Usually paired with another Major or two Minors. Codes start with ASMAJ." },
+  { id: "minor",        term: "Minor",        cat: "programs",
+    def: "The lightest program \u2014 4.0 credits. An add-on next to a Major or Specialist, never on its own. Codes start with ASMIN." },
+  { id: "focus",        term: "Focus",        cat: "programs",
+    def: "A small optional cluster of courses inside a Specialist or Major that shows you concentrated on a theme (e.g. Data Analytics within the Economics Major). Codes start with ASFOC." },
+  { id: "stream",       term: "Stream",       cat: "programs",
+    def: "A flavour of a program listed as its own entry \u2014 e.g. Cognitive Science Major has separate Language, Perception, and Thinking streams, each with its own code." },
+  { id: "program-code", term: "Program code", cat: "programs",
+    def: "Every program's ID: ASSPE\u2026 = Specialist, ASMAJ\u2026 = Major, ASMIN\u2026 = Minor, ASFOC\u2026 = Focus. You can search these codes on ACORN and in the Calendar." },
+  { id: "open-program", term: "Open enrolment program", cat: "programs",
+    def: "A program you can join with no conditions other than finishing 4.0 credits. Just request it on ACORN and you're in." },
+  { id: "limited-program", term: "Limited enrolment program", cat: "programs",
+    def: "A program with extra requirements beyond 4.0 credits \u2014 minimum grades in certain courses, sometimes an application, and sometimes limited seats." },
+  { id: "post",         term: "Subject POSt", abbr: "Program of Study", cat: "programs",
+    def: "The official name for your program on ACORN. \u201cRequesting a POSt\u201d = applying to enrol in a Specialist/Major/Minor, which you do near the end of first year." },
+  { id: "certificate",  term: "Certificate",  cat: "programs",
+    def: "A short for-credit credential. Category 2 certificates can be done alongside your undergrad degree; Category 1 usually requires a finished degree first." },
+
+  /* ---- records: 성적·기록 ---- */
+  { id: "gpa",          term: "GPA",          abbr: "Grade Point Average", cat: "records",
+    def: "Your average grade, weighted by course size (a 1.0-credit course counts double a 0.5). U of T uses a 4.0 scale." },
+  { id: "crncr",        term: "CR/NCR",       abbr: "Credit / No Credit", cat: "records",
+    def: "An option that puts CR (credit) or NCR (no credit) on your transcript instead of a percentage mark \u2014 the course still counts toward your 20.0 credits if you pass, but doesn't affect GPA. Some courses aren't eligible." },
+  { id: "lwd",          term: "LWD",          abbr: "Late Withdrawal after the Drop Date", cat: "records",
+    def: "Lets you leave a course after the drop deadline (up to the last day of classes) without a mark \u2014 the transcript shows LWD instead. You can use this for at most 3.0 credits total, no petition needed." },
+  { id: "academic-standing", term: "Academic standing", cat: "records",
+    def: "Your academic status based on GPA. The four levels: In Good Standing, On Probation, On Suspension, and Refused Further Registration." },
+  { id: "petition",     term: "Petition",     cat: "records",
+    def: "A formal request asking the Faculty to make an exception to a rule for you \u2014 e.g. a deadline extension for documented circumstances." },
+  { id: "language-citation", term: "Language citation", cat: "records",
+    def: "A transcript recognition for advanced language study. It's not a program and doesn't count toward your program requirements \u2014 it's a bonus line on your record." },
+  { id: "year-of-study", term: "Year of study", cat: "records",
+    def: "Decided by credits finished, not calendar years: under 4.0 credits = Year 1, 4.0\u20138.5 = Year 2, 9.0\u201313.5 = Year 3, 14.0+ = Year 4." },
+
+  /* ---- systems: 시스템·사이트 ---- */
+  { id: "acorn",        term: "ACORN",        cat: "systems",
+    def: "U of T's student portal (acorn.utoronto.ca) \u2014 where you enrol in courses and programs, check your invoice, and see your grades." },
+  { id: "quercus",      term: "Quercus",      cat: "systems",
+    def: "The online course hub (q.utoronto.ca) \u2014 where instructors post the syllabus, readings, assignments, announcements, and marks during the term." },
+  { id: "degree-explorer", term: "Degree Explorer", cat: "systems",
+    def: "The official degree-planning tool \u2014 shows which degree and program requirements you've completed and what's still missing." },
+  { id: "ttb",          term: "Timetable Builder", cat: "systems",
+    def: "The official timetable site (ttb.utoronto.ca) \u2014 look up when and where every course section runs before you enrol on ACORN." }
+];
+
+
+/* =====================================================
+   캠퍼스 편의시설 (FACILITIES)
+   -----------------------------------------------------
+   출처(전부 .utoronto.ca 공식 페이지, 2026-08-28 확인):
+   - 도서관 주소/설명: library.utoronto.ca, gerstein.library.utoronto.ca
+   - 체육시설: kpe.utoronto.ca/facility/athletic-centre,
+     kpe.utoronto.ca/facilities-memberships/contact-us
+   - 보건소: studentlife.utoronto.ca (Health & Wellness)
+   - 식당: foodservices.utoronto.ca
+   - 프린트: onesearch.library.utoronto.ca (printing FAQ), printhere.utoronto.ca
+   - 서점: U of T Bookstore 공식 안내(Koffler Student Centre 주소)
+   ⚠️ 운영시간은 학기 중 바뀌는 경우가 많아 일부러 안 넣었습니다.
+      각 항목의 officialUrl에서 그날그날 시간 확인하세요.
+   필드: id / name / cat / address / note / officialUrl
+   cat: library / athletics / health / food / print / other
+   ===================================================== */
+const FACILITY_CATS = [
+  { id: "library",   label: "Libraries",           icon: "\uD83D\uDCDA", color: "#0F7A4D" },
+  { id: "athletics", label: "Athletics & Rec",      icon: "\uD83C\uDFCA", color: "#0B4DA0" },
+  { id: "health",    label: "Health & Wellness",    icon: "\uD83E\uDE7A", color: "#C05A16" },
+  { id: "food",      label: "Food & Dining",        icon: "\uD83C\uDF74", color: "#7A3FA0" },
+  { id: "print",     label: "Printing & Bookstore", icon: "\uD83D\uDDA8\uFE0F", color: "#1B7A9E" },
+  { id: "other",     label: "Other essentials",     icon: "\u2728", color: "#0E7C86" }
+];
+
+const FACILITIES = [
+  /* ---- library ---- */
+  { id: "robarts", name: "Robarts Library", cat: "library",
+    address: "130 St. George Street",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Robarts_Library_2015.jpg/800px-Robarts_Library_2015.jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Robarts_Library_2015.jpg",
+    note: "The biggest library on campus \u2014 humanities & social sciences, plus the Information Commons (computers, printing) and long study hours, especially useful around exams.",
+    officialUrl: "https://onesearch.library.utoronto.ca/library-campus/st-george-campus" },
+  { id: "gerstein", name: "Gerstein Science Information Centre", cat: "library",
+    address: "9 King's College Circle",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Gerstein_Library,_UofT_(2001)_(50945692187).jpg/800px-Gerstein_Library,_UofT_(2001)_(50945692187).jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Gerstein_Library,_UofT_(2001)_(50945692187).jpg",
+    note: "The main science & health science library \u2014 go here for anything Biology, Chemistry, Physics, or pre-health related. Over 1,400 study spaces and bookable group rooms.",
+    officialUrl: "https://gerstein.library.utoronto.ca/" },
+  { id: "uc-library", name: "University College Library", cat: "library",
+    address: "Inside University College",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/University_College,_University_of_Toronto_(2026).jpg/800px-University_College,_University_of_Toronto_(2026).jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:University_College,_University_of_Toronto_(2026).jpg",
+    note: "A smaller, quieter library inside UC \u2014 a good alternative if Robarts feels too busy.",
+    officialUrl: "https://onesearch.library.utoronto.ca/library-campus/st-george-campus" },
+  { id: "fisher", name: "Thomas Fisher Rare Book Library", cat: "library",
+    address: "120 St. George Street",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Thomas_Fisher_Rare_Book_Library,_University_of_Toronto,_May_13,_2025.jpg/800px-Thomas_Fisher_Rare_Book_Library,_University_of_Toronto,_May_13,_2025.jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Thomas_Fisher_Rare_Book_Library,_University_of_Toronto,_May_13,_2025.jpg",
+    note: "Canada's largest public rare book library. Worth a visit even just to see the building \u2014 free exhibitions are open to everyone.",
+    officialUrl: "https://onesearch.library.utoronto.ca/library-campus/st-george-campus" },
+  { id: "lib-full-list", name: "Full list of St. George libraries", cat: "library",
+    address: "",
+    note: "U of T has dozens of libraries across St. George (college libraries, faculty libraries, etc.), each with different hours. This official page lists all of them with current hours.",
+    officialUrl: "https://onesearch.library.utoronto.ca/library-campus/st-george-campus" },
+
+  /* ---- athletics ---- */
+  { id: "athletic-centre", name: "Athletic Centre", cat: "athletics",
+    address: "Spadina Ave. & Harbord St.",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Athletic_Centre,_University_of_Toronto.jpg/800px-Athletic_Centre,_University_of_Toronto.jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Athletic_Centre,_University_of_Toronto.jpg",
+    note: "The main gym \u2014 seven gymnasiums, three pools, a strength & conditioning centre, indoor track, dance studio, and squash courts. Your student athletic fee gets you in automatically, just bring your TCard.",
+    officialUrl: "https://kpe.utoronto.ca/facility/athletic-centre" },
+  { id: "goldring", name: "Goldring Centre for High Performance Sport", cat: "athletics",
+    address: "100 Devonshire Place",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Goldring-Centre-for-High-Performance-Sport-in-Toronto.jpg/800px-Goldring-Centre-for-High-Performance-Sport-in-Toronto.jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons (CC BY 2.0)",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Goldring-Centre-for-High-Performance-Sport-in-Toronto.jpg",
+    note: "A newer, high-performance training facility \u2014 also included with your athletic fee membership.",
+    officialUrl: "https://kpe.utoronto.ca/facilities-memberships/buildings-overview" },
+  { id: "varsity-centre", name: "Varsity Centre & Arena", cat: "athletics",
+    address: "299 Bloor Street West",
+    photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Varsity_Stadium,_U_of_T_St._George_(4448136129).jpg/800px-Varsity_Stadium,_U_of_T_St._George_(4448136129).jpg",
+    /* 출처: 위키미디어 공용 (자유 라이선스) — 저작자·라이선스는 아래 파일 페이지 참조 */
+    photoCredit: "Photo: Wikimedia Commons",
+    photoCreditUrl: "https://commons.wikimedia.org/wiki/File:Varsity_Stadium,_U_of_T_St._George_(4448136129).jpg",
+    note: "Outdoor turf field, track, and the Varsity Arena (ice hockey). Building hours are generally 7 a.m.\u201311 p.m.",
+    officialUrl: "https://kpe.utoronto.ca/facilities-memberships/contact-us" },
+
+  /* ---- health ---- */
+  { id: "health-wellness", name: "Health & Wellness Centre", cat: "health",
+    address: "700 Bay Street (SW corner of Bay & Gerrard, entrance on Gerrard just west of Shoppers Drug Mart)",
+    photoUrl: "https://www.studentlife.utoronto.ca/wp-content/uploads/Image-1.jpeg",
+    note: "Free medical and mental health care for U of T students \u2014 physical health, counselling, sexual health, and more. Call 416-978-8030 (Mon\u2013Fri, 9 a.m.\u20134:30 p.m.) to register as a new patient before your first visit.",
+    officialUrl: "https://studentlife.utoronto.ca/task/find-health-wellness/" },
+  { id: "telus-ssp", name: "U of T Telus Health Student Support", cat: "health",
+    address: "Phone / app, available anywhere",
+    note: "Free, confidential 24-hour support line for any school, health, or life concern \u2014 no appointment needed, works even when you're not on campus.",
+    officialUrl: "https://studentlife.utoronto.ca/task/find-health-wellness/" },
+
+  /* ---- food ---- */
+  { id: "food-services", name: "U of T Food Services \u2014 Where to Eat", cat: "food",
+    address: "30+ locations across St. George",
+    note: "The official map and menu list for every cafeteria, café, and dining hall on campus (Robarts Cafeteria, Sid Smith food court, Second Cup locations, and more). TBucks (loaded via TCard+) get you a 5% discount at the main dining halls.",
+    officialUrl: "https://foodservices.utoronto.ca/where-to-eat/" },
+  { id: "mobile-order", name: "U of T Mobile Order App", cat: "food",
+    address: "App (iOS / Android)",
+    note: "Order ahead and skip the lineup at participating campus food locations \u2014 handy between back-to-back classes.",
+    officialUrl: "https://foodservices.utoronto.ca/where-to-eat/" },
+
+  /* ---- print ---- */
+  { id: "tcard-plus", name: "TCard+", cat: "print",
+    address: "tcardplus.utoronto.ca",
+    note: "Load funds (TBucks) onto your TCard for printing, photocopying, and food purchases across campus.",
+    officialUrl: "https://tcardplus.utoronto.ca/" },
+  { id: "wireless-printing", name: "Wireless / mobile printing", cat: "print",
+    address: "Library computers & printers across campus",
+    note: "Send a print job from your own laptop while on U of T WiFi, then release it with your TCard at any library printer \u2014 Robarts, Gerstein, and most other St. George libraries all support this.",
+    officialUrl: "https://onesearch.library.utoronto.ca/faq/where-are-printers-st-george-campus" },
+  { id: "uoft-bookstore", name: "U of T Bookstore", cat: "print",
+    address: "214 College Street (Koffler Student Centre, corner of College & St. George)",
+    note: "Textbooks, course materials, stationery, and U of T merch. Also buys back used textbooks year-round. Check the official site for today's hours \u2014 they change with the term.",
+    officialUrl: "https://www.uoftbookstore.com" },
+
+  /* ---- other ---- */
+  { id: "acorn-help", name: "Student Help Desk (UTORid, WiFi, tech issues)", cat: "other",
+    address: "Robarts Library & online",
+    note: "If your UTORid, WiFi, printing, or ACORN login isn't working, this is who to ask \u2014 not your college registrar.",
+    officialUrl: "https://onesearch.library.utoronto.ca/library-campus/st-george-campus" }
+];
+
+
 const SITE_UPDATES = [
-  { date: "Aug 2026", text: "Added Courses: 36 programs across all 5 direct-entry faculties, with province-based high school requirements." },
-  { date: "Aug 2026", text: "Added Fees & Dates: full timeline from Grade 12 prep through tuition deadlines." },
+  { date: "Aug 2026", text: "Added Campus Facilities: libraries, gyms, health services, food, printing and the bookstore, verified against official U of T pages." },
+  { date: "Aug 2026", text: "Added the UofT Glossary: 35 terms like POSt, FCE, CR/NCR and LWD explained in plain language, from the official 2026-27 Calendar." },
+  { date: "Aug 2026", text: "Every page now has its own shareable link, deadline checklists save your progress, and search covers all 123 breadth courses." },
+  { date: "Aug 2026", text: "Renamed Fees & Dates to Undergraduate and moved program-choosing there; Courses now focuses on current students." },
   { date: "Aug 2026", text: "Verified all 11 residences against the official 2026-27 fee schedule and winter break policies." }
 ];
 

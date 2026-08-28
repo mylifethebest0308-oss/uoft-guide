@@ -55,6 +55,8 @@ rows.forEach(function (row) {
       showView("fees");
     } else if (key === "courses") {
       showView("courses");
+    } else if (key === "facilities") {
+      showView("facilities");
     } else {
       showToast(MESSAGES.comingSoon);
     }
@@ -77,6 +79,8 @@ const views = {
   detail: document.getElementById("view-detail"),
   fees: document.getElementById("view-fees"),
   courses: document.getElementById("view-courses"),
+  facilities: document.getElementById("view-facilities"),
+  facilityDetail: document.getElementById("view-facility-detail"),
   coursePage: document.getElementById("view-course-page")
 };
 
@@ -108,35 +112,122 @@ function showView(name, hashOverride) {
   window.scrollTo(0, 0);
 
   // 주소창 해시 갱신 (뒤로가기가 이 해시를 다시 불러옵니다)
-  const wantHash = hashOverride || (name === "home" ? "" : name);
+  // 화면 내부 이름은 "fees"지만 주소에는 "undergraduate"로 보여줍니다 (탭 이름과 맞춤)
+  const wantHash = hashOverride || (name === "home" ? "" : (name === "fees" ? "undergraduate" : name));
   const currentHash = location.hash.replace(/^#/, "");
   if (currentHash !== wantHash && !isRestoringFromHash) {
-    if (wantHash) location.hash = wantHash;
+    if (wantHash) {
+      lastAppliedHash = wantHash;   // 방금 우리가 바꾼 해시 — hashchange 가 되울려도 다시 그리지 않게 표시
+      location.hash = wantHash;
+    }
     else history.pushState("", document.title, location.pathname + location.search);
   }
 }
 
 
 /* ---- 뒤로/앞으로가기, 직접 링크 접속 처리 ----
-   주소 해시가 바뀌면(사람이 직접 치거나, 브라우저 뒤로가기를 누르거나) 그에 맞는 화면을 엽니다. */
+   주소 해시가 바뀌면(사람이 직접 치거나, 브라우저 뒤로가기를 누르거나) 그에 맞는 화면을 엽니다.
+
+   지원하는 주소들:
+     #residence                          기숙사 목록
+     #residence/{id}                     기숙사 상세
+     #facilities                         편의시설 목록
+     #facilities/{id}                    편의시설 상세
+     #undergraduate                      Undergraduate 카테고리 (옛 #fees 도 동작)
+     #undergraduate/{catId}              카테고리 하나 열림 (prep/money/aid/visa)
+     #undergraduate/programs             Choosing a Program 홈
+     #undergraduate/programs/az          전체 프로그램 A-Z
+     #undergraduate/programs/cat/{id}    학부 하나
+     #undergraduate/programs/p/{id}      프로그램 상세
+     #courses                            Courses 카테고리
+     #courses/enrol · /degree · /breadth 각 화면
+     #courses/breadth/{b1~b5}            교양 카테고리 목록
+     #courses/c/{courseId}               과목 상세
+
+   딥링크로 하위 화면에 바로 들어올 땐 위 단계 화면들을 스택에 미리 쌓아서,
+   화면 안의 Back 버튼도 자연스럽게 동작하게 합니다. */
 let isRestoringFromHash = false;
+let lastAppliedHash = null;   // showView 가 방금 쓴 해시 (되울림 무시용)
 
 function routeFromHash() {
   const hash = location.hash.replace(/^#/, "");
+
+  // 우리가 방금 프로그램으로 바꾼 해시가 되울린 것이면, 화면은 이미 맞으니 다시 안 그립니다
+  if (hash === lastAppliedHash) { lastAppliedHash = null; return; }
+  lastAppliedHash = null;
+
   isRestoringFromHash = true;
+  const parts = hash.split("/");
 
   if (!hash) {
     showView("home");
-  } else if (hash.indexOf("residence/") === 0) {
-    const id = hash.slice("residence/".length);
-    if (typeof openDetail === "function" && typeof RESIDENCES !== "undefined" && RESIDENCES.some(function (r) { return r.id === id; })) {
+
+  } else if (parts[0] === "residence") {
+    if (parts[1] && typeof RESIDENCES !== "undefined" && RESIDENCES.some(function (r) { return r.id === parts[1]; })) {
       showView("residence");   // 뒤로 눌렀을 때 목록이 먼저 보이게
-      openDetail(id);
+      openDetail(parts[1]);
     } else {
       showView("residence");
     }
-  } else if (views[hash]) {
-    showView(hash);
+
+  } else if (parts[0] === "facilities") {
+    if (parts[1] && typeof FACILITIES !== "undefined" && FACILITIES.some(function (f) { return f.id === parts[1]; })) {
+      showView("facilities");
+      openFacilityDetail(parts[1]);
+    } else {
+      showView("facilities");
+    }
+
+  } else if (parts[0] === "undergraduate" || parts[0] === "fees") {
+    if (parts[1] === "programs") {
+      courseReturnView = "fees";
+      goToCourseScreen(buildProgramHomeScreen(""), true);
+      if (parts[2] === "az") {
+        goToCourseScreen(buildAzScreen(""), false);
+      } else if (parts[2] === "cat" && parts[3]) {
+        goToCourseScreen(buildCategoryDeptScreen(parts[3]), false);
+      } else if (parts[2] === "p" && parts[3]) {
+        goToCourseScreen(buildProgramDetailScreen(parts[3]), false);
+      } else if (parts[2] === "list" && parts[3]) {
+        goToCourseScreen(buildAzScreen(""), false);
+        goToCourseScreen(buildListingDetailScreen(parts[3]), false);
+      }
+    } else if (parts[1] && FEES_CATEGORIES.some(function (c) { return c.id === parts[1]; })) {
+      showView("fees");
+      renderFeesCategories();
+      openFeesCategory(parts[1]);
+    } else {
+      showView("fees");
+      // 열려있던 타임라인이 있으면 닫고 카테고리 목록부터 보여줍니다
+      const fi = document.getElementById("fees-items");
+      const fc = document.getElementById("fees-categories");
+      if (fi) fi.hidden = true;
+      if (fc) fc.hidden = false;
+    }
+
+  } else if (parts[0] === "courses") {
+    courseReturnView = "courses";
+    if (parts[1] === "enrol") {
+      goToCourseScreen(buildEnrolScreen(), true);
+    } else if (parts[1] === "degree") {
+      goToCourseScreen(buildDegreeScreen(), true);
+    } else if (parts[1] === "breadth") {
+      goToCourseScreen(buildCourseReviewHomeScreen(""), true);
+      if (parts[2]) goToCourseScreen(buildCourseListScreen(parts[2]), false);
+    } else if (parts[1] === "glossary") {
+      goToCourseScreen(buildGlossaryScreen(""), true);
+    } else if (parts[1] === "c" && parts[2]) {
+      const course = COURSE_CATALOG.filter(function (c) { return c.id === parts[2]; })[0];
+      goToCourseScreen(buildCourseReviewHomeScreen(""), true);
+      if (course) goToCourseScreen(buildCourseListScreen(course.category), false);
+      goToCourseScreen(buildCourseDetailScreen(parts[2]), false);
+    } else {
+      showView("courses");
+    }
+
+  } else if (views[parts[0]] && parts[0] !== "coursePage" && parts[0] !== "detail") {
+    showView(parts[0]);
+
   } else {
     showView("home");
   }
@@ -201,7 +292,8 @@ function spendPoint() {
 
 function getUnlockedList() {
   try {
-    return JSON.parse(localStorage.getItem(UNLOCKED_KEY) || "[]");
+    const v = JSON.parse(localStorage.getItem(UNLOCKED_KEY) || "[]");
+    return Array.isArray(v) ? v : [];   // 배열이 아닌 값이 저장돼 있어도 앱이 죽지 않게
   } catch (e) {
     return [];
   }
@@ -240,7 +332,8 @@ const HELPFUL_KEY = "uoftGuideHelpful";
 
 function getHelpfulMap() {
   try {
-    return JSON.parse(localStorage.getItem(HELPFUL_KEY) || "{}");
+    const v = JSON.parse(localStorage.getItem(HELPFUL_KEY) || "{}");
+    return (v && typeof v === "object" && !Array.isArray(v)) ? v : {};   // null·숫자·배열 방어
   } catch (e) {
     return {};
   }
@@ -457,6 +550,35 @@ function sortedResidences() {
 }
 
 
+/* ---- Residence 페이지 상단 마감일 박스 ----
+   FEES_TIMELINE 중 category === "residence" 인 항목을 여기서 보여줍니다.
+   (예전엔 Fees & Dates 안에 따로 있었는데, "기숙사 얘기는 기숙사 페이지에서
+   보이게 해달라"는 요청으로 여기로 옮겼습니다. 데이터는 FEES_TIMELINE
+   하나만 쓰고, 보여주는 자리만 여기로 옮긴 거라 나중에 날짜가 바뀌어도
+   한 곳만 고치면 됩니다.) */
+function renderResidenceDeadlines() {
+  const box = document.getElementById("residence-deadlines");
+  if (!box || typeof FEES_TIMELINE === "undefined") return;
+
+  const items = FEES_TIMELINE.filter(function (item) { return item.category === "residence"; });
+  if (items.length === 0) { box.innerHTML = ""; return; }
+
+  box.innerHTML = items.map(function (item) {
+    return '<div class="keybox keybox--alert">' +
+             '<div class="keybox__icon">!</div>' +
+             '<div>' +
+               '<p class="keybox__main">' + esc(item.title) + '</p>' +
+               '<p class="keybox__sub">' + boldMarks(item.body) +
+                 (item.officialUrl
+                   ? ' <a href="' + esc(item.officialUrl) + '" target="_blank" rel="noopener noreferrer">Details &nearr;</a>'
+                   : "") +
+               '</p>' +
+             '</div>' +
+           '</div>';
+  }).join("");
+}
+
+
 /* ---- 목록 전체 그리기 ----
    data.js 의 RESIDENCES 를 하나씩 읽어 카드로 만듭니다.
    기숙사를 추가하면 카드도 저절로 늘어납니다. */
@@ -663,11 +785,16 @@ document.addEventListener("submit", function (e) {
 
 let feesAudience = "domestic";   // "domestic" 또는 "international"
 
-/* ---- 카테고리 목록. 여기 하나 추가하면 화면에도 자동으로 생깁니다 ---- */
+/* ---- 카테고리 목록. 여기 하나 추가하면 화면에도 자동으로 생깁니다 ----
+   ⚠️ "residence" 카테고리는 일부러 없습니다 — 그 날짜는 이제
+      Residence 페이지 상단에서 보여줍니다 (renderResidenceDeadlines 참고).
+   ⚠️ "program"(Choosing a Program)은 원래 Courses 쪽에 있었는데,
+      지원 준비 단계에 더 맞아서 여기로 옮겨왔습니다. 클릭 동작은
+      renderFeesCategories() 안에서 따로 처리합니다 (course-page 화면 재사용). */
 const FEES_CATEGORIES = [
   { id: "prep",      label: "Grade 12",                 desc: "Everything from exploring programs to accepting your offer", icon: "\uD83C\uDF92", color: "#0E7C86" },
+  { id: "program",   label: "Choosing a Program",        desc: "How to pick and apply for your major",       icon: "\uD83C\uDFAF", color: "#7A3FA0" },
   { id: "money",     label: "Money & Tuition",          desc: "Deposits, tuition, payment deadlines",       icon: "\uD83D\uDCB0", color: "#0F7A4D" },
-  { id: "residence", label: "Residence",                desc: "When to apply for housing",                  icon: "\uD83C\uDFE0", color: "#C05A16" },
   { id: "aid",       label: "Financial Aid",            desc: "OSAP, UTAPS, scholarships",                  icon: "\uD83C\uDF93", color: "#7A3FA0" },
   { id: "visa",      label: "Visa & Permits",           desc: "Study permit, immigration steps",            icon: "\u2708\uFE0F", color: "#1B7A9E" }
 ];
@@ -688,26 +815,44 @@ function feesForAudience() {
 }
 
 
+/* ---- Courses 화면(course-page)을 Undergraduate 쪽에서도 재사용하기 위한 표시.
+   "program" 카드를 어디서 눌렀는지 기억해뒀다가, 뒤로가기 끝까지 눌렀을 때
+   원래 있던 탭(courses 또는 fees)으로 돌아가게 합니다. */
+let courseReturnView = "courses";
+window.getCourseReturnView = function () { return courseReturnView; };
+
+
 /* ---- 카테고리 목록 화면 그리기 ----
-   각 카테고리에 몇 개 날짜가 있는지 보여주고, 0개면 흐리게(못 누르게) 만듭니다. */
+   각 카테고리에 몇 개 날짜가 있는지 보여주고, 0개면 흐리게(못 누르게) 만듭니다.
+   "program" 카드는 날짜가 아니라 학부 수만큼 보여주고, 절대 안 흐려집니다. */
 function renderFeesCategories() {
   const box = document.getElementById("fees-categories");
   if (!box) return;
 
   const items = feesForAudience();
+  const checked = getCheckedDates();
 
   box.innerHTML = FEES_CATEGORIES.map(function (cat) {
-    const count = items.filter(function (i) { return i.category === cat.id; }).length;
-    const disabled = count === 0;
+    const isProgram = cat.id === "program";
+    const catItems = isProgram ? [] : items.filter(function (i) { return i.category === cat.id; });
+    const count = isProgram
+      ? (typeof COURSE_FACULTIES !== "undefined" ? COURSE_FACULTIES.length : 0)
+      : catItems.length;
+    const doneCount = catItems.filter(function (i) { return checked.indexOf(i.id) !== -1; }).length;
+    const disabled = !isProgram && count === 0;
+
+    let badge;
+    if (disabled)        badge = '<span class="feescard__badge feescard__badge--off">N/A</span>';
+    else if (isProgram)  badge = '<span class="feescard__badge">' + count + ' faculties</span>';
+    else if (doneCount > 0) badge = '<span class="feescard__badge">' + doneCount + '/' + count + ' done</span>';
+    else                 badge = '<span class="feescard__badge">' + count + (count === 1 ? " date" : " dates") + '</span>';
 
     return '<button type="button" class="feescard' + (disabled ? " is-off" : "") +
            '" data-category="' + cat.id + '"' + (disabled ? " disabled" : "") +
            ' style="--cat-color:' + cat.color + '">' +
              '<span class="feescard__top">' +
                '<span class="feescard__icon">' + cat.icon + '</span>' +
-               (disabled
-                 ? '<span class="feescard__badge feescard__badge--off">N/A</span>'
-                 : '<span class="feescard__badge">' + count + (count === 1 ? " date" : " dates") + '</span>') +
+               badge +
              '</span>' +
              '<span class="feescard__name">' + esc(cat.label) + '</span>' +
              '<span class="feescard__desc">' + esc(cat.desc) + '</span>' +
@@ -716,6 +861,11 @@ function renderFeesCategories() {
 
   box.querySelectorAll(".feescard:not(.is-off)").forEach(function (row) {
     row.addEventListener("click", function () {
+      if (row.dataset.category === "program") {
+        courseReturnView = "fees";
+        goToCourseScreen(buildProgramHomeScreen(""), true);
+        return;
+      }
       openFeesCategory(row.dataset.category);
     });
   });
@@ -733,6 +883,9 @@ function openFeesCategory(catId) {
 
   document.getElementById("fees-categories").hidden = true;
   document.getElementById("fees-items").hidden = false;
+
+  // 주소에도 남깁니다 (pushState 는 hashchange 를 안 일으켜서 화면이 두 번 그려지지 않습니다)
+  if (!isRestoringFromHash) history.pushState(null, "", "#undergraduate/" + catId);
 }
 
 
@@ -741,7 +894,31 @@ document.addEventListener("click", function (e) {
   if (!e.target.closest("[data-fees-back]")) return;
   document.getElementById("fees-items").hidden = true;
   document.getElementById("fees-categories").hidden = false;
+  if (!isRestoringFromHash) history.pushState(null, "", "#undergraduate");
 });
+
+
+/* ---- 마감일 체크리스트 ----
+   "이건 했다"를 체크해두면 이 브라우저에 저장됩니다 (localStorage).
+   지원 준비하면서 어디까지 했는지 다시 와서 확인할 수 있게. */
+const CHECKED_KEY = "uoftguide-checked-dates";
+
+function getCheckedDates() {
+  try {
+    const v = JSON.parse(localStorage.getItem(CHECKED_KEY) || "[]");
+    return Array.isArray(v) ? v : [];   // 배열이 아닌 값이 저장돼 있어도 앱이 죽지 않게
+  }
+  catch (err) { return []; }
+}
+
+function setDateChecked(id, on) {
+  try {
+    let list = getCheckedDates();
+    if (on && list.indexOf(id) === -1) list.push(id);
+    if (!on) list = list.filter(function (x) { return x !== id; });
+    localStorage.setItem(CHECKED_KEY, JSON.stringify(list));
+  } catch (err) { /* 시크릿 모드 등에서 저장이 막혀도 화면은 그대로 동작 */ }
+}
 
 
 /* ---- 날짜 목록 그리기 (카테고리 하나 안의 내용) ---- */
@@ -753,6 +930,8 @@ function renderFeesTimeline(items, color) {
     box.innerHTML = '<p class="empty">No dates here yet.</p>';
     return;
   }
+
+  const checked = getCheckedDates();
 
   box.innerHTML = items.map(function (item, i) {
     const tag = item.audience === "both" ? ""
@@ -766,7 +945,9 @@ function renderFeesTimeline(items, color) {
         '<span class="tl-to">' + esc(parts[1]) + '</span>'
       : '<span class="tl-single">' + esc(item.month) + '</span>';
 
-    return '<article class="tl-item" style="--cat-color:' + color + '">' +
+    const isDone = checked.indexOf(item.id) !== -1;
+
+    return '<article class="tl-item' + (isDone ? " is-done" : "") + '" style="--cat-color:' + color + '" data-tl-id="' + esc(item.id) + '">' +
              '<div class="tl-num">' + (i + 1) + '</div>' +
              '<div class="tl-month">' + monthHtml + '</div>' +
              '<div class="tl-body">' +
@@ -781,9 +962,24 @@ function renderFeesTimeline(items, color) {
                    '</button>'
                  : "") +
              '</div>' +
+             '<label class="tl-check" title="Mark as done (saved in this browser)">' +
+               '<input type="checkbox" data-check-id="' + esc(item.id) + '"' + (isDone ? " checked" : "") + '>' +
+               '<span>Done</span>' +
+             '</label>' +
            '</article>';
   }).join("");
 }
+
+
+/* 체크하면 저장하고, 그 줄만 살짝 흐리게 표시합니다 */
+document.addEventListener("change", function (e) {
+  const cb = e.target.closest("[data-check-id]");
+  if (!cb) return;
+  setDateChecked(cb.dataset.checkId, cb.checked);
+  const row = cb.closest(".tl-item");
+  if (row) row.classList.toggle("is-done", cb.checked);
+  renderFeesCategories();   // 카테고리 카드의 "N done" 뱃지도 같이 갱신
+});
 
 
 /* ---- 캘린더에 저장 ----
@@ -849,6 +1045,234 @@ renderFeesCategories();
 
 /* ---- 페이지가 열릴 때 목록을 미리 만들어 둡니다 ---- */
 renderResidenceList();
+renderResidenceDeadlines();
+
+
+/* ---- 캠퍼스 편의시설 화면 그리기 ----
+   FACILITIES를 카테고리별로 묶어서 보여줍니다. 용어사전과 같은 구조라
+   화면 코드도 거의 같습니다. Residence처럼 독립된 최상위 화면이라
+   course-page 시스템(스택)은 안 씁니다.
+   각 행은 버튼입니다 — 누르면 사진/위치/리뷰가 있는 상세 화면으로 갑니다. */
+function renderFacilities(term) {
+  const box = document.getElementById("facilities-list");
+  if (!box || typeof FACILITIES === "undefined") return;
+
+  const q = (term || "").trim().toLowerCase();
+  const hits = q
+    ? FACILITIES.filter(function (f) {
+        return (f.name + " " + f.address + " " + f.note).toLowerCase().indexOf(q) !== -1;
+      })
+    : FACILITIES;
+
+  let body = "";
+  FACILITY_CATS.forEach(function (cat) {
+    const items = hits.filter(function (f) { return f.cat === cat.id; });
+    if (!items.length) return;
+    body +=
+      '<h3 class="glossgroup" style="color:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</h3>' +
+      '<div class="glosslist">' +
+        items.map(function (f) {
+          const reviews = Array.isArray(f.reviews) ? f.reviews.filter(function (r) { return r && r.text; }) : [];
+          const avg = reviews.length
+            ? reviews.reduce(function (s, r) { return s + (r.stars || 0); }, 0) / reviews.length
+            : 0;
+          return '<button type="button" class="glossrow facrow' + (f.photoUrl ? " facrow--photo" : "") + '" data-open-facility="' + esc(f.id) + '">' +
+                   (f.photoUrl
+                     ? '<img class="facrow__thumb" src="' + esc(f.photoUrl) + '" alt="" loading="lazy" onerror="this.remove(); this.closest(\'.facrow\').classList.remove(\'facrow--photo\');">'
+                     : '') +
+                   '<div class="facrow__body">' +
+                   '<h4 class="glossrow__term">' + esc(f.name) +
+                     (avg ? ' <span class="facrow__rating">\u2605 ' + avg.toFixed(1) + '</span>' : '') +
+                   '</h4>' +
+                   (f.address ? '<p class="facrow__addr">' + esc(f.address) + '</p>' : '') +
+                   '<p class="glossrow__def">' + esc(f.note) + '</p>' +
+                   '<span class="tl-link">' + (reviews.length ? reviews.length + (reviews.length === 1 ? " review" : " reviews") + " \u00b7 " : "") + 'See details &rarr;</span>' +
+                   '</div>' +
+                 '</button>';
+        }).join("") +
+      '</div>';
+  });
+
+  if (!body) body = '<p class="empty">No matches for \u201c' + esc(term) + '\u201d</p>';
+
+  box.innerHTML = body;
+}
+
+const facilitySearchInput = document.getElementById("facility-search");
+if (facilitySearchInput) {
+  facilitySearchInput.addEventListener("input", function (e) {
+    renderFacilities(e.target.value);
+  });
+}
+
+renderFacilities("");
+
+
+/* ---- 편의시설 상세 화면 ----
+   기숙사 상세와 같은 구성: 사진(있으면) → 위치 지도 → 학생 리뷰 → 리뷰 쓰기 폼.
+   사진은 학생이 리뷰 메일에 첨부해서 보내주면 관리자가 data.js에 추가합니다
+   (기숙사처럼 서버 업로드가 아니라 이메일 경유 — 같은 방식으로 통일). */
+function buildFacilityDetail(item) {
+  const html = [];
+  const reviews = Array.isArray(item.reviews) ? item.reviews.filter(function (r) { return r && r.text; }) : [];
+  const avg = reviews.length ? reviews.reduce(function (s, r) { return s + (r.stars || 0); }, 0) / reviews.length : 0;
+
+  html.push(
+    '<h2 class="page-title">' + esc(item.name) +
+      (avg ? ' <span class="title-rating">\u2605 ' + avg.toFixed(1) + '<span class="title-rating__count">(' + reviews.length + ')</span></span>' : '') +
+    '</h2>'
+  );
+
+  html.push('<p class="tl-text" style="margin-bottom:14px;">' + esc(item.note) + '</p>');
+
+  /* 사진 — 아직 확보된 공식 사진이 없으면 이 구역은 통째로 안 나옵니다 */
+  const photos = [];
+  if (item.photoUrl) photos.push(item.photoUrl);
+  if (Array.isArray(item.morePhotos)) item.morePhotos.forEach(function (p) { if (p) photos.push(p); });
+  if (photos.length) {
+    html.push(
+      '<div class="media">' +
+        '<div class="strip' + (photos.length === 1 ? " strip--single" : "") + '">' +
+          photos.map(function (src) {
+            return '<img class="strip__img" src="' + esc(src) + '" alt="' + esc(item.name) + '" loading="lazy" onerror="this.remove();">';
+          }).join("") +
+        '</div>' +
+        /* 사진 출처 표기 — Commons 등 외부 사진일 때만 나옵니다 */
+        (item.photoCredit
+          ? '<p class="media__credit">' +
+              (item.photoCreditUrl
+                ? '<a href="' + esc(item.photoCreditUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(item.photoCredit) + '</a>'
+                : esc(item.photoCredit)) +
+            '</p>'
+          : '') +
+      '</div>'
+    );
+  }
+
+  /* 위치 지도 */
+  if (item.address) {
+    const q = encodeURIComponent(item.address + ", Toronto, ON");
+    html.push(
+      '<section class="block block--official">' +
+        '<h3 class="block__head">Location</h3>' +
+        '<p class="address-line">' + esc(item.address) + '</p>' +
+        '<div class="mapbox">' +
+          '<iframe src="https://www.google.com/maps?q=' + q + '&output=embed" ' +
+          'title="' + esc(item.name) + ' location" loading="lazy" ' +
+          'referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+        '</div>' +
+        '<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=' + q + '" ' +
+        'target="_blank" rel="noopener noreferrer">Open in Google Maps &nearr;</a>' +
+      '</section>'
+    );
+  }
+
+  html.push(
+    '<a class="tl-link" href="' + esc(item.officialUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+    'style="display:inline-block; margin:6px 0 22px;">Official page &nearr;</a>'
+  );
+
+  /* 학생 리뷰 */
+  const reviewCards = reviews.length
+    ? (function () {
+        const cards = reviews.map(function (r, i) {
+          const stars = Math.max(0, Math.min(5, Math.round(r.stars || 0)));
+          const reviewId = item.id + "-r" + i;
+          const helpfulCount = getHelpfulCount(reviewId);
+          const iVoted = hasVotedHelpful(reviewId);
+          return '<article class="review">' +
+                   '<div class="review__stars" aria-label="' + stars + ' out of 5 stars">' +
+                     '★★★★★'.slice(0, stars) + '☆☆☆☆☆'.slice(0, 5 - stars) +
+                   '</div>' +
+                   '<p class="review__text">' + esc(r.text) + '</p>' +
+                   (r.source ? '<p class="credit">' + esc(r.source) + '</p>' : "") +
+                   '<button type="button" class="helpfulbtn' + (iVoted ? " is-on" : "") + '" ' +
+                     'data-helpful-id="' + esc(reviewId) + '" ' + (iVoted ? "disabled" : "") + '>' +
+                     '\uD83D\uDC4D Helpful' + (helpfulCount > 0 ? ' <span class="helpfulbtn__count">' + helpfulCount + '</span>' : "") +
+                   '</button>' +
+                 '</article>';
+        }).join("");
+
+        return '<div class="review__avg">' +
+                 '<span class="review__avgnum">' + avg.toFixed(1) + '</span>' +
+                 '<span class="review__avgstars">' + '★★★★★'.slice(0, Math.round(avg)) + '</span>' +
+                 '<span class="review__avgcount">' + reviews.length + (reviews.length === 1 ? " review" : " reviews") + '</span>' +
+               '</div>' +
+               '<div class="reviews">' + cards + '</div>';
+      })()
+    : '<p class="empty empty--small">No reviews yet. Be the first to write one.</p>';
+
+  const formHtml =
+    '<form class="reviewform" data-facility-review-form data-facility-id="' + esc(item.id) + '" data-facility-name="' + esc(item.name) + '">' +
+      '<p class="reviewform__label">Write a review</p>' +
+      '<div class="starpicker" data-starpicker>' +
+        [1, 2, 3, 4, 5].map(function (n) {
+          return '<button type="button" class="starpicker__btn" data-star="' + n + '" aria-label="' + n + ' stars">☆</button>';
+        }).join("") +
+      '</div>' +
+      '<textarea class="reviewform__text" data-review-text rows="3" ' +
+        'placeholder="What should other students know about this place?" required></textarea>' +
+      '<input class="reviewform__name" data-review-name type="text" placeholder="Your name or \'Anonymous\'">' +
+      '<button type="submit" class="reviewform__submit">Send review</button>' +
+      '<p class="reviewform__note">Opens your email app \u2014 feel free to attach a photo too. We read every submission and add it to the site.</p>' +
+    '</form>';
+
+  html.push(
+    '<section class="block block--student">' +
+      '<h3 class="block__head">Student reviews</h3>' +
+      reviewCards +
+      formHtml +
+    '</section>'
+  );
+
+  return html.join("");
+}
+
+function openFacilityDetail(id) {
+  const box = document.getElementById("facility-detail-body");
+  if (!box) return;
+
+  const item = FACILITIES.filter(function (f) { return f.id === id; })[0];
+  if (!item) { showToast(MESSAGES.notFound); return; }
+
+  box.innerHTML = buildFacilityDetail(item);
+  showView("facilityDetail", "facilities/" + id);
+}
+
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-open-facility]");
+  if (!btn) return;
+  openFacilityDetail(btn.dataset.openFacility);
+});
+
+
+/* ---- 편의시설 리뷰 제출 ---- */
+document.addEventListener("submit", function (e) {
+  const form = e.target.closest("[data-facility-review-form]");
+  if (!form) return;
+  e.preventDefault();
+
+  const stars = Number(form.querySelector("[data-starpicker]").dataset.value || 0);
+  const text = form.querySelector("[data-review-text]").value.trim();
+  const name = form.querySelector("[data-review-name]").value.trim() || "Anonymous";
+  const facilityName = form.dataset.facilityName;
+
+  if (!stars) { showToast("Pick a star rating first"); return; }
+  if (!text) { showToast("Write a few words first"); return; }
+
+  const subject = "Facility review: " + facilityName;
+  const body =
+    "Facility: " + facilityName + "\n" +
+    "Stars: " + stars + " / 5\n" +
+    "Name: " + name + "\n\n" +
+    text +
+    "\n\n(Attach a photo to this email if you have one!)";
+
+  window.location.href = "mailto:" + ADMIN_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+
+  const earned = addPoints(2);
+  showToast("Opening your email app\u2026 +2 points (you have " + earned + ")");
+});
 
 
 /* ---- 확인용: 검사창(Console)에서 볼 수 있습니다 ---- */
@@ -920,6 +1344,23 @@ function youtubeEmbed(url) {
 
   if (!id) return "";
   return "https://www.youtube-nocookie.com/embed/" + id;
+}
+
+/* 위와 같은 파싱이지만 순수 영상 ID만 반환 (썸네일/링크용) */
+function youtubeId(url) {
+  if (!url) return "";
+  const text = String(url);
+  let id = "";
+  if (text.indexOf("youtu.be/") !== -1) {
+    id = text.split("youtu.be/")[1];
+  } else if (text.indexOf("watch?v=") !== -1) {
+    id = text.split("watch?v=")[1];
+  } else if (text.indexOf("/embed/") !== -1) {
+    id = text.split("/embed/")[1];
+  } else {
+    return "";
+  }
+  return id.split("&")[0].split("?")[0].split("/")[0];
 }
 
 
@@ -1054,7 +1495,7 @@ function buildDetail(item) {
     }).join("");
     html.push(
       '<div class="media">' +
-        '<div class="strip">' + imgs + '</div>' +
+        '<div class="strip' + (photos.length === 1 ? " strip--single" : "") + '">' + imgs + '</div>' +
         '<p class="credit">Official U of T photos</p>' +
       '</div>'
     );
@@ -1168,22 +1609,27 @@ function buildDetail(item) {
     '</section>'
   );
 
-  /* 4. 공식 투어 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴 */
-  const embed = youtubeEmbed(item.videoUrl);
-  if (embed) {
+  /* 4. 공식 투어 영상 — videoUrl 이 비어 있으면 이 부분 전체가 안 나옴
+     iframe 임베드 대신 썸네일을 눌러 유튜브로 바로 이동하는 방식.
+     (iframe 임베드는 로컬에서 열거나 배포 전 테스트할 때 유튜브 쪽에서
+     막아서 에러가 뜨는 경우가 있어, 링크 방식이 훨씬 안전합니다) */
+  const ytId = youtubeId(item.videoUrl);
+  if (ytId) {
     html.push(
       '<div class="media">' +
-        '<div class="video">' +
-          '<iframe src="' + esc(embed) + '" title="' + esc(item.name) + ' residence tour" ' +
-          'frameborder="0" allowfullscreen ' +
-          'allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"></iframe>' +
-        '</div>' +
+        '<a class="video video--link" href="https://www.youtube.com/watch?v=' + esc(ytId) + '" ' +
+          'target="_blank" rel="noopener" aria-label="Watch ' + esc(item.name) + ' tour on YouTube">' +
+          '<img src="https://img.youtube.com/vi/' + esc(ytId) + '/hqdefault.jpg" alt="" loading="lazy">' +
+          '<span class="video__play" aria-hidden="true">\u25B6</span>' +
+        '</a>' +
         '<p class="credit">' +
           (item.videoCredit ? esc(item.videoCredit) : "Official residence tour") +
+          ' \u2014 tap to watch on YouTube' +
         '</p>' +
       '</div>'
     );
   }
+
 
   /* 3-2. 위치 — 주소를 위에 쓰고 그 아래 구글 지도.
      API 키 없이 되는 무료 임베드 방식이라 비용이 들지 않습니다. */
@@ -1424,17 +1870,17 @@ function openDetail(id) {
    ============================================ */
 
 const COURSE_CATEGORIES = [
-  { id: "program", label: "Choosing a Program",  desc: "How to pick and apply for your major",         icon: "\uD83C\uDFAF", color: "#7A3FA0" },
   { id: "degree",  label: "Degree Requirements",  desc: "Credits, breadth, and what it takes to graduate", icon: "\uD83C\uDF93", color: "#0F7A4D" },
   { id: "enrol",   label: "Enrolment (ACORN)",    desc: "When you can start choosing courses",          icon: "\uD83D\uDCBB", color: "#0B4DA0" },
-  { id: "coursereviews", label: "Breadth Courses", desc: "Find courses to fill your breadth requirements \u2014 with student reviews", icon: "\uD83D\uDCDD", color: "#C05A16" }
+  { id: "coursereviews", label: "Breadth Courses", desc: "Find courses to fill your breadth requirements \u2014 with student reviews", icon: "\uD83D\uDCDD", color: "#C05A16" },
+  { id: "glossary", label: "UofT Glossary",       desc: "POSt, FCE, CR/NCR, LWD\u2026 what all the jargon actually means", icon: "\uD83D\uDCD6", color: "#0E7C86" }
 ];
 
 function courseBadge(catId) {
   if (catId === "enrol")   return COURSE_ENROLMENT.length + " dates";
-  if (catId === "program") return COURSE_FACULTIES.length + " faculties";
   if (catId === "degree")  return "Guide";
   if (catId === "coursereviews") return COURSE_CATALOG.length + " courses";
+  if (catId === "glossary") return (typeof GLOSSARY !== "undefined" ? GLOSSARY.length : 0) + " terms";
   return "";
 }
 
@@ -1456,10 +1902,11 @@ function renderCourseCategories() {
   box.querySelectorAll("[data-course-category]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const id = btn.dataset.courseCategory;
+      courseReturnView = "courses";
       if (id === "enrol")   goToCourseScreen(buildEnrolScreen(), true);
       if (id === "degree")  goToCourseScreen(buildDegreeScreen(), true);
-      if (id === "program") goToCourseScreen(buildProgramHomeScreen(""), true);
       if (id === "coursereviews") goToCourseScreen(buildCourseReviewHomeScreen(""), true);
+      if (id === "glossary") goToCourseScreen(buildGlossaryScreen(""), true);
     });
   });
 }
@@ -1481,7 +1928,7 @@ function goToCourseScreen(screen, resetStack) {
   }
   currentCourseScreen = screen;
   renderCourseScreen(screen);
-  showView("coursePage");
+  showView("coursePage", screen.route || "coursePage");
 }
 
 /* 같은 화면을 다시 그리기만 함 (검색창 입력할 때 씀 — 스택에 안 쌓임) */
@@ -1514,10 +1961,10 @@ document.addEventListener("click", function (e) {
   if (courseStack.length > 0) {
     currentCourseScreen = courseStack.pop();
     renderCourseScreen(currentCourseScreen);
-    showView("coursePage");
+    showView("coursePage", currentCourseScreen.route || "coursePage");
   } else {
     currentCourseScreen = null;
-    showView("courses");
+    showView(courseReturnView);
   }
 });
 
@@ -1538,7 +1985,68 @@ function buildEnrolScreen() {
            '</article>';
   }).join("");
 
-  return { title: "Enrolment (ACORN)", color: "#0B4DA0", html: '<div class="timeline">' + rows + '</div>' };
+  return { title: "Enrolment (ACORN)", color: "#0B4DA0", html: '<div class="timeline">' + rows + '</div>' + buildCourseCodeGuideHTML() };
+}
+
+
+/* ---- 과목코드 & ACORN/TTB 용어 가이드 (접이식) ---- */
+function buildCourseCodeGuideHTML() {
+  const g = COURSE_CODE_GUIDE;
+
+  const termsList = '<ul class="codeguide__list">' +
+    g.terms.map(function (t) {
+      return '<li><strong>' + esc(t.term) + '</strong> — ' + esc(t.def) + '</li>';
+    }).join("") +
+  '</ul>';
+
+  const codeRow = function (c) {
+    return '<span class="codeguide__chip"><b>' + esc(c.code) + '</b>' + esc(c.meaning) + '</span>';
+  };
+
+  const sessionRow = codeRow;
+  const sessions = g.sessionCodes.map(sessionRow).join("");
+  const activities = g.activityCodes.map(sessionRow).join("");
+  const enrolCtrls = g.enrolCodes.map(sessionRow).join("");
+
+  const uoftTime =
+    '<div class="blocknote">' +
+      esc(g.uoftTime.text) +
+      '<br><small>' + esc(g.uoftTime.sourceLabel) +
+      (g.uoftTime.sourceUrl
+        ? ' — <a href="' + esc(g.uoftTime.sourceUrl) + '" target="_blank" rel="noopener noreferrer">source</a>'
+        : "") +
+      '</small>' +
+    '</div>';
+
+  const deptTable = '<div class="codeguide__depts">' +
+    g.deptCodes.map(function (d) {
+      return '<span class="codeguide__deptrow"><b>' + esc(d.code) + '</b>' + esc(d.name) + '</span>';
+    }).join("") +
+  '</div>';
+
+  return (
+    '<details class="codeguide">' +
+      '<summary>\uD83D\uDCD6 Understanding course codes &amp; ACORN terms</summary>' +
+      '<div class="codeguide__body">' +
+        '<p class="codeguide__format"><strong>Code format:</strong> ' + esc(g.format) + '</p>' +
+        '<p class="codeguide__formatnote">' + esc(g.formatNote) + '</p>' +
+
+        '<h5 class="codeguide__h">Key terms</h5>' + termsList +
+
+        '<h5 class="codeguide__h">Session codes</h5><div class="codeguide__chips">' + sessions + '</div>' +
+        '<h5 class="codeguide__h">Activity types</h5><div class="codeguide__chips">' + activities + '</div>' +
+        '<h5 class="codeguide__h">Enrolment control codes</h5><div class="codeguide__chips">' + enrolCtrls + '</div>' +
+
+        uoftTime +
+
+        '<h5 class="codeguide__h">Department codes (' + g.deptCodes.length + ')</h5>' +
+        deptTable +
+
+        '<p class="blocknote">This code table is unofficial and unverified per-entry — always confirm the exact code on the ' +
+        '<a href="' + esc(g.verifyUrl) + '" target="_blank" rel="noopener noreferrer">official course search</a> before enrolling.</p>' +
+      '</div>' +
+    '</details>'
+  );
 }
 
 
@@ -1588,7 +2096,8 @@ const CREDIT_CALC_KEY = "uoftGuideCreditCalc";
 
 function loadCreditCalc() {
   try {
-    const saved = JSON.parse(localStorage.getItem(CREDIT_CALC_KEY) || "{}");
+    const parsed = JSON.parse(localStorage.getItem(CREDIT_CALC_KEY) || "{}");
+    const saved = (parsed && typeof parsed === "object") ? parsed : {};   // null·숫자 방어
     return {
       total: saved.total || 0,
       b1: saved.b1 || 0, b2: saved.b2 || 0, b3: saved.b3 || 0, b4: saved.b4 || 0, b5: saved.b5 || 0
@@ -1751,7 +2260,23 @@ document.addEventListener("input", function (e) {
 });
 
 
-/* ---- 화면: 전체 프로그램 A-Z 목록 (검색만 되고, 클릭하면 바로 공식 페이지) ---- */
+/* ---- A-Z 이름으로 상세 가이드(COURSE_PROGRAMS)가 있는지 찾기 ----
+   "Computer Science: Specialist" 같은 항목도 "Computer Science" 상세로 연결되게
+   credentialBadgesFor 와 같은 방식으로 이름 앞부분만 비교합니다. */
+function detailedProgramForAzName(name) {
+  if (typeof COURSE_PROGRAMS === "undefined") return null;
+  const base = name.split(":")[0].split("(")[0].trim().toLowerCase();
+  return COURSE_PROGRAMS.filter(function (p) {
+    const pbase = p.name.split(":")[0].split("(")[0].trim().toLowerCase();
+    return pbase === base || pbase.indexOf(base) === 0 || base.indexOf(pbase) === 0;
+  })[0] || null;
+}
+
+
+/* ---- 화면: 전체 프로그램 A-Z 목록 ----
+   상세 가이드가 있는 프로그램은 "Guide" 뱃지가 붙고 그 가이드로,
+   없는 프로그램은 우리 사이트 안의 간단 소개 화면으로 이동합니다.
+   (예전엔 클릭하면 바로 외부 공식 페이지로 나갔는데, 이제 사이트 안에서 해결) */
 function buildAzScreen(term) {
   const q = (term || "").trim().toLowerCase();
 
@@ -1770,16 +2295,74 @@ function buildAzScreen(term) {
   const rows = list.length
     ? '<div class="azlist">' +
         list.map(function (p) {
-          return '<a class="azrow" href="' + esc(p.officialUrl) + '" target="_blank" rel="noopener noreferrer">' +
-                   '<span class="azrow__name">' + esc(p.name) + '</span>' +
+          const hasGuide = !!detailedProgramForAzName(p.name);
+          return '<button type="button" class="azrow" data-open-az-listing="' + esc(p.id) + '">' +
+                   '<span class="azrow__name">' + esc(p.name) +
+                     (hasGuide ? ' <span class="azrow__badge">Guide</span>' : '') +
+                   '</span>' +
                    '<span class="azrow__meta">' + esc(p.degree) + (p.types ? ' \u00b7 ' + esc(p.types) : '') + '</span>' +
-                   '<span class="azrow__go">&nearr;</span>' +
-                 '</a>';
+                   '<span class="azrow__go">&rarr;</span>' +
+                 '</button>';
         }).join("") +
       '</div>'
     : '<p class="empty">No matches for \u201c' + esc(term) + '\u201d</p>';
 
   return { title: "Full Program List", color: "#7A3FA0", html: searchHtml + rows };
+}
+
+document.addEventListener("click", function (e) {
+  const row = e.target.closest("[data-open-az-listing]");
+  if (!row) return;
+  const item = ALL_PROGRAMS_AZ.filter(function (p) { return p.id === row.dataset.openAzListing; })[0];
+  if (!item) return;
+  const matched = detailedProgramForAzName(item.name);
+  if (matched) goToCourseScreen(buildProgramDetailScreen(matched.id), false);
+  else goToCourseScreen(buildListingDetailScreen(item.id), false);
+});
+
+
+/* ---- 화면: A-Z 프로그램 간단 소개 (상세 가이드가 아직 없는 프로그램용) ----
+   확인된 정보만 보여줍니다: 학위 종류, Specialist/Major/Minor 중 뭐가 열리는지,
+   그리고 그 셋이 뭔지. 아직 안 쓴 내용은 지어내지 않고 공식 페이지로 안내합니다. */
+function buildListingDetailScreen(azId) {
+  const p = ALL_PROGRAMS_AZ.filter(function (x) { return x.id === azId; })[0];
+  if (!p) return { title: "Not found", color: "#7A3FA0", html: '<p class="empty">That program isn\u2019t in data.js</p>' };
+
+  const types = (p.types || "").split(/\s+/).filter(function (t) {
+    return t === "Specialist" || t === "Major" || t === "Minor";
+  });
+
+  const badges = types.length
+    ? '<p class="hall__tags" style="margin-bottom:16px; font-size:14px;">' +
+        esc(p.degree) + ' \u00b7 offered as: ' + types.join(", ") +
+      '</p>'
+    : '<p class="hall__tags" style="margin-bottom:16px; font-size:14px;">' + esc(p.degree) + '</p>';
+
+  const typeExplain =
+    '<h3 class="block__head" style="margin:22px 0 10px;">Specialist vs Major vs Minor</h3>' +
+    '<ul class="lede" style="text-align:left; margin:0 0 6px;">' +
+      '<li><strong>Specialist</strong> \u2014 the deepest option; big enough to be the whole focus of your degree.</li>' +
+      '<li><strong>Major</strong> \u2014 a medium-sized program; usually paired with another Major or Minors.</li>' +
+      '<li><strong>Minor</strong> \u2014 the smallest; an add-on next to your main program.</li>' +
+      '<li>You can combine up to <strong>3 programs</strong>: one Specialist alone, or a mix of Majors and Minors.</li>' +
+    '</ul>';
+
+  const honest =
+    '<div class="keybox" style="margin:22px 0;">' +
+      '<div class="keybox__icon">i</div>' +
+      '<div>' +
+        '<p class="keybox__main">We haven\u2019t written a full guide for this program yet</p>' +
+        '<p class="keybox__sub">Enrolment requirements (grades, prerequisite courses, program type) are on the official calendar page below \u2014 that\u2019s the source we\u2019d use anyway.</p>' +
+      '</div>' +
+    '</div>';
+
+  const html =
+    badges +
+    typeExplain +
+    honest +
+    '<a class="cta" href="' + esc(p.officialUrl) + '" target="_blank" rel="noopener noreferrer">Open official calendar page &nearr;</a>';
+
+  return { title: p.name, color: "#7A3FA0", html: html };
 }
 
 document.addEventListener("click", function (e) {
@@ -1792,6 +2375,71 @@ document.addEventListener("input", function (e) {
   const caret = e.target.selectionStart;
   replaceCourseScreen(buildAzScreen(e.target.value));
   const el = document.getElementById("az-search");
+  if (el) { el.focus(); el.setSelectionRange(caret, caret); }
+});
+
+
+/* ---- 화면: UofT 용어사전 ----
+   공식 학사요람 용어사전(2026-27)을 쉬운 말로 다시 쓴 것.
+   검색창에 치면 용어와 설명 양쪽에서 찾습니다. */
+const GLOSSARY_CATS = [
+  { id: "courses",  label: "Reading a course listing" },
+  { id: "rules",    label: "Enrolment rules" },
+  { id: "programs", label: "Programs" },
+  { id: "records",  label: "Grades & your record" },
+  { id: "systems",  label: "Websites you'll live on" }
+];
+
+function buildGlossaryScreen(term) {
+  const q = (term || "").trim().toLowerCase();
+
+  const hits = q
+    ? GLOSSARY.filter(function (g) {
+        return (g.term + " " + (g.abbr || "") + " " + g.def).toLowerCase().indexOf(q) !== -1;
+      })
+    : GLOSSARY;
+
+  const searchHtml =
+    '<div class="search program-search">' +
+      '<label class="search__label" for="gloss-search">Find a term</label>' +
+      '<input class="search__input" id="gloss-search" type="text" ' +
+      'placeholder="Try \u201cPOSt\u201d or \u201cdrop\u201d" value="' + esc(term || "") + '" autocomplete="off">' +
+    '</div>' +
+    '<p class="count" style="border-top:0; padding-top:0;">' + hits.length + ' of ' + GLOSSARY.length + ' terms</p>';
+
+  let body = "";
+  GLOSSARY_CATS.forEach(function (cat) {
+    const items = hits.filter(function (g) { return g.cat === cat.id; });
+    if (!items.length) return;
+    body +=
+      '<h3 class="glossgroup">' + esc(cat.label) + '</h3>' +
+      '<div class="glosslist">' +
+        items.map(function (g) {
+          return '<article class="glossrow">' +
+                   '<h4 class="glossrow__term">' + esc(g.term) +
+                     (g.abbr ? ' <span class="glossrow__abbr">' + esc(g.abbr) + '</span>' : '') +
+                   '</h4>' +
+                   '<p class="glossrow__def">' + esc(g.def) + '</p>' +
+                 '</article>';
+        }).join("") +
+      '</div>';
+  });
+
+  if (!body) body = '<p class="empty">No terms match \u201c' + esc(term) + '\u201d</p>';
+
+  const source =
+    '<p class="glosssource">Definitions rewritten in plain language from the official ' +
+    '<a href="https://artsci.calendar.utoronto.ca/glossary-terms" target="_blank" rel="noopener noreferrer">' +
+    'Arts &amp; Science Glossary of Terms &nearr;</a> (2026-27 Calendar).</p>';
+
+  return { title: "UofT Glossary", color: "#0E7C86", html: searchHtml + body + source };
+}
+
+document.addEventListener("input", function (e) {
+  if (e.target.id !== "gloss-search") return;
+  const caret = e.target.selectionStart;
+  replaceCourseScreen(buildGlossaryScreen(e.target.value));
+  const el = document.getElementById("gloss-search");
   if (el) { el.focus(); el.setSelectionRange(caret, caret); }
 });
 function buildFacultyScreen(facultyId) {
@@ -2064,6 +2712,33 @@ function buildSearchIndex() {
     });
   }
 
+  /* 교양 과목 — 코드와 이름 둘 다 label 에 넣어서
+     "CSC108" 로 검색해도, "psychology" 로 검색해도 걸리게 합니다 */
+  if (typeof COURSE_CATALOG !== "undefined") {
+    COURSE_CATALOG.forEach(function (co) {
+      const cat = (typeof BREADTH_CATEGORIES !== "undefined")
+        ? BREADTH_CATEGORIES.filter(function (c) { return c.id === co.category; })[0]
+        : null;
+      items.push({ kind: "Course", label: co.code + " \u00b7 " + co.name, sub: cat ? cat.name : "", id: co.id });
+    });
+  }
+
+  /* 용어사전 — "POSt", "CR/NCR" 같은 걸 홈에서 바로 검색되게 */
+  if (typeof GLOSSARY !== "undefined") {
+    GLOSSARY.forEach(function (g) {
+      items.push({ kind: "Term", label: g.term + (g.abbr ? " \u00b7 " + g.abbr : ""), sub: "Glossary", id: g.id, term: g.term });
+    });
+  }
+
+  /* 편의시설 — "gym", "library" 같은 걸 홈에서 바로 검색되게.
+     이름에 없는 단어(예: gym)로도 찾을 수 있도록 설명(note)을
+     extra 필드에 넣어 검색 대상에만 포함시킵니다(화면에는 안 보임). */
+  if (typeof FACILITIES !== "undefined") {
+    FACILITIES.forEach(function (f) {
+      items.push({ kind: "Facility", label: f.name, sub: f.address || "Campus Facilities", id: f.id, extra: f.note || "" });
+    });
+  }
+
   return items;
 }
 
@@ -2081,7 +2756,7 @@ function renderHomeSearch(term) {
   }
 
   const hits = buildSearchIndex().filter(function (it) {
-    return it.label.toLowerCase().indexOf(q) !== -1;
+    return (it.label + " " + (it.extra || "")).toLowerCase().indexOf(q) !== -1;
   });
 
   box.hidden = false;
@@ -2152,12 +2827,36 @@ document.addEventListener("click", function (e) {
     openFeesCategory(item.category);
 
   } else if (kind === "Program") {
-    showView("courses");            // 뒤로가기가 자연스럽도록 카테고리 화면을 먼저 거칩니다
+    courseReturnView = "fees";
+    showView("fees");                // 뒤로가기가 자연스럽도록 카테고리 화면을 먼저 거칩니다
+    renderFeesCategories();
     goToCourseScreen(buildProgramDetailScreen(id), true);
+
+  } else if (kind === "Term") {
+    const g = GLOSSARY.filter(function (x) { return x.id === id; })[0];
+    if (!g) return;
+    courseReturnView = "courses";
+    showView("courses");
+    goToCourseScreen(buildGlossaryScreen(g.term), true);   // 그 용어로 필터 미리 채워서 열기
+
+  } else if (kind === "Facility") {
+    openFacilityDetail(id);
+
+  } else if (kind === "Course") {
+    // 딥링크 라우터한테 맡깁니다 — 중간 화면 스택까지 알아서 쌓아줍니다
+    location.hash = "courses/c/" + id;
 
   } else if (kind === "Listing") {
     const item = ALL_PROGRAMS_AZ.filter(function (p) { return p.id === id; })[0];
-    if (item) window.open(item.officialUrl, "_blank", "noopener");
+    if (!item) return;
+    // 예전엔 여기서 외부 공식 페이지가 새 창으로 열렸는데,
+    // 이제 우리 사이트 안 화면으로 갑니다 (상세 가이드가 있으면 그걸로)
+    const matched = detailedProgramForAzName(item.name);
+    courseReturnView = "fees";
+    showView("fees");
+    renderFeesCategories();
+    if (matched) goToCourseScreen(buildProgramDetailScreen(matched.id), true);
+    else goToCourseScreen(buildListingDetailScreen(item.id), true);
   }
 
   // 검색창과 결과 목록을 정리합니다
@@ -2187,8 +2886,7 @@ function renderUpdateLog() {
 renderUpdateLog();
 
 
-/* ---- 페이지를 처음 열 때, 주소에 해시가 있으면(공유된 링크 등) 그 화면부터 보여줍니다 ---- */
-routeFromHash();
+
 
 /* ---- 포인트 뱃지 첫 표시 ---- */
 refreshPointsBadge();
@@ -2524,3 +3222,75 @@ document.addEventListener("submit", function (e) {
   showToast("Opening your email app\u2026 +2 points (you have " + earned + ")");
 });
 
+
+/* ---- 화면마다 주소 꼬리표(route) 달기 ----
+   각 build 함수가 만든 화면 객체에 route 를 붙여서,
+   goToCourseScreen 이 주소창을 그 값으로 바꿀 수 있게 합니다.
+   이 꼬리표 덕분에 (1) 과목/프로그램 링크를 복사해 공유할 수 있고
+   (2) 브라우저 뒤로가기가 화면 단위로 정확하게 움직입니다. */
+function tagScreenRoute(buildFn, makeRoute) {
+  return function () {
+    const screen = buildFn.apply(null, arguments);
+    if (screen) screen.route = makeRoute.apply(null, arguments);
+    return screen;
+  };
+}
+
+buildEnrolScreen            = tagScreenRoute(buildEnrolScreen,            function () { return "courses/enrol"; });
+buildDegreeScreen           = tagScreenRoute(buildDegreeScreen,           function () { return "courses/degree"; });
+buildCourseReviewHomeScreen = tagScreenRoute(buildCourseReviewHomeScreen, function () { return "courses/breadth"; });
+buildCourseListScreen       = tagScreenRoute(buildCourseListScreen,       function (catId) { return "courses/breadth/" + catId; });
+buildCourseDetailScreen     = tagScreenRoute(buildCourseDetailScreen,     function (id) { return "courses/c/" + id; });
+buildProgramHomeScreen      = tagScreenRoute(buildProgramHomeScreen,      function () { return "undergraduate/programs"; });
+buildAzScreen               = tagScreenRoute(buildAzScreen,               function () { return "undergraduate/programs/az"; });
+buildCategoryDeptScreen     = tagScreenRoute(buildCategoryDeptScreen,     function (catId) { return "undergraduate/programs/cat/" + catId; });
+buildProgramDetailScreen    = tagScreenRoute(buildProgramDetailScreen,    function (id) { return "undergraduate/programs/p/" + id; });
+buildListingDetailScreen    = tagScreenRoute(buildListingDetailScreen,    function (id) { return "undergraduate/programs/list/" + id; });
+buildGlossaryScreen         = tagScreenRoute(buildGlossaryScreen,         function () { return "courses/glossary"; });
+
+
+/* ---- 링크 복사 버튼 ----
+   지금 보고 있는 화면의 주소(해시 포함)를 클립보드에 복사합니다.
+   화면마다 고유 주소가 있어서(위 라우팅 참고) 그대로 공유하면 됩니다. */
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("[data-copy-link]");
+  if (!btn) return;
+
+  const url = location.href;
+
+  function done() { showToast("Link copied \u2014 paste it anywhere"); }
+  function fail() { showToast("Couldn't copy \u2014 copy the address bar instead"); }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(done, function () {
+      // 클립보드 권한이 막힌 환경용 예비 방법
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        done();
+      } catch (err) { fail(); }
+    });
+  } else {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      done();
+    } catch (err) { fail(); }
+  }
+});
+
+
+/* ---- 페이지를 처음 열 때, 주소에 해시가 있으면(공유된 링크 등) 그 화면부터 보여줍니다 ---- */
+routeFromHash();
