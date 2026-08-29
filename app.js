@@ -57,6 +57,8 @@ rows.forEach(function (row) {
       showView("courses");
     } else if (key === "facilities") {
       showView("facilities");
+    } else if (key === "applying" || key === "admitted" || key === "current") {
+      openAudience(key);
     } else {
       showToast(MESSAGES.comingSoon);
     }
@@ -81,7 +83,8 @@ const views = {
   courses: document.getElementById("view-courses"),
   facilities: document.getElementById("view-facilities"),
   facilityDetail: document.getElementById("view-facility-detail"),
-  coursePage: document.getElementById("view-course-page")
+  coursePage: document.getElementById("view-course-page"),
+  audience: document.getElementById("view-audience")
 };
 
 /* ---- 화면 전환 + 주소창 동기화 ----
@@ -92,6 +95,7 @@ const views = {
    hashOverride 를 따로 주면 그걸 쓰고(예: "residence/chestnut"),
    안 주면 화면 이름을 그대로 씁니다. 홈은 해시를 비워서 주소를 깔끔하게 둡니다. */
 function showView(name, hashOverride) {
+  if (name === "home") audienceReturn = null;   /* 홈 복귀 = 문 기억 초기화 */
   // 일단 전부 숨기고
   Object.values(views).forEach(function (el) {
     if (el) el.hidden = true;
@@ -216,6 +220,8 @@ function routeFromHash() {
       if (parts[2]) goToCourseScreen(buildCourseListScreen(parts[2]), false);
     } else if (parts[1] === "glossary") {
       goToCourseScreen(buildGlossaryScreen(""), true);
+    } else if (parts[1] === "buildings") {
+      goToCourseScreen(buildBuildingsScreen(""), true);
     } else if (parts[1] === "c" && parts[2]) {
       const course = COURSE_CATALOG.filter(function (c) { return c.id === parts[2]; })[0];
       goToCourseScreen(buildCourseReviewHomeScreen(""), true);
@@ -225,7 +231,23 @@ function routeFromHash() {
       showView("courses");
     }
 
-  } else if (views[parts[0]] && parts[0] !== "coursePage" && parts[0] !== "detail") {
+  } else if (parts[0] === "applying") {
+    if (parts[1] && typeof APPLICANT_GUIDE !== "undefined" && APPLICANT_GUIDE.pages[parts[1]]) {
+      openApplicantPage(parts[1]);
+    } else {
+      openAudience("applying");
+    }
+
+  } else if (parts[0] === "admitted" && (parts[1] === "dates" || parts[1] === "shortlist")) {
+    openAdmittedSub(parts[1]);
+
+  } else if (parts[0] === "current" && parts[1] === "myprogram") {
+    openCurrentSub(parts[1]);
+
+  } else if (parts[0] === "admitted" || parts[0] === "current") {
+    openAudience(parts[0]);
+
+  } else if (views[parts[0]] && parts[0] !== "coursePage" && parts[0] !== "detail" && parts[0] !== "audience") {
     showView(parts[0]);
 
   } else {
@@ -243,6 +265,14 @@ window.addEventListener("hashchange", routeFromHash);
 
 document.querySelectorAll("[data-back]").forEach(function (btn) {
   btn.addEventListener("click", function () {
+    /* 지원자/합격자/재학생 문에서 넘어온 거라면 그 문으로 되돌아갑니다.
+       아니면 지금처럼 홈으로. */
+    if (audienceReturn) {
+      const back = audienceReturn;
+      audienceReturn = null;
+      location.hash = back;
+      return;
+    }
     showView("home");
   });
 });
@@ -819,6 +849,9 @@ function feesForAudience() {
    "program" 카드를 어디서 눌렀는지 기억해뒀다가, 뒤로가기 끝까지 눌렀을 때
    원래 있던 탭(courses 또는 fees)으로 돌아가게 합니다. */
 let courseReturnView = "courses";
+/* 대상별 문(applying/admitted/current)에서 과목·전공 화면으로 들어간 경우,
+   뒤로가기 했을 때 Undergraduate가 아니라 원래 문으로 돌아가게 합니다. */
+let audienceReturn = null;
 window.getCourseReturnView = function () { return courseReturnView; };
 
 
@@ -902,6 +935,25 @@ document.addEventListener("click", function (e) {
    "이건 했다"를 체크해두면 이 브라우저에 저장됩니다 (localStorage).
    지원 준비하면서 어디까지 했는지 다시 와서 확인할 수 있게. */
 const CHECKED_KEY = "uoftguide-checked-dates";
+
+/* ---- 내 수강 후보(찜) 목록 ----
+   합격생이 7월 수강신청 전에 듣고 싶은 과목을 담아둡니다. 브라우저에만 저장. */
+const SHORTLIST_KEY = "uoftGuideCourseShortlist";
+
+function getShortlist() {
+  try {
+    const v = JSON.parse(localStorage.getItem(SHORTLIST_KEY) || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+
+function toggleShortlist(id) {
+  const list = getShortlist();
+  const i = list.indexOf(id);
+  if (i === -1) list.push(id); else list.splice(i, 1);
+  try { localStorage.setItem(SHORTLIST_KEY, JSON.stringify(list)); } catch (e) {}
+  return i === -1;   /* true = 방금 추가됨 */
+}
 
 function getCheckedDates() {
   try {
@@ -1873,7 +1925,8 @@ const COURSE_CATEGORIES = [
   { id: "degree",  label: "Degree Requirements",  desc: "Credits, breadth, and what it takes to graduate", icon: "\uD83C\uDF93", color: "#0F7A4D" },
   { id: "enrol",   label: "Enrolment (ACORN)",    desc: "When you can start choosing courses",          icon: "\uD83D\uDCBB", color: "#0B4DA0" },
   { id: "coursereviews", label: "Breadth Courses", desc: "Find courses to fill your breadth requirements \u2014 with student reviews", icon: "\uD83D\uDCDD", color: "#C05A16" },
-  { id: "glossary", label: "UofT Glossary",       desc: "POSt, FCE, CR/NCR, LWD\u2026 what all the jargon actually means", icon: "\uD83D\uDCD6", color: "#0E7C86" }
+  { id: "glossary", label: "UofT Glossary",       desc: "POSt, FCE, CR/NCR, LWD\u2026 what all the jargon actually means", icon: "\uD83D\uDCD6", color: "#0E7C86" },
+  { id: "buildings", label: "Building Code Decoder", desc: "SS 2135? BA 1160? \u2014 find out where your classes actually are", icon: "\uD83C\uDFDB\uFE0F", color: "#6D4AA8" }
 ];
 
 function courseBadge(catId) {
@@ -1881,6 +1934,7 @@ function courseBadge(catId) {
   if (catId === "degree")  return "Guide";
   if (catId === "coursereviews") return COURSE_CATALOG.length + " courses";
   if (catId === "glossary") return (typeof GLOSSARY !== "undefined" ? GLOSSARY.length : 0) + " terms";
+  if (catId === "buildings") return (typeof BUILDING_CODES !== "undefined" ? BUILDING_CODES.length : 0) + " buildings";
   return "";
 }
 
@@ -1907,6 +1961,7 @@ function renderCourseCategories() {
       if (id === "degree")  goToCourseScreen(buildDegreeScreen(), true);
       if (id === "coursereviews") goToCourseScreen(buildCourseReviewHomeScreen(""), true);
       if (id === "glossary") goToCourseScreen(buildGlossaryScreen(""), true);
+      if (id === "buildings") goToCourseScreen(buildBuildingsScreen(""), true);
     });
   });
 }
@@ -1945,8 +2000,11 @@ function renderCourseScreen(screen) {
   // 브레드크럼: 지나온 화면 제목 + 지금 화면 제목을 " / " 로 이어붙입니다.
   const crumbEl = document.getElementById("course-crumb");
   if (crumbEl) {
-    const parts = courseStack.map(function (s) { return s.title; }).concat([screen.title]);
+    /* 지나온 경로만 표시합니다. 직행이면(스택 비어있으면) 숨깁니다 —
+       큰 제목과 같은 말을 위에 한 번 더 쓰는 중복을 막기 위해서입니다. */
+    const parts = courseStack.map(function (s) { return s.title; });
     crumbEl.textContent = parts.join(" / ");
+    crumbEl.hidden = parts.length === 0;
   }
 
   // 학점 계산기가 이 화면 안에 있으면(=Degree Requirements 화면), 결과를 바로 계산해서 보여줍니다.
@@ -1962,6 +2020,11 @@ document.addEventListener("click", function (e) {
     currentCourseScreen = courseStack.pop();
     renderCourseScreen(currentCourseScreen);
     showView("coursePage", currentCourseScreen.route || "coursePage");
+  } else if (audienceReturn) {
+    const back = audienceReturn;
+    audienceReturn = null;
+    currentCourseScreen = null;
+    location.hash = back;          /* 원래 문으로 복귀 */
   } else {
     currentCourseScreen = null;
     showView(courseReturnView);
@@ -2069,7 +2132,10 @@ function buildDegreeScreen() {
 
   const cats = '<div class="halls">' +
     BREADTH_CATEGORIES.map(function (c) {
-      return '<article class="hall"><h4 class="hall__name">' + esc(c.name) + '</h4></article>';
+      return '<article class="hall">' +
+               '<h4 class="hall__name">' + esc(c.name) + '</h4>' +
+               '<p class="hall__official">Official: ' + esc(c.official) + '</p>' +
+             '</article>';
     }).join("") +
   '</div>';
 
@@ -2442,6 +2508,76 @@ document.addEventListener("input", function (e) {
   const el = document.getElementById("gloss-search");
   if (el) { el.focus(); el.setSelectionRange(caret, caret); }
 });
+
+
+/* ---- 화면: 건물 코드 디코더 ----
+   시간표의 "SS 2135" 같은 약자를 건물 이름으로 풀어줍니다.
+   데이터는 data.js의 BUILDING_CODES (공식 카퍼스 지도 기반). */
+function buildBuildingsScreen(term) {
+  const q = (term || "").trim().toLowerCase();
+
+  const hits = (q
+    ? BUILDING_CODES.filter(function (b) {
+        return (b.code + " " + b.name).toLowerCase().indexOf(q) !== -1;
+      })
+    : BUILDING_CODES.slice()
+  ).sort(function (a, b) {
+    /* "MY"를 치면 Astrono-my- 보다 MY 코드가 먼저 나오게 */
+    function rank(x) {
+      const c = x.code.toLowerCase();
+      if (c === q) return 0;                 // 코드 정확 일치
+      if (q && c.indexOf(q) === 0) return 1; // 코드가 검색어로 시작
+      return 2;                              // 이름에서 일치
+    }
+    const r = rank(a) - rank(b);
+    return r !== 0 ? r : a.code.localeCompare(b.code);
+  });
+
+  /* 방 번호 읽는 법 안내 */
+  const tip =
+    '<div class="keybox">' +
+      '<div class="keybox__icon">?</div>' +
+      '<div>' +
+        '<p class="keybox__main">How to read a room code</p>' +
+        '<p class="keybox__sub"><strong>SS 2135</strong> = building <strong>SS</strong> (Sidney Smith Hall), room <strong>2135</strong>. ' +
+        'The first digit is usually the floor — so 2135 is on the 2nd floor. ' +
+        'Rooms starting with B or 0 are usually in the basement.</p>' +
+      '</div>' +
+    '</div>';
+
+  const searchHtml =
+    '<div class="search program-search">' +
+      '<label class="search__label" for="bldg-search">Find a building</label>' +
+      '<input class="search__input" id="bldg-search" type="text" ' +
+      'placeholder="Try \u201cSS\u201d or \u201cBahen\u201d" value="' + esc(term || "") + '" autocomplete="off">' +
+    '</div>' +
+    '<p class="count" style="border-top:0; padding-top:0;">' + hits.length + ' of ' + BUILDING_CODES.length + ' buildings</p>';
+
+  let body = hits.length
+    ? '<div class="glosslist">' +
+        hits.map(function (b) {
+          return '<article class="glossrow bldgrow">' +
+                   '<h4 class="glossrow__term"><span class="bldgrow__code">' + esc(b.code) + '</span>' + esc(b.name) + '</h4>' +
+                 '</article>';
+        }).join("") +
+      '</div>'
+    : '<p class="empty">No buildings match \u201c' + esc(term) + '\u201d</p>';
+
+  const source =
+    '<p class="glosssource">Codes from the official U of T campus map ' +
+    '(GIS and Cartography Office). For exact locations and directions, use the official ' +
+    '<a href="https://map.utoronto.ca/" target="_blank" rel="noopener noreferrer">Interactive Campus Map &nearr;</a>.</p>';
+
+  return { title: "Building Code Decoder", color: "#6D4AA8", html: tip + searchHtml + body + source };
+}
+
+document.addEventListener("input", function (e) {
+  if (e.target.id !== "bldg-search") return;
+  const caret = e.target.selectionStart;
+  replaceCourseScreen(buildBuildingsScreen(e.target.value));
+  const el = document.getElementById("bldg-search");
+  if (el) { el.focus(); el.setSelectionRange(caret, caret); }
+});
 function buildFacultyScreen(facultyId) {
   const fac = COURSE_FACULTIES.filter(function (f) { return f.id === facultyId; })[0];
   const programs = COURSE_PROGRAMS.filter(function (p) { return p.facultyId === facultyId; });
@@ -2547,7 +2683,7 @@ function credentialBadgesFor(name) {
 }
 
 
-function buildProgramDetailScreen(programId, provinceId) {
+function buildProgramDetailScreen(programId, provinceId, lean) {
   const p = COURSE_PROGRAMS.filter(function (x) { return x.id === programId; })[0];
   if (!p) return { title: "Not found", color: "#0B4DA0", html: '<p class="empty">That program isn\u2019t in data.js</p>' };
 
@@ -2624,6 +2760,13 @@ function buildProgramDetailScreen(programId, provinceId) {
       }).join("")
     : "";
 
+  /* lean = \uc7ac\ud559\uc0dd\uc6a9: \uace0\uc11c\ud558\uc801\uc740 \ud544\uc694 \uc5c6\ub2e4 - POSt \uc9c4\uc785 \uc694\uac74\uc774 \uc9c4\uc9dc \uad81\uae08\ud55c \uac74 \uc774\ubbf8 \uc9c0\uc6d0\ud55c \uc0ac\ub78c\uc774\ub2c8\uae4c */
+  const highSchoolBlock = lean ? "" :
+      '<h3 class="block__head" style="margin: 22px 0 10px;">High school courses you need</h3>' +
+      provincePicker +
+      hsBullets +
+      hsNote;
+
   const html =
     '<div data-program-id="' + esc(p.id) + '">' +
       '<p class="hall__tags" style="margin-bottom:14px; font-size:14px;">' + esc(programTagLine(p)) + '</p>' +
@@ -2631,13 +2774,9 @@ function buildProgramDetailScreen(programId, provinceId) {
       '<p class="tl-text" style="margin-bottom:18px;">' + esc(p.summary) + '</p>' +
 
       groupsHtml +
+      highSchoolBlock +
 
-      '<h3 class="block__head" style="margin: 22px 0 10px;">High school courses you need</h3>' +
-      provincePicker +
-      hsBullets +
-      hsNote +
-
-      '<h3 class="block__head" style="margin: 22px 0 10px;">To enrol in the program, you\u2019ll need</h3>' +
+      '<h3 class="block__head" style="margin: 22px 0 10px;">' + (lean ? "POSt requirements to declare this program" : "To enrol in the program, you\u2019ll need") + '</h3>' +
       bulletsHtml +
       flagsHtml +
       '<a class="cta" href="' + esc(p.officialUrl) + '" target="_blank" rel="noopener noreferrer" style="margin-top:16px;">Open official calendar &nearr;</a>' +
@@ -2676,6 +2815,11 @@ document.addEventListener("click", function (e) {
   if (progBtn) {
     goToCourseScreen(buildProgramDetailScreen(progBtn.dataset.openProgram), false);
   }
+  const myProgBtn = e.target.closest("[data-open-myprogram]");
+  if (myProgBtn) {
+    audienceReturn = "current/myprogram";
+    goToCourseScreen(buildProgramDetailScreen(myProgBtn.dataset.openMyprogram, null, true), true);
+  }
 });
 
 
@@ -2684,7 +2828,10 @@ document.addEventListener("click", function (e) {
    ============================================ */
 
 /* ---- 검색 대상 전부를 한 목록으로 모읍니다 ---- */
+let __searchIndexCache = null;   /* 키 입력마다 재생성하지 않도록 캐시 */
+
 function buildSearchIndex() {
+  if (__searchIndexCache) return __searchIndexCache;
   const items = [];
 
   if (typeof RESIDENCES !== "undefined") {
@@ -2724,9 +2871,24 @@ function buildSearchIndex() {
   }
 
   /* 용어사전 — "POSt", "CR/NCR" 같은 걸 홈에서 바로 검색되게 */
+  if (typeof QUICK_ANSWERS !== "undefined") {
+    QUICK_ANSWERS.forEach(function (qa) {
+      items.push({ kind: "Answer", label: qa.q, sub: "", id: qa.id,
+                   answer: qa.answer, goto: qa.goto, extra: qa.keywords });
+    });
+  }
+
+  if (typeof BUILDING_CODES !== "undefined") {
+    BUILDING_CODES.forEach(function (b) {
+      items.push({ kind: "Building", label: b.code, sub: "", id: b.code,
+                   answer: b.name, extra: b.name });
+    });
+  }
+
   if (typeof GLOSSARY !== "undefined") {
     GLOSSARY.forEach(function (g) {
-      items.push({ kind: "Term", label: g.term + (g.abbr ? " \u00b7 " + g.abbr : ""), sub: "Glossary", id: g.id, term: g.term });
+      items.push({ kind: "Term", label: g.term + (g.abbr ? " \u00b7 " + g.abbr : ""), sub: "Glossary", id: g.id, term: g.term,
+                   answer: g.def });
     });
   }
 
@@ -2739,6 +2901,7 @@ function buildSearchIndex() {
     });
   }
 
+  __searchIndexCache = items;
   return items;
 }
 
@@ -2755,8 +2918,26 @@ function renderHomeSearch(term) {
     return;
   }
 
+  /* 단어별 매칭: "how much is residence"처럼 질문으로 쳐도
+     모든 (3글자 이상) 단어가 들어있는 항목을 찾아줍니다. */
+  const words = q.replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(function (wd) { return wd.length >= 3; });
+  const needles = words.length ? words : [q];
   const hits = buildSearchIndex().filter(function (it) {
-    return (it.label + " " + (it.extra || "")).toLowerCase().indexOf(q) !== -1;
+    const hay = (it.label + " " + (it.extra || "")).toLowerCase();
+    return needles.every(function (wd) { return hay.indexOf(wd) !== -1; });
+  }).sort(function (a, b) {
+    /* \uc815\ub82c: \uc774\ub984 \uc815\ud655 \uc77c\uce58 > \uc989\ub2f5 \uc9c8\ubb38 > \uc774\ub984 \ub9de\ub294 \uc989\ub2f5 > \uc774\ub984 \ub9de\ub294 \ud56d\ubaa9 > extra\ub85c\ub9cc \uac78\ub9b0 \uc989\ub2f5 > \ub098\uba38\uc9c0 */
+    function rank(x) {
+      const lab = x.label.toLowerCase();
+      const labelHit = needles.every(function (wd) { return lab.indexOf(wd) !== -1; });
+      if (lab === q) return 0;
+      if (x.kind === "Answer") return 1;
+      if (labelHit && x.answer) return 2;
+      if (labelHit) return 3;
+      if (x.answer) return 4;
+      return 5;
+    }
+    return rank(a) - rank(b);
   });
 
   box.hidden = false;
@@ -2767,6 +2948,15 @@ function renderHomeSearch(term) {
   }
 
   box.innerHTML = hits.slice(0, 8).map(function (it) {
+    /* answer\uac00 \uc788\uc73c\uba74 \uc989\ub2f5 \uce74\ub4dc: \ub2f5\uc774 \uacb0\uacfc\ucc3d\uc5d0 \ubc14\ub85c \ubcf4\uc785\ub2c8\ub2e4 */
+    if (it.answer) {
+      return '<button type="button" class="searchresult searchresult--answer" data-sr-kind="' + it.kind + '" data-sr-id="' + esc(it.id) + '"' +
+               (it.goto ? ' data-sr-goto="' + esc(it.goto) + '"' : "") + '>' +
+               '<span class="searchresult__q">' + esc(it.label) + '</span>' +
+               '<span class="searchresult__a">' + esc(it.answer) + '</span>' +
+               '<span class="searchresult__more">More \u2192</span>' +
+             '</button>';
+    }
     return '<button type="button" class="searchresult" data-sr-kind="' + it.kind + '" data-sr-id="' + esc(it.id) + '">' +
              '<span class="searchresult__kind">' + it.kind + '</span>' +
              '<span class="searchresult__label">' + esc(it.label) + '</span>' +
@@ -2791,6 +2981,17 @@ const debouncedHomeSearch = debounce(function (value) {
   renderHomeSearch(value);
 }, 150);
 
+/* ---- 질문 칩: 누르면 그 질문으로 바로 검색 → 즉답이 뜩니다 ---- */
+document.addEventListener("click", function (e) {
+  const chip = e.target.closest("[data-ask]");
+  if (!chip) return;
+  const input = document.getElementById("search");
+  if (!input) return;
+  input.value = chip.dataset.ask;
+  renderHomeSearch(chip.dataset.ask);
+  input.focus();
+});
+
 const homeSearchInput = document.getElementById("search");
 if (homeSearchInput) {
   homeSearchInput.addEventListener("input", function (e) {
@@ -2807,7 +3008,16 @@ document.addEventListener("click", function (e) {
   const kind = btn.dataset.srKind;
   const id = btn.dataset.srId;
 
-  if (kind === "Residence") {
+  if (kind === "Answer") {
+    const target = btn.dataset.srGoto;
+    if (target) location.hash = target;
+    return;
+
+  } else if (kind === "Building") {
+    location.hash = "courses/buildings";
+    return;
+
+  } else if (kind === "Residence") {
     openDetail(id);
 
   } else if (kind === "Date") {
@@ -2874,12 +3084,11 @@ function renderUpdateLog() {
   const box = document.getElementById("update-log");
   if (!box || typeof SITE_UPDATES === "undefined" || SITE_UPDATES.length === 0) return;
 
+  /* 무엇이 바뀌었는지는 쓰지 않고, 마지막으로 갱신한 시점만 보여줍니다. */
   box.innerHTML =
     '<p class="updatelog__head">Recently updated</p>' +
     '<ul class="updatelog__list">' +
-      SITE_UPDATES.slice(0, 3).map(function (u) {
-        return '<li><span class="updatelog__date">' + esc(u.date) + '</span> ' + esc(u.text) + '</li>';
-      }).join("") +
+      '<li><span class="updatelog__date">' + esc(SITE_UPDATES[0].date) + '</span></li>' +
     '</ul>';
 }
 
@@ -2944,7 +3153,7 @@ function buildCourseReviewHomeScreen(term) {
   const cats = !q
     ? BREADTH_CATEGORIES
     : BREADTH_CATEGORIES.filter(function (c) {
-        return c.name.toLowerCase().indexOf(q) !== -1 ||
+        return (c.name + " " + (c.official || "")).toLowerCase().indexOf(q) !== -1 ||
                pool.some(function (co) { return co.category === c.id && (co.code.toLowerCase().indexOf(q) !== -1 || co.name.toLowerCase().indexOf(q) !== -1); });
       });
 
@@ -2985,6 +3194,7 @@ function buildCourseReviewHomeScreen(term) {
           const n = pool.filter(function (co) { return co.category === c.id; }).length;
           return '<button type="button" class="hall hall--clickable" data-open-course-cat="' + c.id + '" style="--cat-color:' + c.color + '">' +
                    '<h4 class="hall__name">' + c.icon + ' ' + esc(c.name) + '</h4>' +
+                   '<p class="hall__official">' + esc(c.official) + '</p>' +
                    '<p class="hall__tags">' + n + (n === 1 ? " course" : " courses") + '</p>' +
                  '</button>';
         }).join("") +
@@ -3164,6 +3374,9 @@ function buildCourseDetailScreen(courseId) {
     prereqHtml +
     (co.note ? '<p class="coursenote coursenote--big">\uD83D\uDCA1 ' + esc(co.note) + '</p>' : "") +
     topicsHtml +
+    '<button type="button" class="tagfilter__btn" data-shortlist-id="' + esc(co.id) + '" style="margin:12px 0 2px; font-size:13.5px;">' +
+      (getShortlist().indexOf(co.id) !== -1 ? '\u2B50 In my shortlist \u2014 tap to remove' : '\u2606 Save to my course shortlist') +
+    '</button><br>' +
     '<a class="tl-link" href="https://artsci.calendar.utoronto.ca/course/' + esc(co.code) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin:14px 0 20px;">Official calendar entry &nearr;</a>' +
     summaryHtml + reviewCards + formHtml;
 
@@ -3246,7 +3459,434 @@ buildAzScreen               = tagScreenRoute(buildAzScreen,               functi
 buildCategoryDeptScreen     = tagScreenRoute(buildCategoryDeptScreen,     function (catId) { return "undergraduate/programs/cat/" + catId; });
 buildProgramDetailScreen    = tagScreenRoute(buildProgramDetailScreen,    function (id) { return "undergraduate/programs/p/" + id; });
 buildListingDetailScreen    = tagScreenRoute(buildListingDetailScreen,    function (id) { return "undergraduate/programs/list/" + id; });
+/* ============================================
+   대상별 화면 (지원자 / 합격자 / 재학생)
+   ------------------------------------------------
+   홈의 문 3개에서 들어오는 허브입니다.
+   - 지원자: APPLICANT_GUIDE(data.js) 기반 새 콘텐츠 4페이지 + 학과 탐색 연결
+   - 합격자/재학생: 기존 섹션으로 가는 지름길 (기존 화면은 그대로) */
+
+const AUDIENCE_HUBS = {
+  applying: {
+    title: "Applicants",
+    intro: null, /* data.js의 hubIntro 사용 */
+    tiles: [
+      { icon: "\uD83C\uDFAF", label: "Pick a program", desc: "188 programs A\u2013Z, required courses & minimum grades by province", color: "#0E7C86", goHash: "undergraduate/programs" },
+      { icon: "\uD83C\uDFE0", label: "Residence", desc: "See where you could live \u2014 all 11 residences, real prices and reviews", color: "#0B4DA0", goHash: "residence" },
+      { icon: "\uD83D\uDCDD", label: "How to Apply", desc: "Where to apply, key dates, and what it costs", color: "#0B4DA0", page: "how" },
+      { icon: "\uD83D\uDCC4", label: "Sending Grades", desc: "Who sends your grades to U of T \u2014 and how", color: "#0F7A4D", page: "docs" },
+      { icon: "\uD83D\uDCB0", label: "Money & Dates", desc: "Every payment in order, scholarships, and accepting your offer", color: "#C05A16", page: "scholarships" }
+    ]
+  },
+  admitted: {
+    title: "Admitted Students",
+    intro: "Congrats on the offer! Three jobs before day one: pick where you\u2019ll live, hit every deadline, and line up your courses.",
+    tiles: [
+      { icon: "\uD83C\uDFE0", label: "Residence", desc: "All 11 residences \u2014 real prices, meal plans, winter break rules, student reviews", color: "#0B4DA0", goHash: "residence" },
+      { icon: "\uD83D\uDCC5", label: "Key dates \u2014 all in one place", desc: "Residence fees, tuition, permits, TCard \u2014 every deadline with a link to do it, and a checklist that remembers", color: "#C05A16", sub: "dates" },
+      { icon: "\uD83D\uDCDA", label: "Pick your courses", desc: "Browse 123 first-year-friendly courses with student reviews \u2014 try the \u201cNo prerequisites\u201d filter", color: "#0E7C86", goHash: "courses/breadth" },
+      { icon: "\u2B50", label: "My course shortlist", desc: "Courses you\u2019ve saved while browsing \u2014 ready for enrolment day in July", color: "#6D4AA8", sub: "shortlist" }
+    ]
+  },
+  current: {
+    title: "Current Students",
+    intro: "Already at St. George \u2014 the day-to-day survival kit.",
+    tiles: [
+      { icon: "\uD83C\uDFE0", label: "Residence", desc: "All 11 residences \u2014 prices, meal plans, winter break rules, reviews", color: "#0B4DA0", goHash: "residence" },
+      { icon: "\uD83D\uDCBB", label: "Course enrolment", desc: "Your July start time, and the drop/LWD deadlines", color: "#0B4DA0", goHash: "courses/enrol" },
+      { icon: "\uD83D\uDCDA", label: "What courses are like", desc: "123 courses with content, workload & difficulty from student reviews", color: "#C05A16", goHash: "courses/breadth" },
+      { icon: "\uD83C\uDF93", label: "My program requirements", desc: "Pick your program \u2014 see exactly what you need to declare it", color: "#0E7C86", sub: "myprogram" },
+      { icon: "\uD83D\uDCD6", label: "UofT Glossary", desc: "POSt, FCE, CR/NCR, LWD \u2014 decoded", color: "#0E7C86", goHash: "courses/glossary" },
+      { icon: "\uD83C\uDFDB\uFE0F", label: "Building codes", desc: "SS 2135? Find where class actually is", color: "#6D4AA8", goHash: "courses/buildings" },
+      { icon: "\uD83C\uDFC3", label: "Campus facilities", desc: "Libraries, gyms, health care, printing", color: "#0F7A4D", goHash: "facilities" }
+    ]
+  }
+};
+
+function buildAudienceHub(aud) {
+  const def = AUDIENCE_HUBS[aud];
+  if (!def) return "";
+  const intro = (aud === "applying" && typeof APPLICANT_GUIDE !== "undefined")
+    ? APPLICANT_GUIDE.hubIntro : def.intro;
+  return '<header class="audhead">' +
+      '<h2 class="page-title audhead__title">' + esc(def.title) + '</h2>' +
+      '<p class="audhead__intro">' + esc(intro || "") + '</p>' +
+    '</header>' +
+    '<nav class="feescats">' +
+      def.tiles.map(function (t) {
+        const attr = t.page ? 'data-applicant-page="' + t.page + '"'
+                   : t.sub  ? 'data-audience-sub="' + t.sub + '"'
+                   : 'data-go-hash="' + t.goHash + '"';
+        return '<button type="button" class="feescard" ' + attr + ' style="--cat-color:' + t.color + '">' +
+                 '<span class="feescard__top">' +
+                   '<span class="feescard__icon">' + t.icon + '</span>' +
+                 '</span>' +
+                 '<span class="feescard__name">' + esc(t.label) + '</span>' +
+                 '<span class="feescard__desc">' + esc(t.desc) + '</span>' +
+               '</button>';
+      }).join("") +
+    '</nav>';
+}
+
+function buildApplicantPage(pid, activeIdx) {
+  const p = APPLICANT_GUIDE.pages[pid];
+  if (!p) return "";
+  if (pid === "docs") return buildTranscriptsPage(typeof activeIdx === "string" ? activeIdx : null);
+  const accent = p.color || "#0B4DA0";
+
+  /* \uc9e7\uc740 \uc18c\uac1c \ud55c \uc904 */
+  let html = '<p class="applede">' + boldMarks(p.intro) + '</p>';
+
+  /* \uc810\ud504 \uce69: \ub0b4\uc6a9\uc740 \uc544\ub798 \uc804\ubd80 \ubcf4\uc774\uace0, \uc6d0\ud558\uba74 \uadf8 \uc139\uc158\uc73c\ub85c \ubc14\ub85c \uac74\ub108\ub6f0\uae30 */
+  if (p.sections.length > 1) {
+    html += '<nav class="appjump" aria-label="Jump to section">' +
+      p.sections.map(function (sec, i) {
+        return '<button type="button" class="apptab" data-app-jump="sec-' + pid + '-' + i + '">' + esc(sec.h) + '</button>';
+      }).join("") + '</nav>';
+  }
+
+  /* \uc139\uc158 \uc804\ubd80\ub97c \uc21c\uc11c\ub300\ub85c \u2014 \uac01 \uc139\uc158\uc740 \ud070 \ud30c\ub780 \uc81c\ubaa9\uc73c\ub85c \uc2dc\uc791 */
+  p.sections.forEach(function (sec, i) {
+    html += '<section class="appsec" id="sec-' + pid + '-' + i + '" style="--accent:' + accent + '">' +
+              '<h3 class="appsec__head">' + esc(sec.h) + '</h3>';
+    (sec.paras || []).forEach(function (t) {
+      html += '<p class="appsec__para">' + boldMarks(t) + '</p>';
+    });
+    if (sec.kv && sec.kv.length) {
+      html += '<div class="appfacts">' +
+        sec.kv.map(function (row) {
+          return '<div class="appfact">' +
+                   '<div class="appfact__key">' + boldMarks(row[0]) + '</div>' +
+                   '<div class="appfact__val">' + boldMarks(row[1]) + '</div>' +
+                 '</div>';
+        }).join("") + '</div>';
+    }
+    if (sec.bullets && sec.bullets.length) {
+      html += '<ul class="appnotes">' +
+        sec.bullets.map(function (b) { return '<li>' + boldMarks(b) + '</li>'; }).join("") +
+        '</ul>';
+    }
+    html += '</section>';
+  });
+
+  html += '<a class="appsource" href="' + esc(p.sourceUrl) + '" target="_blank" rel="noopener noreferrer">' +
+            '<span class="appsource__label">Official source</span>' +
+            '<span class="appsource__name">' + esc(p.sourceLabel) + ' &nearr;</span>' +
+            '<span class="appsource__note">Dates and fees change \u2014 always confirm here.</span>' +
+          '</a>';
+  return html;
+}
+
+/* \uc810\ud504 \uce69 \ud074\ub9ad \u2192 \uadf8 \uc139\uc158\uc73c\ub85c \ubd80\ub4dc\ub7fd\uac8c \uc2a4\ud06c\ub864 */
+document.addEventListener("click", function (e) {
+  const jump = e.target.closest("[data-app-jump]");
+  if (!jump) return;
+  const target = document.getElementById(jump.dataset.appJump);
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+/* ---- \uc131\uc801\ud45c \ud398\uc774\uc9c0: \uc8fc\ub97c \uace0\ub974\uba74 \uadf8 \uc8fc\uc758 \uacbd\ub85c\ub9cc \ubcf4\uc5ec\uc90d\ub2c8\ub2e4 ---- */
+function buildTranscriptsPage(provId) {
+  const p = APPLICANT_GUIDE.pages.docs;
+  const accent = p.color || "#0F7A4D";
+
+  let html = '<p class="applede">' + boldMarks(p.intro) + '</p>';
+
+  /* 1\ub2e8\uacc4: \uc8fc \uace0\ub974\uae30 */
+  html +=
+    '<div class="provpick" style="--accent:' + accent + '">' +
+      '<p class="provpick__step">Step 1</p>' +
+      '<label class="provpick__label" for="tr-prov">Where do you go to school?</label>' +
+      '<select class="provpick__select" id="tr-prov">' +
+        '<option value="">Choose your province or system\u2026</option>' +
+        '<optgroup label="Canada">' +
+          PROVINCES.map(function (pr) {
+            return '<option value="' + pr.id + '"' + (pr.id === provId ? " selected" : "") + '>' + esc(pr.name) + '</option>';
+          }).join("") +
+        '</optgroup>' +
+        '<optgroup label="Outside Canada">' +
+          TRANSCRIPT_SYSTEMS.map(function (sy) {
+            return '<option value="' + sy.id + '"' + (sy.id === provId ? " selected" : "") + '>' + esc(sy.name) + '</option>';
+          }).join("") +
+        '</optgroup>' +
+      '</select>' +
+    '</div>';
+
+  if (!provId) {
+    html += '<p class="provempty">Pick your province above and we\u2019ll show exactly what you send, where you send it from, and where it goes.</p>';
+    return html + transcriptSource(p);
+  }
+
+  const prov = PROVINCES.filter(function (x) { return x.id === provId; })[0]
+            || TRANSCRIPT_SYSTEMS.filter(function (x) { return x.id === provId; })[0];
+  if (!prov) return html + transcriptSource(p);
+  const sys = TRANSCRIPT_SYSTEMS.filter(function (x) { return x.id === provId; })[0];
+  const path = TRANSCRIPT_PATHS[sys ? sys.path : (PROVINCE_TRANSCRIPT[provId] || "upload")];
+
+  /* 2\ub2e8\uacc4: \uacb0\uacfc \uce74\ub4dc */
+  html +=
+    '<div class="trres" style="--accent:' + accent + '">' +
+      '<p class="provpick__step">Step 2 \u00b7 ' + esc(prov.name) + '</p>' +
+      '<h3 class="trres__verdict' + (path.tone === "good" ? " trres__verdict--good" : "") + '">' + esc(path.label) + '</h3>' +
+      '<p class="trres__summary">' + boldMarks(path.summary) + '</p>' +
+    '</div>';
+
+  /* 3\ub2e8\uacc4: \uc5b4\ub514\uc11c \ubcf4\ub0b4\ub294\uc9c0 */
+  html += '<p class="provpick__step" style="margin:26px 0 12px;">Step 3 \u00b7 Where it goes</p>' +
+    '<ol class="trsteps" style="--accent:' + accent + '">' +
+      path.steps.map(function (st) {
+        return '<li class="trstep">' +
+                 '<div class="trstep__site">' +
+                   (st.url
+                     ? '<a href="' + esc(st.url) + '" target="_blank" rel="noopener noreferrer">' + esc(st.site) + ' &nearr;</a>'
+                     : esc(st.site)) +
+                 '</div>' +
+                 '<div class="trstep__what">' + boldMarks(st.what) + '</div>' +
+               '</li>';
+      }).join("") +
+    '</ol>';
+
+  if (path.note) {
+    html += '<p class="trnote">' + boldMarks(path.note) + '</p>';
+  }
+
+  return html + transcriptSource(p);
+}
+
+function transcriptSource(p) {
+  return '<a class="appsource" href="' + esc(p.sourceUrl) + '" target="_blank" rel="noopener noreferrer">' +
+           '<span class="appsource__label">Official source</span>' +
+           '<span class="appsource__name">' + esc(p.sourceLabel) + ' &nearr;</span>' +
+           '<span class="appsource__note">Your personal document list on Join U of T is always the final word.</span>' +
+         '</a>';
+}
+
+/* \uc8fc \uc120\ud0dd \ubcc0\uacbd */
+document.addEventListener("change", function (e) {
+  if (e.target.id !== "tr-prov") return;
+  const p = APPLICANT_GUIDE.pages.docs;
+  replaceCourseScreen({
+    title: p.title,
+    color: p.color || "#0F7A4D",
+    route: "applying/docs",
+    html: buildTranscriptsPage(e.target.value || null)
+  });
+});
+
+let audienceCurrent = null;   /* 지금 열려있는 문 (뒤로가기 판단용) */
+let audienceOnSub = false;
+
+function openAudience(aud) {
+  const box = document.getElementById("audience-body");
+  if (!box || !AUDIENCE_HUBS[aud]) return;
+  audienceReturn = null;
+  audienceCurrent = aud;
+  audienceOnSub = false;
+  box.innerHTML = buildAudienceHub(aud);
+  showView("audience", aud);
+}
+
+function openApplicantPage(pid) {
+  if (typeof APPLICANT_GUIDE === "undefined" || !APPLICANT_GUIDE.pages[pid]) return;
+  const p = APPLICANT_GUIDE.pages[pid];
+  /* Pick a program \uacfc \uc644\uc804\ud788 \uac19\uc740 \ud654\uba74 \ud2c0(course-page)\uc744 \uc501\ub2c8\ub2e4.
+     \uc81c\ubaa9\u00b7\ub0b4\uc6a9\ub9cc \ub2e4\ub974\uace0 \ub7ec\uc6c3\u00b7\uac04\uaca9\u00b7\ub4a4\ub85c\uac00\uae30\ub294 \ub3d9\uc77c\ud569\ub2c8\ub2e4. */
+  audienceReturn = "applying";
+  audienceCurrent = "applying";
+  goToCourseScreen({
+    title: p.title,
+    color: p.color || "#0B4DA0",
+    route: "applying/" + pid,
+    html: buildApplicantPage(pid, 0)
+  }, true);
+  window.scrollTo(0, 0);
+}
+
+/* ---- 재학생 서브 화면: 내 전공 POSt 요건 찾기 ----
+   188개 전공 중 고르면, 그 전공의 POSt 진입 요건만 간결하게 보여줍니다
+   (고서학적 요건은 생략 — 이미 입학한 사람에게 불필요). */
+function buildCurrentProgramPicker(term) {
+  const q = (term || "").trim().toLowerCase();
+  const hits = !q ? COURSE_PROGRAMS : COURSE_PROGRAMS.filter(function (p) {
+    return p.name.toLowerCase().indexOf(q) !== -1;
+  });
+
+  const searchHtml =
+    '<div class="search program-search">' +
+      '<label class="search__label" for="myprog-search">Find your program</label>' +
+      '<input class="search__input" id="myprog-search" type="text" ' +
+      'placeholder="Try \u201ceconomics\u201d or \u201ccomputer science\u201d" value="' + esc(term || "") + '" autocomplete="off">' +
+    '</div>' +
+    '<p class="count" style="border-top:0; padding-top:0;">' + hits.length + ' of ' + COURSE_PROGRAMS.length + ' programs</p>';
+
+  const list = hits.length
+    ? '<div class="halls">' +
+        hits.map(function (p) {
+          const fac = COURSE_FACULTIES.filter(function (f) { return f.id === p.facultyId; })[0];
+          return '<button type="button" class="hall hall--clickable" data-open-myprogram="' + esc(p.id) + '" style="--cat-color:' + (fac ? fac.color : "#0B4DA0") + '">' +
+                   '<h4 class="hall__name">' + p.emoji + ' ' + esc(p.name) + '</h4>' +
+                   '<p class="hall__tags">' + esc(p.enrolType) + '</p>' +
+                 '</button>';
+        }).join("") + '</div>'
+    : '<p class="empty">No programs match \u201c' + esc(term) + '\u201d</p>';
+
+  return '<h2 class="page-title">My program requirements</h2>' +
+    '<p class="tl-text" style="margin-bottom:16px;">Currently in this program, or thinking about declaring it? ' +
+    'Pick it below to see exactly what you need \u2014 minimum grades, credits, whatever the calendar requires. ' +
+    'These ' + COURSE_PROGRAMS.length + ' have a full write-up; not in the list? See the ' +
+    '<a class="tl-link" href="#undergraduate/programs/az">full A\u2013Z of all 188 programs</a> and check the official calendar entry.</p>' +
+    searchHtml + list;
+}
+
+document.addEventListener("input", function (e) {
+  if (e.target.id !== "myprog-search") return;
+  const caret = e.target.selectionStart;
+  const box = document.getElementById("audience-body");
+  if (box) box.innerHTML = buildCurrentProgramPicker(e.target.value);
+  const el = document.getElementById("myprog-search");
+  if (el) { el.focus(); el.setSelectionRange(caret, caret); }
+});
+
+
+/* ---- 합격자 서브 화면 1: 중요 날짜 한눈에 ----
+   FEES_TIMELINE 전체를 카테고리별로 한 화면에 펼칩니다.
+   각 항목: 날짜 칩 + 설명 + 처리하러 가는 공식 링크 + 완료 체크(자동 저장). */
+function buildAdmittedDates() {
+  const order = ["money", "residence", "aid", "visa", "prep"];
+  const done = getCheckedDates();
+  let html = '<h2 class="page-title">Key dates \u2014 all in one place</h2>' +
+    '<p class="tl-text" style="margin-bottom:16px;">Every deadline that matters between your offer and day one. ' +
+    'Tick things off as you go \u2014 your checkmarks are saved in this browser.</p>';
+
+  order.forEach(function (catId) {
+    const cat = FEES_CATEGORIES.filter(function (c) { return c.id === catId; })[0];
+    const items = FEES_TIMELINE.filter(function (t) { return t.category === catId; });
+    if (!items.length) return;
+    html += '<h3 class="glossgroup">' + (cat ? cat.icon + ' ' + esc(cat.label) : esc(catId)) + '</h3>' +
+      '<div class="glosslist">' +
+      items.map(function (item) {
+        const isDone = done.indexOf(item.id) !== -1;
+        const chip = '<span class="bldgrow__code" style="background:#e8f0fb; color:#0B4DA0;">' + esc(item.month) + '</span>';
+        const aud = item.audience && item.audience !== "both"
+          ? ' <span class="glossrow__abbr">' + (item.audience === "international" ? "Intl only" : "Canadian only") + '</span>' : "";
+        return '<article class="glossrow" style="' + (isDone ? 'opacity:.55;' : '') + '">' +
+                 '<h4 class="glossrow__term" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">' + chip + esc(item.title) + aud + '</h4>' +
+                 '<p class="glossrow__def">' + boldMarks(item.body) +
+                   (item.officialUrl
+                     ? ' <a class="tl-link" href="' + esc(item.officialUrl) + '" target="_blank" rel="noopener noreferrer">Do it here &nearr;</a>'
+                     : "") + '</p>' +
+                 '<label class="tl-check" style="margin-top:8px;">' +
+                   '<input type="checkbox" data-check-id="' + esc(item.id) + '"' + (isDone ? " checked" : "") + '>' +
+                   '<span>Done</span>' +
+                 '</label>' +
+               '</article>';
+      }).join("") + '</div>';
+  });
+
+  html += '<p class="glosssource">Same dates as the Undergraduate Students section \u2014 this is just the one-screen view. ' +
+          'Always confirm on each official link before relying on a date.</p>';
+  return html;
+}
+
+/* ---- 합격자 서브 화면 2: 내 수강 후보 목록 ---- */
+function buildShortlistScreen() {
+  const ids = getShortlist();
+  const courses = ids.map(function (id) {
+    return COURSE_CATALOG.filter(function (c) { return c.id === id; })[0];
+  }).filter(Boolean);
+
+  let html = '<h2 class="page-title">\u2B50 My course shortlist</h2>';
+  if (!courses.length) {
+    html += '<p class="empty">Nothing saved yet. Browse courses and tap ' +
+      '\u201c\u2606 Save to my course shortlist\u201d on any course page \u2014 it\u2019ll show up here.</p>' +
+      '<button type="button" class="cta" data-go-hash="courses/breadth" style="margin-top:14px;">Browse courses</button>';
+    return html;
+  }
+  html += '<p class="tl-text" style="margin-bottom:14px;">' + courses.length +
+    (courses.length === 1 ? ' course' : ' courses') + ' saved. Tap one to reread reviews, or remove it.</p>' +
+    '<div class="halls">' +
+    courses.map(function (co) {
+      const cat = BREADTH_CATEGORIES.filter(function (c) { return c.id === co.category; })[0];
+      return '<button type="button" class="hall hall--clickable" data-open-course="' + esc(co.id) + '" style="--cat-color:' + (cat ? cat.color : "#0B4DA0") + '">' +
+               '<h4 class="hall__name">' + esc(co.code) + '</h4>' +
+               '<p class="hall__tags">' + esc(co.name) + '</p>' +
+               (co.prereq ? '' : '<p class="hall__official">\u2705 No prerequisites</p>') +
+             '</button>';
+    }).join("") + '</div>' +
+    '<p class="glosssource">Saved in this browser only. Real enrolment happens on ACORN in July \u2014 check dates in Course Enrolment.</p>';
+  return html;
+}
+
+function openAdmittedSub(sub) {
+  const box = document.getElementById("audience-body");
+  if (!box) return;
+  audienceCurrent = "admitted";
+  audienceOnSub = true;
+  box.innerHTML = (sub === "shortlist") ? buildShortlistScreen() : buildAdmittedDates();
+  showView("audience", "admitted/" + sub);
+  window.scrollTo(0, 0);
+}
+
+function openCurrentSub(sub) {
+  const box = document.getElementById("audience-body");
+  if (!box) return;
+  audienceCurrent = "current";
+  audienceOnSub = true;
+  box.innerHTML = buildCurrentProgramPicker("");
+  showView("audience", "current/" + sub);
+  window.scrollTo(0, 0);
+}
+
+/* 허브 타일 클릭: 서브페이지 열기 or 기존 화면으로 이동 */
+document.addEventListener("click", function (e) {
+  const pageBtn = e.target.closest("[data-applicant-page]");
+  if (pageBtn) { openApplicantPage(pageBtn.dataset.applicantPage); return; }
+  const subBtn = e.target.closest("[data-audience-sub]");
+  if (subBtn) {
+    const sub = subBtn.dataset.audienceSub;
+    if (sub === "myprogram") { openCurrentSub(sub); }
+    else { openAdmittedSub(sub); }
+    return;
+  }
+  const goBtn = e.target.closest("[data-go-hash]");
+  if (goBtn) {
+    if (audienceCurrent) audienceReturn = audienceCurrent;   /* 돌아올 문 기억 */
+    location.hash = goBtn.dataset.goHash;
+    return;
+  }
+  const starBtn = e.target.closest("[data-shortlist-id]");
+  if (starBtn) {
+    const added = toggleShortlist(starBtn.dataset.shortlistId);
+    starBtn.textContent = added ? "\u2B50 In my shortlist \u2014 tap to remove" : "\u2606 Save to my course shortlist";
+    showToast(added ? "Saved to your shortlist \u2B50" : "Removed from your shortlist");
+    return;
+  }
+  const backBtn = e.target.closest("[data-audience-back]");
+  if (backBtn) {
+    if (audienceOnSub && audienceCurrent) openAudience(audienceCurrent);
+    else showView("home");
+  }
+});
+
+
+/* ---- 데이터 신선도 자가진단 (개발자 콘솔 전용) ----
+   lastChecked 가 300일 넘은 기숙사가 있으면 콘솔에만 알려줍니다.
+   사용자 화면에는 아무것도 표시되지 않습니다. */
+(function () {
+  try {
+    if (typeof RESIDENCES === "undefined") return;
+    const now = Date.now();
+    const stale = RESIDENCES.filter(function (r) {
+      return r.lastChecked && (now - new Date(r.lastChecked).getTime()) > 300 * 86400000;
+    }).map(function (r) { return r.name + " (" + r.lastChecked + ")"; });
+    if (stale.length) {
+      console.info("[uoft-guide] \uc7ac\ud655\uc778 \ud544\uc694(300\uc77c \uacbd\uacfc): " + stale.join(", ") + " \u2014 MAINTENANCE.md \ucc38\uc870");
+    }
+  } catch (e) { /* \uc9c4\ub2e8 \uc2e4\ud328\ub294 \uc870\uc6a9\ud788 \ubb34\uc2dc */ }
+})();
+
 buildGlossaryScreen         = tagScreenRoute(buildGlossaryScreen,         function () { return "courses/glossary"; });
+buildBuildingsScreen        = tagScreenRoute(buildBuildingsScreen,        function () { return "courses/buildings"; });
 
 
 /* ---- 링크 복사 버튼 ----

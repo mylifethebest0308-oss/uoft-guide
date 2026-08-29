@@ -1016,12 +1016,15 @@ const DEGREE_BASICS = [
    ⚠️ 이 5개 이름은 2014년 자료 기준입니다. 이름이 바뀌었을 수 있으니
       artsci.calendar.utoronto.ca 최신 캘린더에서 다시 확인하세요. */
 
+/* official 필드 = 공식 학사요람(2026-27)의 정식 카테고리 명칭.
+   name 은 사이트용 쉬운 이름 — 과목 배정(b1~b5)은 공식 번호 1~5와 1:1 대응.
+   출처: artsci.calendar.utoronto.ca/hbahbsc-requirements (확인일 2026-08-28) */
 const BREADTH_CATEGORIES = [
-  { id: "b1", name: "Arts, Literature & Language", desc: "", icon: "\uD83D\uDCDA", color: "#7A3FA0" },
-  { id: "b2", name: "History, Philosophy & Cultural Studies", desc: "", icon: "\uD83C\uDFDB\uFE0F", color: "#C05A16" },
-  { id: "b3", name: "Social & Behavioural Sciences", desc: "", icon: "\uD83D\uDC65", color: "#0B4DA0" },
-  { id: "b4", name: "Natural Sciences", desc: "", icon: "\uD83E\uDDEA", color: "#0F7A4D" },
-  { id: "b5", name: "Quantitative Reasoning", desc: "", icon: "\uD83D\uDD22", color: "#0E7C86" }
+  { id: "b1", name: "Arts, Literature & Language", official: "Creative and Cultural Representations (1)", desc: "", icon: "\uD83D\uDCDA", color: "#7A3FA0" },
+  { id: "b2", name: "History, Philosophy & Cultural Studies", official: "Thought, Belief, and Behaviour (2)", desc: "", icon: "\uD83C\uDFDB\uFE0F", color: "#C05A16" },
+  { id: "b3", name: "Social & Behavioural Sciences", official: "Society and Its Institutions (3)", desc: "", icon: "\uD83D\uDC65", color: "#0B4DA0" },
+  { id: "b4", name: "Natural Sciences", official: "Living Things and Their Environment (4)", desc: "", icon: "\uD83E\uDDEA", color: "#0F7A4D" },
+  { id: "b5", name: "Quantitative Reasoning", official: "The Physical and Mathematical Universes (5)", desc: "", icon: "\uD83D\uDD22", color: "#0E7C86" }
 ];
 
 
@@ -2333,7 +2336,8 @@ const FACILITIES = [
 
 
 const SITE_UPDATES = [
-  { date: "Aug 2026", text: "Added Campus Facilities: libraries, gyms, health services, food, printing and the bookstore, verified against official U of T pages." },
+  { date: "Aug 2026", text: "New front door: pick Applicant, Admitted, or Current student \u2014 plus a full application guide (fees, transcripts, scholarships, offers)." },
+    { date: "Aug 2026", text: "Added Campus Facilities: libraries, gyms, health services, food, printing and the bookstore, verified against official U of T pages." },
   { date: "Aug 2026", text: "Added the UofT Glossary: 35 terms like POSt, FCE, CR/NCR and LWD explained in plain language, from the official 2026-27 Calendar." },
   { date: "Aug 2026", text: "Every page now has its own shareable link, deadline checklists save your progress, and search covers all 123 breadth courses." },
   { date: "Aug 2026", text: "Renamed Fees & Dates to Undergraduate and moved program-choosing there; Courses now focuses on current students." },
@@ -2543,3 +2547,442 @@ const ALL_PROGRAMS_AZ = [
   { id: "az-yiddish-al-and-malka-green-program-in", name: "Yiddish, Al and Malka Green Program in", degree: "Honours Bachelor of Arts", types: "Minor", officialUrl: "https://artsci.calendar.utoronto.ca/section/Yiddish-Studies" },
 ];
 
+
+/* ============================================
+   건물 코드 (Building Codes) — St. George 캠퍼스
+   ------------------------------------------------
+   출처 1: U of T 공식 캠퍼스 지도 (GIS and Cartography Office,
+           Campus and Facilities Planning Office 제작, 2017-18판)
+   출처 2: orientation.engsci.utoronto.ca/student-life/campus-buildings
+           (MY = Myhal Centre 확인 — 구지도의 CE 코드는 MY로 대체됨)
+   참고: 최신 위치는 map.utoronto.ca 에서 확인 가능
+   확인일: 2026-08-28
+   ============================================ */
+const BUILDING_CODES = [
+  { code: "AB", name: "Astronomy and Astrophysics" },
+  { code: "AD", name: "Enrolment Services" },
+  { code: "AH", name: "Muzzo Family Alumni Hall" },
+  { code: "AN", name: "Annesley Hall" },
+  { code: "AP", name: "Anthropology Building" },
+  { code: "BA", name: "Bahen Centre for Information Technology" },
+  { code: "BC", name: "Birge-Carnegie Library" },
+  { code: "BF", name: "Bancroft Building" },
+  { code: "BI", name: "Banting Institute" },
+  { code: "BL", name: "Claude T. Bissell Building" },
+  { code: "BN", name: "Clara Benson Building" },
+  { code: "BR", name: "Brennan Hall" },
+  { code: "BS", name: "St. Basil's Church" },
+  { code: "BT", name: "Isabel Bader Theatre" },
+  { code: "BW", name: "Burwash Hall" },
+  { code: "CA", name: "Campus Co-op Day Care" },
+  { code: "CB", name: "Best Institute" },
+  { code: "CG", name: "Canadiana Gallery" },
+  { code: "CH", name: "Convocation Hall" },
+  { code: "CM", name: "Student Commons" },
+  { code: "CN", name: "89 Chestnut Residence" },
+  { code: "CO", name: "162 St. George St." },
+  { code: "CR", name: "Carr Hall" },
+  { code: "CS", name: "School of Continuing Studies" },
+  { code: "CU", name: "Cumberland House" },
+  { code: "CX", name: "Communication House" },
+  { code: "DA", name: "Daniels Building" },
+  { code: "DC", name: "Terrence Donnelly Centre (CCBR)" },
+  { code: "DN", name: "Dentistry Building" },
+  { code: "DR", name: "J. Robert S. Prichard Alumni House" },
+  { code: "EA", name: "Engineering Annex" },
+  { code: "EH", name: "Elmsley Hall" },
+  { code: "EJ", name: "Edward Johnson Building" },
+  { code: "EM", name: "Emmanuel College" },
+  { code: "EP", name: "Stewart Building" },
+  { code: "ER", name: "Early Learning Centre" },
+  { code: "ES", name: "Earth Sciences Centre" },
+  { code: "EX", name: "Exam Centre" },
+  { code: "FA", name: "Faculty Association" },
+  { code: "FC", name: "Faculty Club" },
+  { code: "FE", name: "371 Bloor St. W. (UTS)" },
+  { code: "FG", name: "FitzGerald Building" },
+  { code: "FH", name: "Falconer Hall" },
+  { code: "FI", name: "Fields Institute" },
+  { code: "GA", name: "Gage Building" },
+  { code: "GB", name: "Galbraith Building" },
+  { code: "GC", name: "Goldring Student Centre" },
+  { code: "GD", name: "Graduate House" },
+  { code: "GE", name: "Max Gluskin House" },
+  { code: "GI", name: "George Ignatieff Theatre" },
+  { code: "GM", name: "Luella Massey Studio Theatre" },
+  { code: "GO", name: "Goldring Centre for High Performance Sport" },
+  { code: "GR", name: "John W. Graham Library" },
+  { code: "GS", name: "School of Graduate Studies" },
+  { code: "GU", name: "Graduate Students' Union" },
+  { code: "HA", name: "Haultain Building" },
+  { code: "HH", name: "Hart House" },
+  { code: "HI", name: "St. Hilda's College" },
+  { code: "HS", name: "Health Sciences Building" },
+  { code: "HU", name: "215 Huron St." },
+  { code: "IA", name: "Internal Audit" },
+  { code: "IN", name: "Innis College" },
+  { code: "IR", name: "Centre for Industrial Relations" },
+  { code: "IS", name: "Innis College Student Residence" },
+  { code: "JH", name: "Jackman Humanities Building" },
+  { code: "JP", name: "90 Wellesley St. W." },
+  { code: "KL", name: "J. M. Kelly Library" },
+  { code: "KP", name: "Koffler House" },
+  { code: "KS", name: "Koffler Student Services Centre" },
+  { code: "KX", name: "Knox College" },
+  { code: "LA", name: "Gerald Larkin Building" },
+  { code: "LB", name: "Lower Burwash House" },
+  { code: "LC", name: "Loretto College" },
+  { code: "LG", name: "Fasken Martineau Building" },
+  { code: "LI", name: "Lillian Massey Building" },
+  { code: "LM", name: "Lash Miller Chemical Labs" },
+  { code: "LW", name: "Faculty of Law" },
+  { code: "M2", name: "MARS 2" },
+  { code: "MA", name: "Massey College" },
+  { code: "MB", name: "Lassonde Mining Building" },
+  { code: "MC", name: "Mechanical Engineering Building" },
+  { code: "ME", name: "39 Queen's Park Cres. East" },
+  { code: "MG", name: "Margaret Addison Hall" },
+  { code: "MK", name: "Munk School of Global Affairs (Observatory)" },
+  { code: "ML", name: "McLuhan Program" },
+  { code: "MM", name: "Macdonald-Mowat House" },
+  { code: "MO", name: "Morrison Hall" },
+  { code: "MP", name: "McLennan Physical Labs" },
+  { code: "MR", name: "McMurrich Building" },
+  { code: "MS", name: "Medical Sciences Building" },
+  { code: "MU", name: "Munk School of Global Affairs (Trinity)" },
+  { code: "MY", name: "Myhal Centre for Engineering Innovation and Entrepreneurship" },
+  { code: "NB", name: "North Borden Building" },
+  { code: "NC", name: "New College" },
+  { code: "NF", name: "Northrop Frye Hall" },
+  { code: "NL", name: "C. David Naylor Building" },
+  { code: "NR", name: "New College III" },
+  { code: "OA", name: "263 McCaul St." },
+  { code: "OH", name: "Odette Hall" },
+  { code: "OI", name: "OISE (Ontario Institute for Studies in Education)" },
+  { code: "PB", name: "Leslie L. Dan Pharmacy Building" },
+  { code: "PG", name: "45 St. George St." },
+  { code: "PI", name: "Pontifical Institute" },
+  { code: "PR", name: "E.J. Pratt Library" },
+  { code: "PT", name: "D.L. Pratt Building" },
+  { code: "RB", name: "Thomas Fisher Rare Book Library" },
+  { code: "RG", name: "Regis College" },
+  { code: "RJ", name: "Rowell Jackman Hall" },
+  { code: "RL", name: "John P. Robarts Library" },
+  { code: "RM", name: "254-56 McCaul St." },
+  { code: "RS", name: "Rosebrugh Building" },
+  { code: "RT", name: "Rotman School of Management" },
+  { code: "RU", name: "Rehabilitation Sciences Building" },
+  { code: "RW", name: "Ramsay Wright Laboratories" },
+  { code: "SA", name: "713 Spadina Ave." },
+  { code: "SB", name: "South Borden Building" },
+  { code: "SC", name: "Sussex Court" },
+  { code: "SD", name: "Sir Daniel Wilson Residence" },
+  { code: "SF", name: "Sandford Fleming Building" },
+  { code: "SI", name: "Simcoe Hall" },
+  { code: "SK", name: "Factor-Inwentash Faculty of Social Work" },
+  { code: "SM", name: "Gerstein Science Information Centre (Sigmund Samuel Library Building)" },
+  { code: "SO", name: "Stewart Observatory" },
+  { code: "SR", name: "Sam Sorbara Hall" },
+  { code: "SS", name: "Sidney Smith Hall" },
+  { code: "SU", name: "40 Sussex Ave." },
+  { code: "TC", name: "Trinity College" },
+  { code: "TF", name: "Teefy Hall" },
+  { code: "TH", name: "Toronto School of Theology" },
+  { code: "TR", name: "Soldiers' Tower" },
+  { code: "TT", name: "455 Spadina Ave." },
+  { code: "UB", name: "Upper Burwash House" },
+  { code: "UC", name: "University College" },
+  { code: "UP", name: "University College Union" },
+  { code: "VA", name: "Varsity Centre" },
+  { code: "VC", name: "Victoria College" },
+  { code: "VI", name: "Nona Macdonald Visitors Centre" },
+  { code: "VP", name: "Varsity Pavilion" },
+  { code: "WA", name: "123 St. George St." },
+  { code: "WB", name: "Wallberg Building" },
+  { code: "WE", name: "Wetmore Hall (New College)" },
+  { code: "WI", name: "Wilson Hall (New College)" },
+  { code: "WO", name: "Woodsworth College Residence" },
+  { code: "WR", name: "McCarthy House / Jackman Institute of Child Study" },
+  { code: "WS", name: "Warren Stevens Building" },
+  { code: "WT", name: "Whitney Hall" },
+  { code: "WW", name: "Woodsworth College" },
+  { code: "WY", name: "Wycliffe College" },
+  { code: "XG", name: "665 Spadina Ave." },
+  { code: "ZC", name: "88 College St." },
+];
+
+/* ============================================
+   지원자 가이드 (Applicants)
+   ------------------------------------------------
+   출처 (전부 공식, 확인일 2026-08-28):
+   - future.utoronto.ca/applications (지원서 종류·국제전형 $192·내부 $96)
+   - ouac.on.ca/guide/undergrad-fees (OUAC 요금표, 2026-08-25 갱신본)
+   - future.utoronto.ca/required-documents (성적표 제출 유형별)
+   - future.utoronto.ca/deadlines, admission-decisions, timeline-* (발표·수락)
+   - utsc.utoronto.ca/admissions/dates-deadlines (June 2 수락·Feb 2 Awards Profile)
+   ============================================ */
+const APPLICANT_GUIDE = {
+  hubIntro: "Applying to U of T from high school? This walks the whole road: pick a program, apply, send grades, chase money, and accept your offer.",
+  pages: {
+    how: {
+      title: "How to Apply",
+      subtitle: "Where to apply, when it opens and closes, and what it costs",
+      color: "#0B4DA0",
+      intro: "Almost everyone applies through **OUAC** (one website that handles applications for every Ontario university). One application covers up to 3 U of T programs.",
+      sections: [
+        { h: "Where to apply",
+          paras: ["Use the **OUAC Undergraduate Application** at ouac.on.ca. One exception: if you live outside Canada, have never studied in Canada, AND are applying only to U of T (no other Ontario school), you can use the U of T International Application instead ($192)."],
+          kv: [["Max programs at U of T", "3 (including all campuses and affiliates)"]] },
+        { h: "When",
+          kv: [
+            ["Late September", "OUAC application opens"],
+            ["November 7", "Recommended early application date \u2014 apply by this + documents by Dec 2 to be in the first admission round"],
+            ["January 15", "Main deadline for most programs (some close earlier \u2014 always check your program)"]
+          ] },
+        { h: "How much",
+          kv: [
+            ["OUAC base fee", "$159 \u2014 covers your first 3 program choices"],
+            ["Each extra choice", "$51"],
+            ["U of T document evaluation", "$96 \u2014 a fee for checking grades from outside Ontario. You pay it if you are NOT currently in an Ontario high school"],
+            ["Program extras (examples)", "Rotman Commerce $52 \u00b7 Computer Science (St. George) $52 \u00b7 Engineering $45\u2013$67.32 \u00b7 Music $75 \u00b7 Architecture $102"]
+          ],
+          paras: ["Figures below are for the **2027-entry cycle** as posted by OUAC (still marked tentative). All fees are **non-refundable**, and your application isn't forwarded until you've paid in full. For the 2026 cycle the base fee was $156 + $50 per extra choice."] }
+      ],
+      sourceLabel: "OUAC Undergraduate Fees (official)",
+      sourceUrl: "https://www.ouac.on.ca/guide/undergrad-fees/"
+    },
+    docs: {
+      title: "Sending Grades",
+      subtitle: "What to send, and who sends it \u2014 based on where you study",
+      color: "#0F7A4D",
+      intro: "How your grades reach U of T depends on **where you go to school**. Never email anything \u2014 it all goes through the **Join U of T** portal (the website U of T gives every applicant).",
+      sections: [
+        { h: "By where you study",
+          kv: [
+            ["Ontario high school (currently enrolled)", "Do nothing \u2014 your school sends Grade 11\u201312 results automatically through OUAC. Unsolicited transcripts aren't reviewed."],
+            ["Quebec CEGEP", "Enter your Permanent Code on the OUAC application; U of T gets your transcripts electronically."],
+            ["Other Canadian provinces / territories", "After applying, upload your transcripts AND complete the self-reported grades form on Join U of T."],
+            ["U.S. high school", "Send transcripts electronically via Parchment/Naviance; SAT/ACT/AP scores must be sent electronically too."],
+            ["IB diploma", "Upload transcripts + self-report; final IB results must come electronically from the IBO."],
+            ["GCE / British-patterned", "Upload transcripts; final IGCSE/GCSE/AS/A-Level results must be issued by the exam board."],
+            ["Other international high schools", "Upload transcripts (+ self-report if requested); check Join U of T for your exact document list."]
+          ] },
+        { h: "Good to know",
+          bullets: [
+            "Your personal required-documents list appears on Join U of T about a week after you apply \u2014 wait for it before sending anything.",
+            "Uploaded (unofficial) copies are often enough for a **provisional** decision; official transcripts sent by your school are required to finalize an offer.",
+            "Moved to Ontario recently? You'll be asked for your Grade 11 results from your previous system."
+          ] }
+      ],
+      sourceLabel: "U of T Required Documents (official)",
+      sourceUrl: "https://future.utoronto.ca/required-documents"
+    },
+    scholarships: {
+      title: "Money & Dates",
+      subtitle: "Every payment, when it's due, and how to accept your offer",
+      color: "#C05A16",
+      intro: "Applying costs money up front, and enrolling costs a lot more later. Here's **every payment in order**, plus the two things you must do on time: claim your aid, and accept your offer.",
+      sections: [
+        { h: "Payment dates",
+          paras: ["From application to your first term, in the order you'll pay them. Amounts vary by program and residency status \u2014 your own numbers appear on **ACORN** once you're admitted."],
+          kv: [
+            ["When you apply (Sept\u2013Jan)", "**OUAC fees** \u2014 $159 base for 3 choices, $51 per extra choice, plus U of T's $96 document evaluation if you're not a current Ontario high school student. Non-refundable, and your application isn't forwarded until paid."],
+            ["Feb\u2013May (with your offer)", "**Admission deposit** (money you pay to hold your spot) \u2014 some offers require one through ACORN (U of T's student website). Your offer letter says how much and by when."],
+            ["March 31", "**Residence application** \u2014 apply by this date for the first-year residence guarantee (a residence deposit follows once you accept a room offer)."],
+            ["August 11", "**Minimum payment to register** (the first chunk of tuition) \u2014 pay it, or your courses get dropped. The single most important payment date of the year."],
+            ["September 30", "**Fall term balance** \u2014 the rest of your Fall tuition. Pay late and interest (extra charges) starts October 15."],
+            ["November 30", "**Winter term balance** \u2014 the rest of your Winter tuition. Interest starts December 15."]
+          ] },
+
+        { h: "Scholarships",
+          paras: ["Most entrance scholarships need **no separate application** \u2014 applying to U of T is enough. This includes major awards like the **President's Scholars of Excellence Program** and the **U of T Scholars Program**."],
+          kv: [
+            ["October\u2013November", "A few scholarships require their own application and close this early \u2014 check the official awards page as soon as you apply."],
+            ["February 2", "**Awards Profile** (a short form about your money situation, leadership and activities) \u2014 fill it in on the Join U of T portal. Skip it and you're simply not considered for those awards."]
+          ] },
+
+        { h: "Financial aid",
+          kv: [
+            ["February 2", "Deadline for **UTAPS** (U of T's own money help for students who need it) \u2014 it covers what government aid doesn't."],
+            ["Ontario residents", "Apply for **OSAP** (Ontario's government student aid \u2014 part free money, part loan)."],
+            ["Other provinces", "Apply through your home province's student aid program \u2014 then UTAPS can top up unmet need."]
+          ] },
+
+        { h: "Accepting your offer",
+          paras: ["Decisions are released in **rounds from January to late May** (some programs run into summer). Every official decision appears on the **Join U of T** portal \u2014 Engineering has its own. U of T never sends offers by WhatsApp, social media or personal email; treat those as scams."],
+          kv: [
+            ["Where you accept", "On the **OUAC website**, not the U of T portal."],
+            ["June 2", "Acceptance deadline for current Ontario high school students. If yours differs, it's written in your offer letter \u2014 late responses are only accepted at the university's discretion."],
+            ["Most offers are conditional", "Most offers are **conditional** (they depend on your final grades). Keep your marks up \u2014 U of T checks them, and can take the offer back."],
+            ["September 11", "Deadline to ask for a **deferral** (starting one year later instead). The form opens on your offer page in July \u2014 approval isn't guaranteed."]
+          ] }
+      ],
+      sourceLabel: "U of T Fees & Payment Deadlines (official)",
+      sourceUrl: "https://www.registrar.utoronto.ca/fees-payments/payment-deadlines/"
+    }
+  }
+};
+
+/* ============================================
+   성적표 제출 경로 (Transcript Submission Paths)
+   ------------------------------------------------
+   출처 (공식, 확인일 2026-08-28):
+   - future.utoronto.ca/required-documents
+   - utm.utoronto.ca/future-students/admissions/document-submission
+   - artsci.utoronto.ca/future/ready-apply/faqs
+   주의: U of T 공식 안내는 "주"가 아니라 "교육 시스템"으로 갈립니다.
+   그래서 14개 주를 3개 경로 중 하나에 연결했습니다.
+   ============================================ */
+const TRANSCRIPT_PATHS = {
+  auto: {
+    label: "Your school sends it \u2014 you do nothing",
+    tone: "good",
+    summary: "You're in an Ontario high school right now, so your school sends your Grade 11 and 12 results to OUAC automatically, and OUAC forwards them to U of T.",
+    steps: [
+      { site: "Nothing to send", url: null, what: "Do not upload your transcript. Unsolicited transcripts aren't reviewed." },
+      { site: "OUAC \u2014 check it's correct", url: "https://www.ouac.on.ca/", what: "Log in to your OUAC account and confirm the grades your school submitted on your behalf are accurate." },
+      { site: "Join U of T \u2014 watch for extras", url: "https://join.utoronto.ca/", what: "About a week after applying, your personal document list appears here. Some programs (e.g. Computer Science, Rotman Commerce) add a supplemental application." }
+    ],
+    note: "Finishing Grade 12 in Ontario but did Grade 11 somewhere else? You'll be asked to upload those Grade 11 results."
+  },
+  quebecCegep: {
+    label: "One code, then it's automatic",
+    tone: "good",
+    summary: "CEGEP results reach U of T electronically \u2014 as long as you enter your Permanent Code correctly.",
+    steps: [
+      { site: "OUAC application", url: "https://www.ouac.on.ca/", what: "Enter your **Permanent Code** (the ID number on your Quebec school records) on the application. U of T then receives your grades automatically. Double-check every character." },
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Check your document list here after applying \u2014 it will tell you if anything else is needed." }
+    ],
+    note: "Also submit post-secondary transcripts electronically via OUAC if you've studied elsewhere."
+  },
+  usa: {
+    label: "Send it electronically through Parchment",
+    tone: "action",
+    summary: "U of T wants your U.S. transcripts and test scores sent electronically, not uploaded by you where possible.",
+    steps: [
+      { site: "Parchment / Naviance", url: "https://www.parchment.com/", what: "Parchment is the website U.S. schools use to send transcripts (grade reports). Make an account and have your school send yours \u2014 it counts as **official**." },
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Check your personal document list here after applying \u2014 upload anything Parchment can't send." },
+      { site: "College Board / ACT (optional)", url: null, what: "U of T is **test-optional**. If you want SAT/ACT or AP scores considered, have the testing authority send them electronically." }
+    ],
+    note: "Official transcripts in a sealed envelope sent directly from your school also count as official."
+  },
+  ib: {
+    label: "Upload now, IBO sends the finals",
+    tone: "action",
+    summary: "You self-report and upload while you're still in the programme; the IB Organization sends the final results directly.",
+    steps: [
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Upload your predicted grades and current transcripts, and complete the **self-reported grades form**." },
+      { site: "IBO (International Baccalaureate)", url: null, what: "Final IB results must be issued electronically by the IBO \u2014 request this through your IB coordinator." }
+    ],
+    note: "Also earned university credit in high school? U of T checks transfer credit automatically after you apply."
+  },
+  gce: {
+    label: "Upload now, exam board sends the finals",
+    tone: "action",
+    summary: "You upload your own transcripts; the awarding body issues the official final results.",
+    steps: [
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Upload your transcripts and complete the self-reported grades form." },
+      { site: "Your exam board", url: null, what: "Final **IGCSE/GCSE/O Level and AS/A Level** results must be issued by the appropriate exam board \u2014 not uploaded by you." }
+    ],
+    note: "Predicted grades are enough for a conditional offer \u2014 apply without waiting for finals."
+  },
+  intlOther: {
+    label: "Check your document list first",
+    tone: "action",
+    summary: "Requirements vary by country and curriculum, so U of T builds a personal list for you after you apply.",
+    steps: [
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Your **personal required-documents list** appears here about a week after applying. It is the definitive answer for your situation." },
+      { site: "Join U of T \u2014 upload", url: "https://join.utoronto.ca/", what: "Upload your transcripts, and complete the self-reported grades form if it's listed for you." },
+      { site: "Your school or exam authority", url: null, what: "Wherever possible, have official documents sent electronically directly from your school or testing authority." }
+    ],
+    note: "Documents not in English or French usually need an official translation \u2014 your document list will say so."
+  },
+  upload: {
+    label: "You upload it yourself",
+    tone: "action",
+    summary: "Your school doesn't report to OUAC automatically, so you upload your own transcripts and fill in a grades form.",
+    steps: [
+      { site: "Join U of T", url: "https://join.utoronto.ca/", what: "Upload your transcripts here. **Unofficial copies are fine** for a conditional offer \u2014 don't wait for official ones." },
+      { site: "Self-reported grades form", url: "https://join.utoronto.ca/", what: "A form where you **type in your own grades**. It's part of your application, not optional \u2014 update it whenever new marks come in." },
+      { site: "Engineering Applicant Portal", url: "https://discover.engineering.utoronto.ca/", what: "Applying to Engineering? Your documents go through this portal instead of Join U of T." },
+      { site: "Your school (at the end of the year)", url: null, what: "Official final transcripts must be sent directly by your school to clear the conditions on your offer." }
+    ],
+    note: "Never email documents \u2014 they aren't accepted or reviewed that way."
+  }
+};
+
+
+/* 캐나다 밖 교육 시스템 — 주 선택 드롭다운에 함께 넣습니다 */
+const TRANSCRIPT_SYSTEMS = [
+  { id: "us", name: "United States high school", path: "usa" },
+  { id: "ib", name: "International Baccalaureate (IB)", path: "ib" },
+  { id: "gce", name: "GCE / British-patterned (IGCSE, A-Level)", path: "gce" },
+  { id: "intl", name: "Other international high school", path: "intlOther" }
+];
+
+/* 주 → 경로 연결 */
+const PROVINCE_TRANSCRIPT = {
+  on: "auto",
+  "qc-cegep": "quebecCegep",
+  "qc-hs": "upload",
+  ab: "upload", bc: "upload", mb: "upload", nb: "upload", nl: "upload",
+  nt: "upload", ns: "upload", nu: "upload", pe: "upload", sk: "upload", yt: "upload"
+};
+
+/* ============================================
+   즉답 (Quick Answers)
+   ------------------------------------------------
+   검색창에서 자주 묻는 질문에 "이동 없이 바로" 답을 줍니다.
+   모든 답은 사이트 내 이미 검증된 데이터와 동일한 출처.
+   keywords = 검색어 매칭용(화면 비표시), goto = 더 알아보기 목적지
+   ============================================ */
+const QUICK_ANSWERS = [
+  { id: "qa-apply-where", keywords: "how do i apply where application ouac start",
+    q: "Where do I apply?",
+    answer: "Through OUAC (ouac.on.ca) \u2014 one application covers up to 3 U of T programs. Opens late September.",
+    goto: "applying/how" },
+  { id: "qa-apply-fee", keywords: "application fee cost how much apply price ouac fees",
+    q: "How much does applying cost?",
+    answer: "OUAC base $159 (3 choices) + $51 per extra, plus U of T's $96 document fee if you're not in an Ontario high school.",
+    goto: "applying/scholarships" },
+  { id: "qa-apply-deadline", keywords: "application deadline when apply due january last day",
+    q: "When is the application deadline?",
+    answer: "January 15 for most programs. Apply by November 7 (docs by Dec 2) to be in the first admission round.",
+    goto: "applying/how" },
+  { id: "qa-accept", keywords: "accept offer deadline june respond say yes confirm admission",
+    q: "When do I accept my offer?",
+    answer: "By June 2 on the OUAC website (Ontario high school students) \u2014 if yours differs, it's in your offer letter.",
+    goto: "applying/scholarships" },
+  { id: "qa-awards", keywords: "awards profile scholarship deadline february aid utaps money help",
+    q: "Scholarship deadlines?",
+    answer: "Most are automatic. Fill in the Awards Profile on Join U of T by February 2 \u2014 UTAPS (need-based aid) same date.",
+    goto: "applying/scholarships" },
+  { id: "qa-tuition-min", keywords: "tuition pay minimum payment register august lose courses",
+    q: "When do I pay tuition?",
+    answer: "Minimum payment by August 11 to keep your courses. Fall balance Sep 30, Winter balance Nov 30.",
+    goto: "admitted/dates" },
+  { id: "qa-res-guarantee", keywords: "residence guarantee apply housing march deadline first year",
+    q: "Residence guarantee?",
+    answer: "Guaranteed for new full-time first-years \u2014 apply through the residence portal by March 31.",
+    goto: "residence" },
+  { id: "qa-res-cheapest", keywords: "cheapest residence how much cost housing price affordable",
+    q: "Cheapest residence?",
+    answer: "Innis College \u2014 doubles from $9,000 (no meal plan, shared kitchen). Full-board residences run $22,000+.",
+    goto: "residence" },
+  { id: "qa-room-code", keywords: "room code where is my class building find classroom timetable ss ba",
+    q: "What does my room code mean?",
+    answer: "SS 2135 = building SS (Sidney Smith Hall), room 2135 \u2014 first digit is usually the floor.",
+    goto: "courses/buildings" },
+  { id: "qa-enrol-when", keywords: "course enrolment when pick courses july acorn start time",
+    q: "When do I pick courses?",
+    answer: "July, on ACORN \u2014 your exact start time posts in early July (4th-years first, 1st-years July 16).",
+    goto: "courses/enrol" },
+  { id: "qa-drop", keywords: "drop course withdraw lwd deadline quit class",
+    q: "Dropping a course?",
+    answer: "Drop by the drop date to erase it; after that, request LWD by Dec 8 (Fall) / Apr 12 (Winter) \u2014 3.0-credit lifetime cap.",
+    goto: "courses/glossary" },
+  { id: "qa-transcripts", keywords: "transcript send grades documents school report how submit",
+    q: "How do I send my transcripts?",
+    answer: "Depends where you study \u2014 Ontario schools send automatically; everyone else uploads on Join U of T.",
+    goto: "applying/docs" }
+];

@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="theme-color" content="#002A5C">
+  <meta name="color-scheme" content="light">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>UofT St. George — Unofficial Student Guide</title>
@@ -10,12 +12,22 @@
   <meta property="og:title" content="UofT St. George — Unofficial Student Guide">
   <meta property="og:description" content="Residence prices, course reviews, and every deadline that matters — in plain language. Made by students, not by the university.">
   <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "UofT St. George — Unofficial Student Guide",
+    "description": "Residence fees, deadlines, course enrolment dates, glossary, and building codes for University of Toronto St. George campus — in plain language, verified against official pages.",
+    "inLanguage": "en"
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23002A5C'/%3E%3Ctext x='30' y='46' font-family='Georgia,serif' font-size='38' font-weight='bold' fill='white' text-anchor='middle'%3EU%3C/text%3E%3Ccircle cx='49' cy='42' r='6' fill='%23FFDE3D'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <!-- 파일을 교체할 때마다 v= 숫자를 올리면, 방문자 브라우저가 예전 파일을 쓰는 문제가 사라집니다 -->
+  <link rel="stylesheet" href="style.css?v=20260829">
 </head>
 <body>
 
@@ -35,10 +47,9 @@
 
     <div class="nav__pills">
       <button type="button" class="nav__pill is-on" data-nav="home">Home</button>
-      <button type="button" class="nav__pill" data-nav="residence">Residence</button>
-      <button type="button" class="nav__pill" data-nav="courses">Academics</button>
-      <button type="button" class="nav__pill" data-nav="fees">Undergraduate Students</button>
-      <button type="button" class="nav__pill" data-nav="facilities">Facilities</button>
+      <button type="button" class="nav__pill" data-nav="applying">Applicants</button>
+      <button type="button" class="nav__pill" data-nav="admitted">Admitted Students</button>
+      <button type="button" class="nav__pill" data-nav="current">Current Students</button>
     </div>
 
     <div class="nav__right">
@@ -57,7 +68,7 @@
       <span class="title__sub">St.&nbsp;George Campus</span>
     </h1>
     <p class="hero__sub">
-      A student-written guide to living, studying, and paying for the St.&nbsp;George campus. Figures come from U&nbsp;of&nbsp;T's own pages; we check them each August.
+      Thinking about applying, holding an offer, or already here — this guide meets you where you are. Figures come straight from U&nbsp;of&nbsp;T's own pages; we check them each August.
     </p>
 
     <!-- 검색: 카드 형태, 아래 suggest chips -->
@@ -71,20 +82,30 @@
         autocomplete="off">
       <span class="search__kbd">⌘K</span>
     </label>
-    <div class="searchresults" id="home-search-results" hidden></div>
+    <div class="searchresults" id="home-search-results" role="region" aria-live="polite" aria-label="Search results" hidden></div>
+
+    <!-- 자주 묻는 질문 — 누르면 즉답이 바로 뜼다 -->
+    <div class="askchips" aria-label="Common questions">
+      <button type="button" class="askchip" data-ask="How much is residence">🏠 How much is residence?</button>
+      <button type="button" class="askchip" data-ask="When do I pay tuition">💰 When do I pay?</button>
+      <button type="button" class="askchip" data-ask="room code">📍 Where’s my class?</button>
+      <button type="button" class="askchip" data-ask="POSt">🤔 What’s POSt?</button>
+      <button type="button" class="askchip" data-ask="How do I apply">📝 How do I apply?</button>
+      <button type="button" class="askchip" data-ask="When do I pick courses">📚 Picking courses?</button>
+    </div>
   </header>
 
   <!-- 큰 컬러 섹션 카드 4개 (rows 자리에 대신) -->
   <nav class="sections" id="home-sections" aria-label="Sections">
 
-    <button type="button" class="row section-card section-card--residence is-live" data-key="residence">
+    <button type="button" class="row section-card section-card--courses is-live" data-key="applying">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">01</span>Residence</span>
-        <span class="section-card__meta">11 places</span>
+        <span class="section-card__badge"><span class="num">01</span>Applying</span>
+        <span class="section-card__meta">Not yet applied / waiting</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Residence</span>
-        <p class="row__desc section-card__desc">All 11 residences on campus. Prices, meal plans, and what students say.</p>
+        <span class="row__name section-card__name">Applicants</span>
+        <p class="row__desc section-card__desc">Programs &amp; required courses, deadlines &amp; fees, transcripts, scholarships, and accepting your offer.</p>
         <span class="row__cue section-card__cta">
           Open
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -92,14 +113,14 @@
       </div>
     </button>
 
-    <button type="button" class="row section-card section-card--courses is-live" data-key="courses">
+    <button type="button" class="row section-card section-card--fees is-live" data-key="admitted">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">02</span>Academics</span>
-        <span class="section-card__meta">Arts &amp; Science</span>
+        <span class="section-card__badge"><span class="num">02</span>Admitted</span>
+        <span class="section-card__meta">Got an offer &#127881;</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Academics</span>
-        <p class="row__desc section-card__desc">Enrolment dates, degree requirements, and course reviews — for current and incoming students.</p>
+        <span class="row__name section-card__name">Admitted Students</span>
+        <p class="row__desc section-card__desc">Residence, tuition deadlines, and everything to sort out before day one.</p>
         <span class="row__cue section-card__cta">
           Open
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -107,29 +128,14 @@
       </div>
     </button>
 
-    <button type="button" class="row section-card section-card--fees is-live" data-key="fees">
+    <button type="button" class="row section-card section-card--residence is-live" data-key="current">
       <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">03</span>Undergraduate Students</span>
-        <span class="section-card__meta">Timeline</span>
+        <span class="section-card__badge"><span class="num">03</span>Enrolled</span>
+        <span class="section-card__meta">Already at St. George</span>
       </div>
       <div>
-        <span class="row__name section-card__name">Undergraduate Students</span>
-        <p class="row__desc section-card__desc">Every deadline from application to move-in, plus how to choose your program. Canadian and international.</p>
-        <span class="row__cue section-card__cta">
-          Open
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </span>
-      </div>
-    </button>
-
-    <button type="button" class="row section-card section-card--facilities is-live" data-key="facilities">
-      <div class="section-card__top">
-        <span class="section-card__badge"><span class="num">04</span>Campus Facilities</span>
-        <span class="section-card__meta">Libraries, gym, food & more</span>
-      </div>
-      <div>
-        <span class="row__name section-card__name">Campus Facilities</span>
-        <p class="row__desc section-card__desc">Where to study, eat, work out, print, and get help — all in one place.</p>
+        <span class="row__name section-card__name">Current Students</span>
+        <p class="row__desc section-card__desc">Course enrolment, breadth courses, the glossary, building codes, and campus life.</p>
         <span class="row__cue section-card__cta">
           Open
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -147,7 +153,8 @@
       Not affiliated with, endorsed by, or operated by the University of Toronto.
       Always confirm details on the official U&nbsp;of&nbsp;T website.
     </p>
-    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time></p>
+    <p class="colophon__date">Last checked <time datetime="2026-08">August 2026</time>
+      &nbsp;·&nbsp; <a href="./guide.html">Text version of this guide</a></p>
   </footer>
 
 </main>
@@ -367,12 +374,20 @@
   <p class="crumb" id="course-crumb"></p>
   <div class="page-head page-head--row">
     <h2 class="page-title" id="course-page-title"></h2>
-    <button type="button" class="copylink" data-copy-link title="Copy a link to this page">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-      Copy link
-    </button>
   </div>
   <div id="course-page-content"></div>
+</main>
+
+
+<!-- ============ 대상별(지원자/합격자/재학생) 화면 ============ -->
+<main class="sheet view" id="view-audience" hidden>
+  <div class="course-page__bar">
+    <button type="button" class="backbtn" data-audience-back>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
+  </div>
+  <div id="audience-body"></div>
 </main>
 
 
@@ -382,8 +397,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Data + engine -->
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=20260829"></script>
+<script src="app.js?v=20260829"></script>
 
 <script>
 /* ==================================================
@@ -400,19 +415,12 @@
 
   // (2) Nav pill 동기화 — 어떤 뷰가 보이는지 감지해서 pill의 is-on 클래스 갱신
   function activePill(){
-    const views = ['home','residence','detail','fees','courses','facilities','coursePage'];
-    let current = 'home';
-    if (!document.getElementById('view-residence').hidden) current = 'residence';
-    if (!document.getElementById('view-detail').hidden)    current = 'residence';   // detail은 residence pill
-    if (!document.getElementById('view-fees').hidden)      current = 'fees';
-    if (!document.getElementById('view-courses').hidden)   current = 'courses';
-    if (!document.getElementById('view-facilities').hidden) current = 'facilities';
-    if (!document.getElementById('view-facility-detail').hidden) current = 'facilities';
-    if (!document.getElementById('view-course-page').hidden) {
-      // Choosing a Program은 Undergraduate(fees) 쪽에서도 들어올 수 있어서,
-      // app.js의 courseReturnView를 물어봐서 맞는 pill을 켭니다.
-      current = (typeof window.getCourseReturnView === 'function') ? window.getCourseReturnView() : 'courses';
-    }
+    // 이제 pill은 3개(지원자/합격자/재학생)뿐이라, 해시 첫 조각으로 판정합니다.
+    // 어느 문에도 속하지 않는 화면(기숙사 목록 등)에서는 아무 pill도 켜지 않습니다.
+    const seg = (location.hash || '').replace(/^#\/?/, '').split('/')[0];
+    let current = (seg === 'applying' || seg === 'admitted' || seg === 'current') ? seg : 'home';
+    const audEl = document.getElementById('view-audience');
+    if (audEl && !audEl.hidden && current === 'home') current = 'home';
 
     document.querySelectorAll('.nav__pill').forEach(p => {
       p.classList.toggle('is-on', p.dataset.nav === current);
@@ -420,7 +428,7 @@
   }
 
   // MutationObserver: view <main>의 hidden 속성이 바뀔 때마다 pill 갱신 + view-fade 부여
-  const viewIds = ['view-home','view-residence','view-detail','view-fees','view-courses','view-course-page'];
+  const viewIds = ['view-home','view-residence','view-detail','view-fees','view-courses','view-course-page','view-audience','view-facilities','view-facility-detail'];
   viewIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -436,11 +444,20 @@
     }).observe(el, { attributes:true, attributeFilter:['hidden'] });
   });
 
+  // 해시가 바뀌면 pill도 갱신 (문 이동은 해시로 이뤄지므로)
+  window.addEventListener('hashchange', activePill);
+  activePill();
+
   // Nav pill 클릭 → 해당 뷰로 이동
   document.querySelectorAll('.nav__pill').forEach(pill => {
     pill.addEventListener('click', () => {
       const target = pill.dataset.nav;
-      if (typeof showView === 'function') showView(target);
+      // 대상별 문(지원자/합격자/재학생)은 해시 라우터로 이동
+      if (target === 'applying' || target === 'admitted' || target === 'current') {
+        location.hash = target;
+      } else if (typeof showView === 'function') {
+        showView(target);
+      }
     });
   });
 
