@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- YOUR-SITE-URL 를 실제 주소(예: https://username.github.io/repo)로 바꾸세요 -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://YOUR-SITE-URL/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://YOUR-SITE-URL/guide.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>

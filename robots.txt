@@ -1,0 +1,4 @@
+# UofT St. George Unofficial Student Guide
+User-agent: *
+Allow: /
+Sitemap: https://YOUR-SITE-URL/sitemap.xml
